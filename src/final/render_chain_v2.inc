@@ -88,4 +88,14 @@
 #undef draw_buildings
 #undef draw_hud
 #include "../render/traffic260_render.inc"
+#define draw_ground draw_ground_legacy260
+#define draw_roads draw_roads_legacy260
+#define draw_buildings draw_buildings_legacy260
+#define draw_hud draw_hud_legacy260
 #include "../render/render260.inc"
+#undef draw_ground
+#undef draw_roads
+#undef draw_buildings
+#undef draw_hud
+#include "../render/coast270.inc"
+#include "../render/render270_v2.inc"
