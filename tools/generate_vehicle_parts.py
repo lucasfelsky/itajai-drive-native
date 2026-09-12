@@ -39,14 +39,17 @@ def write(path,name,v,i,collider=0.0):
     path.write_text(json.dumps(doc,separators=(',',':')),encoding='utf-8')
 
 def glass_for(p):
-    v=[];i=[];L=p['l'];W=p['w'];rear,front,width_frac,height,width_roof,base_frac=p['cabin'];z0=rear*L;z3=front*L;span=z3-z0
-    sections=[(z0,W*width_frac*.455,.79,.91),(z0+span*.24,W*width_roof*.455,.82,height-.045),(z0+span*.70,W*width_roof*.45,.82,height-.055),(z3,W*base_frac*.455,.78,.91)]
+    v=[];i=[];L=p['l'];W=p['w']
+    # 2.2+ body presets expose six explicit roof stations: z,width,bottom,top.
+    # Inset them slightly so glass is a separate shell rather than z-fighting body metal.
+    sections=[]
+    for zf,wf,base,top in p['roof']:
+        sections.append((zf*L,wf*W*.465,base+.035,max(base+.08,top-.055)))
     loft(v,i,sections);return v,i
 
 def trim_for(p):
     v=[];i=[];W=p['w'];L=p['l'];H=p['h'];style=p['style'];fy=.64+(H-1.43)*.06
     box(v,i,0,.46,L*.497,W*.86,.16,.08);box(v,i,0,.46,-L*.497,W*.88,.16,.08)
-    # distinct front/rear light housings and centre grille strip
     for s in (-1,1):
         box(v,i,s*W*.31,fy,L*.505,W*.18,.16,.05);box(v,i,s*W*.31,.65,-L*.505,W*.17,.17,.05)
     box(v,i,0,.43,L*.507,W*.40,.18,.045)
