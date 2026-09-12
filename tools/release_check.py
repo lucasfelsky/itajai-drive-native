@@ -30,7 +30,7 @@ def fail(msg: str) -> None:
 def sha256(path: pathlib.Path) -> str:
     h = hashlib.sha256()
     with path.open("rb") as f:
-        for chunk in iter(lambda: f.read(1024 * 1024), b""):
+        for chunk in iter(lambda: f.read(1024 * 1024, b"")):
             h.update(chunk)
     return h.hexdigest()
 
@@ -39,9 +39,14 @@ def check_version() -> str:
     version = (ROOT / "VERSION").read_text(encoding="utf-8").strip()
     if not re.fullmatch(r"\d+\.\d+\.\d+", version):
         fail(f"invalid VERSION: {version!r}")
-    readme = (ROOT / "README.md").read_text(encoding="utf-8")
-    if version not in readme:
-        fail("README does not mention current VERSION")
+    identity = (ROOT / "src" / "final" / "release_version.inc").read_text(encoding="utf-8")
+    m = re.search(r'#define\s+ITAJAI_VERSION\s+"([^"]+)"', identity)
+    if not m or m.group(1) != version:
+        fail("release_version.inc does not match VERSION")
+    stage = re.search(r'#define\s+ITAJAI_STAGE\s+"([^"]+)"', identity)
+    if not stage or not stage.group(1).strip():
+        fail("release stage is empty")
+    print(f"OK release identity: {version} / {stage.group(1)}")
     return version
 
 
