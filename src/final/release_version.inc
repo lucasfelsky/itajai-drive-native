@@ -1,4 +1,4 @@
 // Single source of truth for presentation/release identity.
-#define ITAJAI_VERSION "2.15.0"
-#define ITAJAI_STAGE "PRODUCTION UI"
-#define ITAJAI_STAGE_SUMMARY "Native F3 garage // live vehicle stats // refreshed controls and 32-asset self-check"
+#define ITAJAI_VERSION "2.20.0"
+#define ITAJAI_STAGE "PERFORMANCE + STREAMING 3.0"
+#define ITAJAI_STAGE_SUMMARY "Two-pass hashed region cache // direct 5x5 lookups // compatible disk streaming"
