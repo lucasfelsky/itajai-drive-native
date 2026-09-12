@@ -2,6 +2,8 @@
 // 2.4 Vehicle Dynamics Core.
 // A fixed 120 Hz tyre-force layer consolidates the later handling corrections
 // without moving the world/camera/input loop off the proven legacy chain yet.
+// 3.0.1 evaluates slip in the direction-of-travel frame so reverse steering does
+// not fight the signed-speed bicycle model.
 // ----------------------------------------------------------------------------
 typedef struct {
   float tyreMu,frontBias,cgHeight,cornerFront,cornerRear,driveFront;
@@ -28,7 +30,7 @@ static void dyn24_tick(float h){
   if(!g_started||g_settings_menu_open||g_editor19||g_photo70)return;
   const VehicleProfile*vp=&g_vehicle_profiles[g_player.car];const DynamicsTune24*t=&g_dyn24_tune[g_player.car];
   V3 f=v3((float)sin((double)g_player.body.yaw),0,(float)cos((double)g_player.body.yaw)),r=v3(f.z,0,-f.x);
-  float longV=vdot(g_player.body.vel,f),latV=vdot(g_player.body.vel,r),speed=absf(longV);
+  float longV=vdot(g_player.body.vel,f),latV=vdot(g_player.body.vel,r),speed=absf(longV),travel=longV<-.25f?-1.0f:1.0f;
   float throttle=key_down('W')?1.0f:0.0f,brake=key_down('S')?1.0f:0.0f,hand=key_down(VK_SPACE)?1.0f:0.0f;
   const DriveTune110*old=&g_drive_tune110[g_player.car];
 
@@ -37,8 +39,11 @@ static void dyn24_tick(float h){
   float front=clampf(total*t->frontBias-transfer,total*.24f,total*.76f),rear=total-front;g_dyn24_load_front=front;g_dyn24_load_rear=rear;
   float lf=vp->wheelbase*(1.0f-t->frontBias),lr=vp->wheelbase*t->frontBias;
   float steer=g_player.steer*vp->maxSteer,den=maxf(2.3f,speed);
-  float aF=(float)atan2((double)(latV+g_player.body.angularVel*lf),(double)den)-steer;
-  float aR=(float)atan2((double)(latV-g_player.body.angularVel*lr),(double)den);
+  // Travel-frame slip keeps the stabilizing tyre forces aligned with the signed
+  // bicycle yaw when moving backwards. Without this, the old forward-only model
+  // counter-steered the chassis in reverse and made parking feel rubbery/wrong.
+  float aF=(float)atan2((double)((latV+g_player.body.angularVel*lf)*travel),(double)den)-steer*travel;
+  float aR=(float)atan2((double)((latV-g_player.body.angularVel*lr)*travel),(double)den);
   g_dyn24_front_slip=lerpf(g_dyn24_front_slip,aF,clampf(h*18.0f,0,1));g_dyn24_rear_slip=lerpf(g_dyn24_rear_slip,aR,clampf(h*18.0f,0,1));
 
   float surf=sim_surface_grip(g_player.body.surface)*vp->baseGrip*t->tyreMu;
@@ -51,8 +56,10 @@ static void dyn24_tick(float h){
 
   float latAcc=(fyF+fyR)/maxf(650.0f,vp->mass);float iz=maxf(520.0f,vp->mass*(vp->wheelbase*vp->wheelbase+vp->track*vp->track)/12.0f);
   float yawAcc=(fyF*lf-fyR*lr)/iz;
-  // This replaces part of the historical correction rather than stacking another full model.
-  latV+=latAcc*h*.34f;g_player.body.angularVel+=yawAcc*h*.28f;
+  // Reverse gets a gentler tyre correction because low-speed parking should be
+  // governed primarily by the kinematic chassis rather than high cornering gain.
+  float reverseBlend=travel<0?.64f:1.0f;
+  latV+=latAcc*h*.34f*reverseBlend;g_player.body.angularVel+=yawAcc*h*.28f*reverseBlend;
   g_player.body.angularVel*=clampf(1.0f-h*(.46f+speed*.010f),.90f,1.0f);
 
   // Longitudinal acceleration budget: clamp sudden frame-dependent impulses to tyre capacity.
