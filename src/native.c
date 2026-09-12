@@ -1,6 +1,7 @@
 // Itajai Drive Native source bundle.
 #include "native_parts/part01.inc"
 #include "platform/audio18.inc"
+#include "platform/extra20.inc"
 #include "native_parts/part02.inc"
 #include "platform/extra08.inc"
 #include "platform/extra09.inc"
@@ -50,6 +51,7 @@
 #define game_update game_update_legacy071
 #include "settings/settings07_game.inc"
 #undef game_update
+#include "stream/lod20_state.inc"
 #include "assets/assets08.inc"
 #include "stream/stream08.inc"
 #define game_update game_update_legacy08
@@ -207,7 +209,16 @@
 #undef draw_roads
 #undef draw_buildings
 #undef draw_hud
+#define draw_ground draw_ground_legacy19
+#define draw_roads draw_roads_legacy19
+#define draw_buildings draw_buildings_legacy19
+#define draw_hud draw_hud_legacy19
 #include "render/render19.inc"
+#undef draw_ground
+#undef draw_roads
+#undef draw_buildings
+#undef draw_hud
+#include "render/render20.inc"
 
 #define draw_loading draw_loading_legacy06
 #define render render_legacy06
