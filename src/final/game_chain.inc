@@ -26,7 +26,12 @@
 #include "../sim/sim180_game.inc"
 #undef game_update
 #include "../foundation/vehicle23.inc"
+#include "../foundation/vehicle25_state.inc"
 #define game_update game_update_legacy230
 #include "../sim/sim230_game.inc"
 #undef game_update
+#define game_update game_update_legacy240
 #include "../sim/sim240_game.inc"
+#undef game_update
+#include "../foundation/vehicle25.inc"
+#include "../sim/sim250_game.inc"
