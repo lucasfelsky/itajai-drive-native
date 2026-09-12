@@ -66,4 +66,14 @@
 #undef draw_roads
 #undef draw_buildings
 #undef draw_hud
+#define draw_ground draw_ground_legacy130
+#define draw_roads draw_roads_legacy130
+#define draw_buildings draw_buildings_legacy130
+#define draw_hud draw_hud_legacy130
 #include "../render/render130.inc"
+#undef draw_ground
+#undef draw_roads
+#undef draw_buildings
+#undef draw_hud
+#include "../render/identity150.inc"
+#include "../render/render150.inc"
