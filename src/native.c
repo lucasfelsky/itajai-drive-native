@@ -80,7 +80,6 @@
 #undef game_update
 #include "world/editor19.inc"
 #include "sim/sim19_game.inc"
-#include "world/district30.inc"
 
 #define setup_camera setup_camera_legacy06
 #define draw_ground draw_ground_legacy06
@@ -121,6 +120,7 @@
 #undef draw_buildings
 #undef draw_hud
 #include "render/renderer09.inc"
+#include "world/district30.inc"
 #define renderer09_draw_sky renderer09_draw_sky_legacy09
 #define renderer09_draw_shadows renderer09_draw_shadows_legacy09
 #define renderer09_draw_rain renderer09_draw_rain_legacy09
