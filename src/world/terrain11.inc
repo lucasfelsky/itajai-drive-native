@@ -1,8 +1,7 @@
 // -----------------------------------------------------------------------------
-// 0.11 Terrain & Coastline
-// Analytic terrain for the vertical slice. Roads remain on the simulation plane;
-// the render terrain is flattened close to road edges so existing routing and
-// collision stay stable while the horizon finally gains relief and coastline.
+// 0.11 Terrain & Coastline, upgraded by Roads 2.0.
+// Terrain remains analytic, but the road flattening plane now follows the same
+// low-frequency terrain height instead of forcing every street to global Y=0.
 // -----------------------------------------------------------------------------
 static float g_water_depth11=0.0f;
 static float g_terrain_height11=0.0f;
@@ -30,10 +29,16 @@ static float terrain11_raw_height(float x,float z){
   return base+ridge+coastalHill;
 }
 
+static float terrain11_road_grade(float x,float z){
+  // The art terrain is intentionally low-frequency enough for road grades.
+  // Clamp extremes so a routing segment never turns into a wall.
+  return clampf(terrain11_raw_height(x,z),-.08f,16.0f);
+}
+
 static float terrain11_height(float x,float z){
   V3 p=v3(x,0,z);int road=-1;float center=9999.0f;
   foundation_nearest_road(p,&road,&center);
-  if(road>=0){float flatten=g_world.roads[road].width*.5f+7.0f;if(center<flatten)return -.055f;}
+  if(road>=0){float flatten=g_world.roads[road].width*.5f+7.0f;if(center<flatten)return terrain11_road_grade(x,z);}
   return terrain11_raw_height(x,z);
 }
 
