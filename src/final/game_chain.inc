@@ -62,4 +62,8 @@
 #include "../sim/net301_game.inc"
 #undef game_update
 #include "../net/net320.inc"
+#define game_update game_update_legacy320
 #include "../sim/net320_game.inc"
+#undef game_update
+#include "../net/net321_hamachi.inc"
+#include "../sim/net321_game.inc"
