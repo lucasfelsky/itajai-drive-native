@@ -4,12 +4,34 @@
 #include "native_parts/part02.inc"
 #include "platform/extra08.inc"
 #include "platform/extra09.inc"
+
+// Keep the original small-map cache/parser/network path compiled for regression,
+// while 0.10 exposes a larger world implementation under the original names.
+#define file_read_all file_read_all_legacy64
+#define world_cache_write world_cache_write_legacy05
+#define world_cache_read world_cache_read_legacy05
 #include "native_parts/part03.inc"
+#define parse_way parse_way_legacy05
+#define parse_osm parse_osm_legacy05
 #include "native_parts/part04.inc"
+#define fetch_host fetch_host_legacy05
+#define map_worker map_worker_legacy05
+#define traffic_spawn traffic_spawn_legacy05
 #include "native_parts/part05.inc"
+#undef file_read_all
+#undef world_cache_write
+#undef world_cache_read
+#undef parse_way
+#undef parse_osm
+#undef fetch_host
+#undef map_worker
+#undef traffic_spawn
+#include "world/urban10_world.inc"
+
 #include "foundation/globals.inc"
 #include "foundation/foundation.inc"
 #include "sim/sim06.inc"
+#include "urban/urban10_core.inc"
 #include "settings/settings07_state.inc"
 
 // Keep the original 0.7 mouse handler internally; 0.7.1 provides persistent
@@ -41,10 +63,14 @@
 #include "settings/settings07_game.inc"
 #undef game_update
 
-// 0.8 source-asset runtime and disk-backed regional streaming.
+// 0.8 asset/runtime regional streaming, then 0.10 sector-aware prop population.
 #include "assets/assets08.inc"
 #include "stream/stream08.inc"
+#include "urban/urban10_stream.inc"
+#define game_update game_update_legacy08
 #include "sim/sim08_game.inc"
+#undef game_update
+#include "sim/sim10_game.inc"
 
 // Keep original renderers as explicit fallbacks.
 #define setup_camera setup_camera_legacy06
@@ -87,22 +113,31 @@
 #undef draw_buildings
 #undef draw_hud
 
-// 0.9 programmable renderer + atmosphere/effects.
+// 0.9 programmable renderer + atmosphere/effects remain the graphics backend.
 #include "render/renderer09.inc"
 #include "render/effects09.inc"
+#define draw_roads draw_roads_legacy09
+#define draw_buildings draw_buildings_legacy09
+#define draw_hud draw_hud_legacy09
 #include "render/render09.inc"
+#undef draw_roads
+#undef draw_buildings
+#undef draw_hud
+#include "render/render10.inc"
 
 // Historical bootstraps remain compiled under private names for regression.
 #define draw_loading draw_loading_legacy06
 #define render render_legacy06
 #define wndproc wndproc_legacy06
 #define init_window init_window_legacy06
+#define init_paths init_paths_legacy05
 #define WinMainCRTStartup WinMainCRTStartup_legacy06
 #include "native_parts/part08.inc"
 #undef draw_loading
 #undef render
 #undef wndproc
 #undef init_window
+#undef init_paths
 #undef WinMainCRTStartup
 
 #define draw_loading draw_loading_legacy071
@@ -116,4 +151,16 @@
 #undef wndproc
 #undef init_window
 #undef WinMainCRTStartup
+
+#define draw_loading draw_loading_legacy09
+#define render render_legacy09
+#define wndproc wndproc_legacy09
+#define init_window init_window_legacy09
+#define WinMainCRTStartup WinMainCRTStartup_legacy09
 #include "sim/sim09_win32.inc"
+#undef draw_loading
+#undef render
+#undef wndproc
+#undef init_window
+#undef WinMainCRTStartup
+#include "sim/sim10_win32.inc"
