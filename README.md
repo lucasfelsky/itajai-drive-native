@@ -4,7 +4,7 @@ Uma mini-engine 3D nativa para Windows, construída do zero em C/Win32 + OpenGL 
 
 ## Estado atual
 
-- Jogo: **1.1.0 — Driving Feel 2.0**
+- Jogo: **1.2.0 — Renderer 2.0**
 - Updater: **1.0.0**
 - Plataforma: Windows x64
 - Distribuição: GitHub Releases público + updater nativo
@@ -22,9 +22,7 @@ Uma mini-engine 3D nativa para Windows, construída do zero em C/Win32 + OpenGL 
 
 > Os setores são regiões aproximadas de direção de arte; não representam limites administrativos oficiais.
 
-## Direção e simulação — 1.1
-
-A 1.1 mantém o chassis simcade validado da 1.0 e acrescenta uma camada dinâmica por eixo:
+## Direção e simulação — 1.1+
 
 - quatro rodas com estado próprio de superfície/suspensão/carga
 - slip angle dianteiro/traseiro e saturação progressiva de pneu
@@ -38,7 +36,22 @@ A 1.1 mantém o chassis simcade validado da 1.0 e acrescenta uma camada dinâmic
 - FOV da câmera varia suavemente com a velocidade
 - asfalto, meio-fio e grama com comportamento diferente
 - colisão com prédios, props e tráfego
-- quatro perfis de carro jogável
+
+## Renderer — 1.2
+
+- OpenGL nativo com **GLSL 1.20 PBR-compat** e fallback fixed-function
+- microfacet lighting + Fresnel e ACES-like tone mapping
+- wetness persistente alimenta roughness e resposta especular
+- farol do jogador calculado em eye space com cone/atenuação
+- pool de farol translúcido também aparece no caminho fallback
+- janelas emissivas procedurais durante a noite
+- material dedicado de água com Fresnel aproximado e ondulação procedural
+- iluminação/fog respondem a cloud, wetness e lightning
+- textura procedural de asfalto com variação de microfissuras
+- sombras projetadas, reflexos estilizados de pista molhada e pós leve
+- glTF/GLB compilado para runtime PAK
+- cache de meshes por display lists
+- LOD/frame budget adaptativo para preservar física e navegação antes de cortar detalhes cosméticos
 
 ## Tráfego e mundo vivo
 
@@ -47,16 +60,6 @@ A 1.1 mantém o chassis simcade validado da 1.0 e acrescenta uma camada dinâmic
 - troca de faixa, yielding e densidade por horário/setor
 - oito silhuetas fictícias de veículos inspiradas em categorias comuns no Brasil
 - pedestres leves, barcos e carros estacionados
-
-## Renderer
-
-- OpenGL nativo com renderer GLSL 1.20 e fallback fixed-function
-- materiais procedurais e iluminação fisicamente inspirada compatível
-- wetness persistente, chuva, névoa, vento e relâmpagos
-- sombras projetadas, reflexos estilizados de pista molhada e pós leve
-- glTF/GLB compilado para runtime PAK
-- cache de meshes por display lists
-- LOD/frame budget adaptativo para preservar física e navegação antes de cortar detalhes cosméticos
 
 ## Áudio
 
@@ -73,7 +76,7 @@ A 1.1 mantém o chassis simcade validado da 1.0 e acrescenta uma camada dinâmic
 - Photo Mode: **P** congela a simulação; **H** esconde a HUD
 - tour opcional por landmarks: **F2** escolhe o próximo destino conectado
 - tela de ajuda/self-check: **F1**
-- `Tab` mostra também a telemetria da camada Driving Feel 2.0
+- `Tab` mostra telemetria de driving, renderer e clima
 
 ## Controles
 
@@ -131,6 +134,7 @@ O workflow `.github/workflows/release.yml` compila os executáveis em Windows x6
 - 0.80 — performance polish
 - 0.90 — conteúdo final de distritos
 - 1.0 — vertical slice integrado
-- **1.1 — Driving Feel 2.0**
+- 1.1 — Driving Feel 2.0
+- **1.2 — Renderer 2.0**
 
 Dados de mapa: © OpenStreetMap contributors.
