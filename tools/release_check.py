@@ -87,7 +87,7 @@ def check_pak() -> pathlib.Path:
     return path
 
 
-def check_manifest(version: str, exe: pathlib.Path, pak: pathlib.Path) -> None:
+def check_manifest(version: str, managed: tuple[pathlib.Path, ...]) -> None:
     path = DIST / "manifest.txt"
     if not path.is_file():
         fail("manifest.txt missing")
@@ -102,6 +102,8 @@ def check_manifest(version: str, exe: pathlib.Path, pak: pathlib.Path) -> None:
             name, size, digest = parts
             if not size.isdigit() or not re.fullmatch(r"[0-9a-f]{64}", digest):
                 fail(f"bad manifest file metadata: {line}")
+            if name in files:
+                fail(f"duplicate manifest file: {name}")
             files[name] = (int(size), digest)
         elif "=" in line:
             k, v = line.split("=", 1)
@@ -112,7 +114,10 @@ def check_manifest(version: str, exe: pathlib.Path, pak: pathlib.Path) -> None:
         fail("manifest VERSION mismatch")
     if not values.get("base_url", "").endswith(f"/v{version}/"):
         fail("manifest base_url does not target current tag")
-    for built in (exe, pak):
+    expected_names = {p.name for p in managed}
+    if set(files) != expected_names:
+        fail(f"manifest managed set mismatch: {sorted(files)} != {sorted(expected_names)}")
+    for built in managed:
         meta = files.get(built.name)
         if not meta:
             fail(f"manifest missing {built.name}")
@@ -121,15 +126,19 @@ def check_manifest(version: str, exe: pathlib.Path, pak: pathlib.Path) -> None:
     cfg = (DIST / "update_config.ini").read_text(encoding="ascii")
     if "releases/latest/download/manifest.txt" not in cfg or "auto_launch=1" not in cfg:
         fail("update_config.ini is incomplete")
-    print("OK updater channel: manifest sizes/hashes/config validated")
+    print("OK updater channel: exact managed set, sizes, hashes and config validated")
 
 
 def main() -> None:
     version = check_version()
     exe = check_binary("ItajaiDriveNative.exe", 100000)
-    check_binary("ItajaiDriveUpdater.exe", 15000)
+    updater = check_binary("ItajaiDriveUpdater.exe", 15000)
+    updater_next = check_binary("ItajaiDriveUpdater.next.exe", 15000)
+    if sha256(updater) != sha256(updater_next):
+        fail("updater handoff binary differs from release updater")
     pak = check_pak()
-    check_manifest(version, exe, pak)
+    check_manifest(version, (exe, pak, updater_next))
+    print("OK updater handoff: .next binary is byte-identical to updater 1.1")
     print(f"RELEASE CHECK PASSED: Itajai Drive {version}")
 
 
