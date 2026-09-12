@@ -124,3 +124,4 @@
 #include "../render/net320_render.inc"
 #undef draw_hud
 #include "../render/net321_render.inc"
+#include "../render/city330_render.inc"
