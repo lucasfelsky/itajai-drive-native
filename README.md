@@ -2,85 +2,94 @@
 
 Mini engine 3D nativa para Windows, feita do zero em C/Win32 + OpenGL — sem Unity, Unreal, Electron ou navegador embutido.
 
-O projeto começou como um protótipo de direção livre inspirado em Itajaí/SC e evoluiu para uma engine própria com OpenStreetMap, tráfego, grafo viário, A*, collision world, spatial grid, física veicular simcade, câmera livre, GPS dinâmico, streaming regional, asset pipeline glTF/GLB, renderer programável, configurações persistentes e updater nativo.
+O projeto começou como um protótipo de direção livre inspirado em Itajaí/SC e evoluiu para uma engine própria com OpenStreetMap, tráfego, A*, collision world, física veicular simcade, streaming regional, asset pipeline glTF/GLB, renderer programável, geração urbana, configurações persistentes e updater nativo.
 
 ## Estado atual
 
-- Jogo: **0.9.0 — Programmable Renderer & Atmosphere**
+- Jogo: **0.10.0 — Urban Expansion**
 - Updater: **1.0.0**
 - Plataforma: Windows x64
 - Canal de releases: **GitHub Releases público**
 
-### Fundação / simulação
+## 0.10 — Urban Expansion
 
-- Janela Win32 nativa
-- Quatro perfis de veículo e quatro câmeras
-- Ruas e construções via OpenStreetMap / Overpass
-- Cache do mundo `itajai_world_v05.bin`
-- Grafo viário direcionado, mão única e `oneway=-1`
-- A* para tráfego e GPS
-- Spatial grid de 40 m e collision world
-- Colliders de prédios, semáforos, tráfego e props urbanos
-- Superfícies, grip, bicycle model simcade, slip, roll/pitch e quatro rodas amostradas individualmente
-- Modelo de faixas, car-following, frenagem progressiva e semáforos
-- Lane connectors Bézier nas interseções
-- GPS com destino persistente e reroute automático
+A 0.10 amplia o mundo OSM para um corredor muito maior e prepara identidades urbanas diferentes ao longo da cidade/costa.
 
-### Câmera / configurações
+### Mundo expandido
 
-- Mouse-look com captura por clique
-- Câmeras externas orbitáveis e câmera interna free-look
-- Sensibilidade ajustável e inverter eixo Y
+- Bbox OSM aproximado: `-26.9580,-48.6860,-26.8840,-48.6250`
+- Corredor de direção de arte: **Porto, Centro, Beira-Rio/Fazenda, Molhes, Atalaia, Cabeçudas e Praia Brava**
+- Novo cache bruto: `itajai_osm_cache_v10.json`
+- Novo cache de mundo: `itajai_world_v10.bin`
+- Até 8.000 road ways, 60.000 segmentos, 24.000 prédios, 40.000 nós e 120.000 edges
+- Spatial grid/collision world redimensionado para o mapa maior
+
+> Os setores são regiões aproximadas de direção de arte, não limites administrativos oficiais.
+
+### Geração urbana
+
+O parser usa tags `building=*`, `height` e `building:levels` para diferenciar arquétipos simples:
+
+- casas/residencial baixo;
+- apartamentos/torres;
+- comercial;
+- industrial/galpões;
+- cívico;
+- genérico.
+
+O renderer acrescenta variações de cor e silhueta, roof caps, podiums, storefronts e detalhes industriais. Os prédios ainda são aproximações retangulares do bounding box do footprint OSM; extrusão do polígono exato fica para uma evolução posterior.
+
+### Ruas e espaço urbano
+
+- Calçadas procedurais em vias urbanas compatíveis
+- Canteiro central simples em avenidas largas de mão dupla
+- Faixas continuam usando o lane model da 0.6/0.7
+- Props e densidade mudam conforme o setor atual
+
+### Asset pack urbano
+
+O `itajai_assets_v08.pak` continua usando o formato criado na 0.8, mas agora compila oito meshes glTF:
+
+- `urban_tree`
+- `street_lamp`
+- `port_container`
+- `coastal_palm`
+- `urban_bench`
+- `bus_shelter`
+- `road_guardrail`
+- `road_sign`
+
+O Porto favorece containers e infraestrutura pesada; setores costeiros favorecem palmeiras/vegetação; áreas urbanas recebem mais iluminação, placas e mobiliário.
+
+### Streaming / tráfego
+
+- Regiões de ~320 m
+- Working set 5×5
+- Capacidade ampliada para até 1.024 regiões
+- Até 30.000 segmentos e 12.000 prédios no conjunto visual ativo
+- Até 5.000 props regionais
+- Tráfego distante pode ser reciclado e reroteado perto do jogador para o mapa maior não ficar vazio
+- O grafo completo continua residente para GPS/A* e tráfego
+
+## Fundação preservada
+
+- Win32 nativo + OpenGL
+- Collision world + spatial grid
+- Bicycle model simcade, slip, roll/pitch, superfícies e colisões
+- Lane model, car-following, semáforos e Bézier lane connectors
+- GPS A* com reroute
+- Mouse-look estilo GTA/simulador
 - Menu de pausa/configurações
-- Preferências persistidas em `itajai_settings.ini`, fora do manifesto do updater
+- Sensibilidade e invert-Y persistidos em `itajai_settings.ini`
+- glTF/GLB -> runtime PAK
+- Renderer GLSL 1.20 com fallback fixed-function
+- Sol, iluminação, fog, wetness, céu, sombras e chuva
 
-### 0.8 — Asset Pipeline & Regional Streaming
+## Primeiro startup da 0.10
 
-- **glTF 2.0 / GLB como formatos-fonte**
-- `tools/compile_assets.py` converte assets para `itajai_assets_v08.pak`
-- Runtime PAK com vertices `position + normal + UV`, índices, bounds e collider radius
-- Assets-semente: árvore, poste e container
-- **Streaming regional real por arquivo** em regiões de ~320 m
-- Cache local `itajai_regions_v08.bin`
-- Working set 5×5 ao redor do jogador carregado por offset de arquivo
-- Grafo de rota continua residente para A*/tráfego; geometria visual é streamada
-- Props urbanos aparecem/desaparecem com o working set e participam de colisão
-- Falha no asset pack/streaming cai para os renderers anteriores em vez de impedir o jogo de abrir
+A 0.10 usa um cache de mundo novo. Na primeira abertura, o jogo pode ficar mais tempo em **baixando/construindo a cidade** enquanto consulta o OpenStreetMap/Overpass e monta `itajai_world_v10.bin` + cache regional. As próximas aberturas reutilizam esses arquivos.
 
-### 0.9 — Renderer programável
-
-- **GLSL 1.20** resolvido dinamicamente por `wglGetProcAddress`
-- Fallback automático para fixed-function caso shader não esteja disponível
-- Normais e UVs nos primitives da engine
-- Materiais/texturas procedurais para grama, asfalto e fachadas
-- Luz direcional do sol
-- Ambient light dependente de horário e clima
-- Fog exponencial
-- Wetness/darkening durante chuva
-- Céu em gradiente com ciclo dia/noite e sol simples
-- Sombras projetadas/contact shadows para veículos, prédios e props próximos
-- Chuva leve/forte renderizada com streaks 3D
-- Debug HUD mostra se o renderer ativo é GLSL ou fallback
-
-### Infraestrutura
-
-- Updater com staging, validação de tamanho e SHA-256
-- `itajai_assets_v08.pak` também é atualizado/verificado automaticamente
-- Build de Windows + compilação de assets + release via GitHub Actions
-- Caches OSM, mundo, regiões e settings locais são preservados entre updates quando compatíveis
-
-## Documentação técnica
-
-- `docs/FOUNDATION_0.5.md`
-- `docs/SIMULATION_0_6.md`
-- `docs/SIMULATION_0_7.md`
-- `docs/SETTINGS_0.7.1.md`
-- `docs/ASSETS_STREAMING_0_8.md`
-- `docs/RENDERER_0_9.md`
-
-## Próximo milestone
-
-A arquitetura agora já separa simulação, mundo, streaming, assets e renderização. O próximo passo natural é **0.10 — expansão pesada de Itajaí e geração urbana**: footprints de prédios melhores, calçadas/canteiros, mais objetos urbanos, setores Centro/Beira-Rio/Porto/Atalaia/Molhes/Cabeçudas/Praia Brava e spawn de tráfego integrado ao streaming.
+O `itajai_settings.ini` continua preservado pelo updater.
 
 ## Controles
 
@@ -88,7 +97,7 @@ A arquitetura agora já separa simulação, mundo, streaming, assets e renderiza
 |---|---|
 | W / S | acelerar / frear / ré |
 | A / D | esterço |
-| Espaço | freio de mão / redução de grip |
+| Espaço | freio de mão |
 | Clique esquerdo | capturar mouse para controlar a câmera |
 | Mouse | orbitar / olhar ao redor |
 | Esc | soltar mouse; com mouse livre, abrir configurações |
@@ -99,17 +108,25 @@ A arquitetura agora já separa simulação, mundo, streaming, assets e renderiza
 | E | trocar carro |
 | R | reset |
 | M | criar destino GPS / A* |
-| Tab | debug + telemetria/streaming/renderer |
+| Tab | debug + telemetria/streaming/renderer/world |
 | T | horário |
 | Y | clima |
 | U | limpar cache do mapa |
 
-## Build e releases
+## Documentação técnica
 
-O workflow `.github/workflows/release.yml` compila os executáveis no Windows, converte os assets glTF/GLB para o PAK runtime, gera SHA-256/manifesto, cria a tag e publica a release.
+- `docs/FOUNDATION_0.5.md`
+- `docs/SIMULATION_0.6.md`
+- `docs/SIMULATION_0.7.md`
+- `docs/SETTINGS_0.7.1.md`
+- `docs/ASSETS_STREAMING_0.8.md`
+- `docs/RENDERER_0.9.md`
+- `docs/URBAN_0.10.md`
 
-## Atualizador
+## Build / updater
 
-O updater consulta `manifest.txt` da release mais recente, baixa primeiro para `.update/`, valida tamanho + SHA-256 e só depois substitui os arquivos gerenciados. Se a rede ou o download falhar, a instalação atual continua intacta.
+O workflow `.github/workflows/release.yml` compila os executáveis em Windows, compila os assets glTF/GLB para o PAK, gera SHA-256 + manifesto, cria a tag e publica a release.
+
+O updater baixa primeiro para `.update/`, valida tamanho + SHA-256 e só depois substitui os arquivos gerenciados. Caches e configurações locais não são apagados quando permanecem compatíveis.
 
 Dados de mapa: © OpenStreetMap contributors.
