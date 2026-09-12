@@ -1,4 +1,4 @@
-// Itajai Drive Updater 1.0.0
+// Itajai Drive Updater 1.1.0
 // Native Win32 + WinHTTP updater. No browser, no .NET, no external runtime.
 #define WIN32_LEAN_AND_MEAN 1
 
@@ -92,7 +92,8 @@ __declspec(dllimport) BOOL WINAPI TextOutA(HDC,int,int,LPCSTR,int);
 __declspec(dllimport) HGDIOBJ WINAPI GetStockObject(int);
 __declspec(dllimport) HGDIOBJ WINAPI SelectObject(HDC,HGDIOBJ);
 
-// WINHTTP
+// WINHTTP. Redirects remain enabled by WinHTTP's default request policy; GitHub's
+// /releases/latest/download URL therefore resolves without a browser dependency.
 __declspec(dllimport) HINTERNET WINAPI WinHttpOpen(LPCWSTR,DWORD,LPCWSTR,LPCWSTR,DWORD);
 __declspec(dllimport) HINTERNET WINAPI WinHttpConnect(HINTERNET,LPCWSTR,WORD,DWORD);
 __declspec(dllimport) HINTERNET WINAPI WinHttpOpenRequest(HINTERNET,LPCWSTR,LPCWSTR,LPCWSTR,LPCWSTR,const LPCWSTR*,DWORD);
@@ -103,7 +104,7 @@ __declspec(dllimport) BOOL WINAPI WinHttpReadData(HINTERNET,LPVOID,DWORD,DWORD*)
 __declspec(dllimport) BOOL WINAPI WinHttpSetTimeouts(HINTERNET,int,int,int,int);
 __declspec(dllimport) BOOL WINAPI WinHttpCloseHandle(HINTERNET);
 
-// MSVCRT
+// UCRT imports
 __declspec(dllimport) int __cdecl sprintf(char*,const char*,...);
 __declspec(dllimport) unsigned long long __cdecl strlen(const char*);
 __declspec(dllimport) void* __cdecl memcpy(void*,const void*,unsigned long long);
