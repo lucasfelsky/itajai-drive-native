@@ -18,7 +18,7 @@ typedef struct { u32 magic,version,count,reserved; } World390BoundaryHeader;
 static V3 g_world390_boundary[WORLD390_BOUNDARY_CAP];
 static int g_world390_boundary_count=0;
 static volatile LONG g_world390_boundary_ready=0; // 0 loading, 1 official/cache, -1 fallback
-static int g_world390_boundary_live=0,g_world390_boundary_cached=0;
+static int g_world390_boundary_live=0,g_world390_boundary_cached=0,g_world390_scope_thread_started=0;
 static char g_world390_boundary_path[520];
 static char g_world390_query_path[1200];
 static u16 g_world390_http_wpath[1400];
@@ -34,19 +34,9 @@ static int world390_parse_boundary(char*json,DWORD size){const char*end=json+siz
 
 static int world390_point_in_boundary(V3 p){if(g_world390_boundary_count<4)return 0;int inside=0;for(int i=0,j=g_world390_boundary_count-1;i<g_world390_boundary_count;j=i++){V3 a=g_world390_boundary[i],b=g_world390_boundary[j];int cross=((a.z>p.z)!=(b.z>p.z));if(cross){float den=b.z-a.z;if(absf(den)<.0001f)den=den<0?-.0001f:.0001f;float x=a.x+(p.z-a.z)*(b.x-a.x)/den;if(p.x<x)inside=!inside;}}return inside;}
 static int world390_geo_box(V3 p,double minLat,double minLon,double maxLat,double maxLon){V3 a=project_geo(minLat,minLon),b=project_geo(maxLat,maxLon);float minx=minf(a.x,b.x),maxx=maxf(a.x,b.x),minz=minf(a.z,b.z),maxz=maxf(a.z,b.z);return p.x>=minx&&p.x<=maxx&&p.z>=minz&&p.z<=maxz;}
-static int world390_scope_at(V3 p){
-  if(g_world390_boundary_count>=4&&world390_point_in_boundary(p))return WORLD390_SCOPE_ITAJAI;
-  // Navegantes urban core + airport.
-  if(world390_geo_box(p,-26.9250,-48.6850,-26.8350,-48.6200))return WORLD390_SCOPE_NAVEGANTES;
-  // BR-470 / BR-101 connector west of the airport/urban core.
-  if(world390_geo_box(p,-26.9350,-48.7450,-26.8350,-48.6750))return WORLD390_SCOPE_CONNECTOR;
-  // Context-only south edge toward Balneario Camboriu.
-  if(world390_geo_box(p,-27.0200,-48.6550,-26.9500,-48.6100))return WORLD390_SCOPE_EXIT;
-  // While the official polygon is still loading, preserve the proven 3.8 urban core.
-  if(g_world390_boundary_ready==0&&world390_geo_box(p,-26.9580,-48.6860,-26.8840,-48.6250))return WORLD390_SCOPE_ITAJAI;
-  return WORLD390_SCOPE_OUTSIDE;
-}
+static int world390_scope_at(V3 p){if(g_world390_boundary_count>=4&&world390_point_in_boundary(p))return WORLD390_SCOPE_ITAJAI;if(world390_geo_box(p,-26.9250,-48.6850,-26.8350,-48.6200))return WORLD390_SCOPE_NAVEGANTES;if(world390_geo_box(p,-26.9350,-48.7450,-26.8350,-48.6750))return WORLD390_SCOPE_CONNECTOR;if(world390_geo_box(p,-27.0200,-48.6550,-26.9500,-48.6100))return WORLD390_SCOPE_EXIT;if(g_world390_boundary_ready==0&&world390_geo_box(p,-26.9580,-48.6860,-26.8840,-48.6250))return WORLD390_SCOPE_ITAJAI;return WORLD390_SCOPE_OUTSIDE;}
 static int world390_destination_allowed(V3 p){int s=world390_scope_at(p);return s==WORLD390_SCOPE_ITAJAI||s==WORLD390_SCOPE_NAVEGANTES||s==WORLD390_SCOPE_CONNECTOR;}
 static const char*world390_scope_name(int s){if(s==WORLD390_SCOPE_ITAJAI)return "ITAJAI // AREA PRINCIPAL";if(s==WORLD390_SCOPE_NAVEGANTES)return "NAVEGANTES // EXTENSAO JOGAVEL";if(s==WORLD390_SCOPE_CONNECTOR)return "BR-470 / BR-101 // CORREDOR";if(s==WORLD390_SCOPE_EXIT)return "SAIDA PARA BC // FORA DO MAPA";return "FORA DA AREA JOGAVEL";}
 
 static DWORD WINAPI world390_scope_worker(LPVOID unused){(void)unused;g_world390_boundary_ready=0;g_world390_boundary_live=0;g_world390_boundary_cached=0;if(world390_boundary_read()){g_world390_boundary_ready=1;return 0;}sprintf(g_world390_query_path,"/server/rest/services/limite_municipal/FeatureServer/0/query?where=1%%3D1&outFields=id,text&returnGeometry=true&returnZ=false&outSR=4326&f=json");char*data=NULL;DWORD size=0;if(world390_http_get(g_world390_query_path,&data,&size)){if(world390_parse_boundary(data,size)){g_world390_boundary_live=1;world390_boundary_write();g_world390_boundary_ready=1;VirtualFree(data,0,MEM_RELEASE);return 0;}VirtualFree(data,0,MEM_RELEASE);}g_world390_boundary_ready=-1;return 0;}
+static void world390_scope_start_async(void){if(g_world390_scope_thread_started)return;g_world390_scope_thread_started=1;HANDLE th=CreateThread(NULL,0,world390_scope_worker,NULL,0,NULL);if(th)CloseHandle(th);else g_world390_boundary_ready=-1;}
