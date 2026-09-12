@@ -33,6 +33,11 @@ static int g_city330_municipal_pages=0;
 static int g_city330_municipal_cached=0;
 static int g_city330_municipal_live=0;
 static char g_city330_foot_path[520];
+// Kept static because this engine intentionally links without the default CRT;
+// large auto buffers can make clang-cl emit __chkstk after inlining.
+static u16 g_city330_http_wpath[1600];
+static char g_city330_query_path[1400];
+static char g_city330_region_path[520];
 
 static u32 city330_mix(u32 x){x^=x>>16;x*=0x7feb352du;x^=x>>15;x*=0x846ca68bu;x^=x>>16;return x;}
 static char city330_lower(char c){return c>='A'&&c<='Z'?(char)(c-'A'+'a'):c;}
@@ -41,7 +46,7 @@ static int city330_ascii_wide(const char*s,u16*out,int cap){int i=0;if(!s||cap<=
 
 static void city330_temp_reset(void){g_city330_temp_building_count=0;g_city330_temp_vert_count=0;memset(g_city330_temp_poly_start,0,sizeof(g_city330_temp_poly_start));memset(g_city330_temp_poly_count,0,sizeof(g_city330_temp_poly_count));}
 static void city330_exact_reset(void){g_building_vert_count12=0;g_building_polys12=0;g_building12_ready=0;memset(g_building_poly_start12,0,sizeof(g_building_poly_start12));memset(g_building_poly_count12,0,sizeof(g_building_poly_count12));}
-static void city330_make_paths(void){sprintf(g_city330_foot_path,"%s\\itajai_buildings_v330.bin",g_exe_dir);}
+static void city330_make_paths(void){sprintf(g_city330_foot_path,"%s\\itajai_buildings_v330.bin",g_exe_dir);sprintf(g_city330_region_path,"%s\\itajai_regions_v08.bin",g_exe_dir);}
 
 static int city330_sidecar_write(void){
   city330_make_paths();HANDLE f=CreateFileA(g_city330_foot_path,GENERIC_WRITE,0,NULL,CREATE_ALWAYS,FILE_ATTRIBUTE_NORMAL,NULL);if(f==INVALID_HANDLE_VALUE)return 0;
@@ -63,10 +68,10 @@ static int city330_sidecar_read(void){
 }
 
 static int city330_http_get(const char*path,char**out,DWORD*outSize){
-  if(!path||!out||!outSize)return 0;u16 wpath[1600];city330_ascii_wide(path,wpath,1600);
+  if(!path||!out||!outSize)return 0;city330_ascii_wide(path,g_city330_http_wpath,1600);
   HINTERNET ses=WinHttpOpen(L"ItajaiDriveNative/3.3.0",WINHTTP_ACCESS_TYPE_DEFAULT_PROXY,NULL,NULL,0);if(!ses)return 0;WinHttpSetTimeouts(ses,7000,12000,25000,70000);
   HINTERNET con=WinHttpConnect(ses,L"arcgis.itajai.sc.gov.br",INTERNET_DEFAULT_HTTPS_PORT,0);if(!con){WinHttpCloseHandle(ses);return 0;}
-  HINTERNET req=WinHttpOpenRequest(con,L"GET",(LPCWSTR)wpath,NULL,NULL,NULL,WINHTTP_FLAG_SECURE);if(!req){WinHttpCloseHandle(con);WinHttpCloseHandle(ses);return 0;}
+  HINTERNET req=WinHttpOpenRequest(con,L"GET",(LPCWSTR)g_city330_http_wpath,NULL,NULL,NULL,WINHTTP_FLAG_SECURE);if(!req){WinHttpCloseHandle(con);WinHttpCloseHandle(ses);return 0;}
   BOOL ok=WinHttpSendRequest(req,NULL,0,NULL,0,0,0)&&WinHttpReceiveResponse(req,NULL);if(!ok){WinHttpCloseHandle(req);WinHttpCloseHandle(con);WinHttpCloseHandle(ses);return 0;}
   char*data=(char*)VirtualAlloc(NULL,(SIZE_T)CITY330_HTTP_CAP+1,MEM_COMMIT|MEM_RESERVE,4);if(!data){WinHttpCloseHandle(req);WinHttpCloseHandle(con);WinHttpCloseHandle(ses);return 0;}DWORD used=0;
   while(1){DWORD avail=0;if(!WinHttpQueryDataAvailable(req,&avail)){ok=0;break;}if(!avail){ok=1;break;}if(used+avail>CITY330_HTTP_CAP){ok=0;break;}DWORD got=0;if(!WinHttpReadData(req,data+used,avail,&got)){ok=0;break;}used+=got;if(!got)break;}
@@ -94,9 +99,9 @@ static float city330_height_for(int cls,int floors,u32 id){
 
 static int city330_parse_feature(const char*obj,const char*end){
   if(g_city330_temp_building_count>=MAX_BUILDINGS)return 0;static V3 pts[CITY330_RING_CAP];int n=city330_parse_first_ring(obj,end,pts,CITY330_RING_CAP);if(n<3)return 0;
-  float minx=pts[0].x,maxx=pts[0].x,minz=pts[0].z,maxz=pts[0].z,cx=0,cz=0;for(int i=0;i<n;i++){minx=minf(minx,pts[i].x);maxx=maxf(maxx,pts[i].x);minz=minf(minz,pts[i].z);maxz=maxf(maxz,pts[i].z);cx+=pts[i].x;cz+=pts[i].z;}cx/=n;cz/=n;float sx=maxx-minx,sz=maxz-minz;if(sx<1.2f||sz<1.2f||sx>320.0f||sz>320.0f)return 0;
+  float minx=pts[0].x,maxx=pts[0].x,minz=pts[0].z,maxz=pts[0].z;for(int i=1;i<n;i++){minx=minf(minx,pts[i].x);maxx=maxf(maxx,pts[i].x);minz=minf(minz,pts[i].z);maxz=maxf(maxz,pts[i].z);}float cx=(minx+maxx)*.5f,cz=(minz+maxz)*.5f,sx=maxx-minx,sz=maxz-minz;if(sx<1.2f||sz<1.2f||sx>320.0f||sz>320.0f)return 0;
   float area=city330_polygon_area(pts,n);if(area<3.0f)return 0;u32 oid=(u32)key_number(obj,end,"objectid",(double)(g_city330_temp_building_count+1));char name[64]={0},fs[24]={0};key_string(obj,end,"nome",name,64);key_string(obj,end,"numpav",fs,24);int floors=fs[0]?(int)(atof(fs)+.5):0;if(floors<0||floors>80)floors=0;int cls=city330_building_class(name,floors,area);float h=city330_height_for(cls,floors,oid);
-  int keep=n;if(keep>CITY330_KEEP_VERTS)keep=CITY330_KEEP_VERTS;if(g_city330_temp_vert_count+keep>MAX_BUILDING_VERTS12)return 0;int id=g_city330_temp_building_count++;Building*b=&g_city330_temp_buildings[id];b->c=v3(cx,h*.5f,cz);b->sx=sx;b->sz=sz;b->h=h;b->seed=(city330_mix(oid)&0x0fffffffu)|(((u32)cls&15u)<<28);
+  int keep=n;if(keep>CITY330_KEEP_VERTS)keep=CITY330_KEEP_VERTS;if(g_city330_temp_vert_count+keep>MAX_BUILDING_VERTS12)return 0;int id=g_city330_temp_building_count++;Building*b=&g_city330_temp_buildings[id];b->c=v3(cx,h*.5f,cz);b->sx=sx;b->sz=sz;b->h=h;b->seed=(oid&0x0fffffffu)|(((u32)cls&15u)<<28);
   g_city330_temp_poly_start[id]=g_city330_temp_vert_count;g_city330_temp_poly_count[id]=(unsigned short)keep;for(int i=0;i<keep;i++){int src=(i*n)/keep;if(src>=n)src=n-1;g_city330_temp_verts[g_city330_temp_vert_count++]=pts[src];}return 1;
 }
 
@@ -109,8 +114,8 @@ static int city330_parse_page(char*json,DWORD size,int*seenOut){
 static int city330_fetch_municipal_temp(void){
   city330_temp_reset();g_city330_municipal_pages=0;int complete=0;
   for(int page=0;page<32&&g_city330_temp_building_count<MAX_BUILDINGS;page++){
-    int offset=page*CITY330_PAGE_SIZE;char path[1400];sprintf(path,"/server/rest/services/Base_Cadastral_Edificacao/FeatureServer/0/query?where=1=1&geometry=-48.6860,-26.9580,-48.6250,-26.8840&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=objectid,nome,tipouso,numpav&returnGeometry=true&returnZ=false&outSR=4326&orderByFields=objectid&resultOffset=%d&resultRecordCount=%d&f=json",offset,CITY330_PAGE_SIZE);
-    char*data=NULL;DWORD size=0;if(!city330_http_get(path,&data,&size))break;int seen=0;city330_parse_page(data,size,&seen);VirtualFree(data,0,MEM_RELEASE);g_city330_municipal_pages++;if(seen<CITY330_PAGE_SIZE){complete=1;break;}
+    int offset=page*CITY330_PAGE_SIZE;sprintf(g_city330_query_path,"/server/rest/services/Base_Cadastral_Edificacao/FeatureServer/0/query?where=1=1&geometry=-48.6860,-26.9580,-48.6250,-26.8840&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=objectid,nome,tipouso,numpav&returnGeometry=true&returnZ=false&outSR=4326&orderByFields=objectid&resultOffset=%d&resultRecordCount=%d&f=json",offset,CITY330_PAGE_SIZE);
+    char*data=NULL;DWORD size=0;if(!city330_http_get(g_city330_query_path,&data,&size))break;int seen=0;city330_parse_page(data,size,&seen);VirtualFree(data,0,MEM_RELEASE);g_city330_municipal_pages++;if(seen<CITY330_PAGE_SIZE){complete=1;break;}
   }
   return complete&&g_city330_temp_building_count>=CITY330_MIN_MUNICIPAL_BUILDINGS;
 }
@@ -118,10 +123,10 @@ static int city330_fetch_municipal_temp(void){
 static void city330_commit_municipal(void){
   g_world.buildingCount=g_city330_temp_building_count;memcpy(g_world.buildings,g_city330_temp_buildings,(SIZE_T)g_world.buildingCount*sizeof(Building));city330_exact_reset();
   g_building_vert_count12=g_city330_temp_vert_count;memcpy(g_building_poly_start12,g_city330_temp_poly_start,(SIZE_T)g_world.buildingCount*sizeof(g_building_poly_start12[0]));memcpy(g_building_poly_count12,g_city330_temp_poly_count,(SIZE_T)g_world.buildingCount*sizeof(g_building_poly_count12[0]));memcpy(g_building_verts12,g_city330_temp_verts,(SIZE_T)g_building_vert_count12*sizeof(g_building_verts12[0]));
-  g_building_polys12=g_world.buildingCount;g_building12_ready=1;g_city330_municipal_buildings=g_world.buildingCount;g_city330_municipal_live=1;building12_hash_build();
+  g_building_polys12=g_world.buildingCount;g_building12_ready=1;g_city330_municipal_buildings=g_world.buildingCount;g_city330_municipal_live=1;building12_hash_build();city330_make_paths();DeleteFileA(g_city330_region_path);
 }
 
-static int city330_try_enrich(void){if(!city330_fetch_municipal_temp())return 0;city330_commit_municipal();world_cache_write();city330_sidecar_write();return 1;}
+static int city330_try_enrich(void){LONG previous=g_load_stage;g_load_stage=7;int ok=city330_fetch_municipal_temp();g_load_stage=previous;if(!ok)return 0;city330_commit_municipal();world_cache_write();city330_sidecar_write();return 1;}
 
 static DWORD WINAPI city330_map_worker(LPVOID unused){
   (void)unused;char*data=NULL;DWORD size=0;g_city330_municipal_buildings=0;g_city330_municipal_cached=0;g_city330_municipal_live=0;g_load_stage=0;
