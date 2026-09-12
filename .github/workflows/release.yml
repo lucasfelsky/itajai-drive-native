@@ -1,0 +1,101 @@
+name: Build and Release
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - VERSION
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure MSVC environment
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+
+      - name: Read version
+        id: version
+        shell: pwsh
+        run: |
+          $version = (Get-Content VERSION -Raw).Trim()
+          if (-not $version) { throw 'VERSION is empty' }
+          "version=$version" >> $env:GITHUB_OUTPUT
+          "tag=v$version" >> $env:GITHUB_OUTPUT
+
+      - name: Build native executables
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          New-Item -ItemType Directory -Force dist | Out-Null
+
+          clang-cl /nologo /TC /O2 /GS- /Oi- /c src/native.c /Fo:dist/native.obj
+          if ($LASTEXITCODE -ne 0) { throw 'native.c compile failed' }
+          lld-link /nologo /entry:WinMainCRTStartup /subsystem:windows /machine:x64 /nodefaultlib /out:dist/ItajaiDriveNative.exe dist/native.obj kernel32.lib user32.lib gdi32.lib winhttp.lib opengl32.lib msvcrt.lib
+          if ($LASTEXITCODE -ne 0) { throw 'native link failed' }
+
+          clang-cl /nologo /TC /O2 /GS- /Oi- /c src/updater.c /Fo:dist/updater.obj
+          if ($LASTEXITCODE -ne 0) { throw 'updater.c compile failed' }
+          lld-link /nologo /entry:WinMainCRTStartup /subsystem:windows /machine:x64 /nodefaultlib /out:dist/ItajaiDriveUpdater.exe dist/updater.obj kernel32.lib user32.lib gdi32.lib winhttp.lib msvcrt.lib
+          if ($LASTEXITCODE -ne 0) { throw 'updater link failed' }
+
+      - name: Generate updater channel files
+        shell: pwsh
+        run: |
+          $version = '${{ steps.version.outputs.version }}'
+          $tag = '${{ steps.version.outputs.tag }}'
+          $repo = '${{ github.repository }}'
+          $baseUrl = "https://github.com/$repo/releases/download/$tag/"
+
+          Copy-Item VERSION dist/VERSION.txt
+          @"
+          manifest_url=https://github.com/$repo/releases/latest/download/manifest.txt
+          auto_launch=1
+          "@ | Set-Content -Encoding ascii dist/update_config.ini
+
+          python tools/make_manifest.py --version $version --base-url $baseUrl --notes "Itajai Drive Native $version" dist/ItajaiDriveNative.exe | Set-Content -Encoding ascii dist/manifest.txt
+
+          Get-FileHash dist/ItajaiDriveNative.exe -Algorithm SHA256
+          Get-FileHash dist/ItajaiDriveUpdater.exe -Algorithm SHA256
+
+      - name: Create tag if needed
+        shell: pwsh
+        run: |
+          $tag = '${{ steps.version.outputs.tag }}'
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git fetch --tags
+          if (-not (git tag --list $tag)) {
+            git tag $tag
+            git push origin $tag
+          }
+
+      - name: Publish release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $tag = '${{ steps.version.outputs.tag }}'
+          $files = @(
+            'dist/ItajaiDriveNative.exe',
+            'dist/ItajaiDriveUpdater.exe',
+            'dist/VERSION.txt',
+            'dist/update_config.ini',
+            'dist/manifest.txt'
+          )
+
+          gh release view $tag *> $null
+          if ($LASTEXITCODE -eq 0) {
+            gh release upload $tag @files --clobber
+          } else {
+            gh release create $tag @files --title "Itajai Drive Native ${{ steps.version.outputs.version }}" --generate-notes
+          }
