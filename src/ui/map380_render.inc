@@ -3,12 +3,13 @@
 // Uses the complete resident road graph, so destinations can be chosen outside
 // the currently streamed 3D region. North is up.
 // -----------------------------------------------------------------------------
+#define MAP380_GL_LINE_LOOP 0x0002
 static float g_map380_vx=0,g_map380_vy=0,g_map380_vw=0,g_map380_vh=0,g_map380_scale=1;
 static int map380_major_road(const RoadWay*r){return str_eq(r->type,"motorway")||str_eq(r->type,"trunk")||str_eq(r->type,"primary")||str_eq(r->type,"secondary")||str_eq(r->type,"tertiary");}
 static void map380_world_to_screen(V3 p,float*outX,float*outY){float cx=g_map380_vx+g_map380_vw*.5f,cy=g_map380_vy+g_map380_vh*.5f;*outX=cx+(p.x-g_map380_center.x)*g_map380_scale;*outY=cy-(p.z-g_map380_center.z)*g_map380_scale;}
 static int map380_visible(V3 p,float pad){float x,y;map380_world_to_screen(p,&x,&y);return x>=g_map380_vx-pad&&x<=g_map380_vx+g_map380_vw+pad&&y>=g_map380_vy-pad&&y<=g_map380_vy+g_map380_vh+pad;}
 static void map380_line_world(V3 a,V3 b){float ax,ay,bx,by;map380_world_to_screen(a,&ax,&ay);map380_world_to_screen(b,&bx,&by);glVertex2f(ax,ay);glVertex2f(bx,by);}
-static void map380_marker(float x,float y,float r,float cr,float cg,float cb){glColor3f(cr,cg,cb);glBegin(GL_LINE_LOOP);for(int i=0;i<18;i++){float a=(float)i*6.2831853f/18.0f;glVertex2f(x+(float)cos(a)*r,y+(float)sin(a)*r);}glEnd();glBegin(GL_LINES);glVertex2f(x-r-4,y);glVertex2f(x+r+4,y);glVertex2f(x,y-r-4);glVertex2f(x,y+r+4);glEnd();}
+static void map380_marker(float x,float y,float r,float cr,float cg,float cb){glColor3f(cr,cg,cb);glBegin(MAP380_GL_LINE_LOOP);for(int i=0;i<18;i++){float a=(float)i*6.2831853f/18.0f;glVertex2f(x+(float)cos(a)*r,y+(float)sin(a)*r);}glEnd();glBegin(GL_LINES);glVertex2f(x-r-4,y);glVertex2f(x+r+4,y);glVertex2f(x,y-r-4);glVertex2f(x,y+r+4);glEnd();}
 static void map380_landmark(V3 p,const char*name,float cr,float cg,float cb){if(!map380_visible(p,22))return;float x,y;map380_world_to_screen(p,&x,&y);glColor3f(cr,cg,cb);glBegin(GL_QUADS);glVertex2f(x-3,y-3);glVertex2f(x+3,y-3);glVertex2f(x+3,y+3);glVertex2f(x-3,y+3);glEnd();if(g_map380_range<2700.0f)gl_text(x+7,y-4,name,.76f,.80f,.82f);}
 static void map380_draw_roads(void){
   glLineWidth(1.0f);glColor3f(.30f,.34f,.37f);glBegin(GL_LINES);
