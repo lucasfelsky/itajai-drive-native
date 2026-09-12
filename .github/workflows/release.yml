@@ -41,7 +41,7 @@ jobs:
 
           clang-cl /nologo /TC /O2 /GS- /Oi- /c src/native.c /Fo:dist/native.obj
           if ($LASTEXITCODE -ne 0) { throw 'native.c compile failed' }
-          lld-link /nologo /entry:WinMainCRTStartup /subsystem:windows /machine:x64 /nodefaultlib /out:dist/ItajaiDriveNative.exe dist/native.obj kernel32.lib user32.lib gdi32.lib winhttp.lib ws2_32.lib opengl32.lib winmm.lib @crt
+          lld-link /nologo /entry:WinMainCRTStartup /subsystem:windows /machine:x64 /nodefaultlib /out:dist/ItajaiDriveNative.exe dist/native.obj kernel32.lib user32.lib gdi32.lib winhttp.lib ws2_32.lib iphlpapi.lib opengl32.lib winmm.lib @crt
           if ($LASTEXITCODE -ne 0) { throw 'native link failed' }
 
           clang-cl /nologo /TC /O2 /GS- /Oi- /c src/updater.c /Fo:dist/updater.obj
