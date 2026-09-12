@@ -44,4 +44,8 @@
 #include "../sim/sim212_game.inc"
 #undef game_update
 #include "../world/life213.inc"
+#define game_update game_update_legacy213
 #include "../sim/sim213_game.inc"
+#undef game_update
+#include "../ui/ui215_state.inc"
+#include "../sim/sim215_game.inc"
