@@ -1,11 +1,12 @@
 // -----------------------------------------------------------------------------
-// 2.11 driving camera behavior.
+// 2.11 driving camera behavior (3.0.1 reverse polish).
 // Third-person chase cameras have a canonical rear position, yield to mouse-look,
 // then return after mouse idle. Reverse automatically swings the camera around so
 // the driver can see the direction of travel; after stopping it stays there for
 // roughly five seconds, or returns immediately once forward travel resumes.
 // -----------------------------------------------------------------------------
 static float g_camera_reverse_hold211=0.0f;
+static float g_camera_reverse_intent211=0.0f;
 static int g_camera_reverse_view211=0;
 static int g_camera_auto_state211=0; // 0 rear chase, 1 reverse-facing
 
@@ -14,11 +15,12 @@ static void camera211_update(float dt){
   g_camera_mouse_idle211=minf(999.0f,g_camera_mouse_idle211+dt);
 
   // Cockpit and overhead/free presentation remain fully manual.
-  if(g_player.camera!=0&&g_player.camera!=1){g_camera_reverse_hold211=0;g_camera_reverse_view211=0;g_camera_auto_state211=0;return;}
+  if(g_player.camera!=0&&g_player.camera!=1){g_camera_reverse_hold211=0;g_camera_reverse_intent211=0;g_camera_reverse_view211=0;g_camera_auto_state211=0;return;}
 
   int w=key_down('W'),s=key_down('S');
   float v=g_player.speed,av=absf(v);
-  int reversing=(v<-.35f)||(s&&!w&&v<.15f);
+  if(s&&!w&&v<.65f)g_camera_reverse_intent211=minf(.5f,g_camera_reverse_intent211+dt);else g_camera_reverse_intent211=maxf(0.0f,g_camera_reverse_intent211-dt*4.0f);
+  int reversing=(v<-.28f)||(g_camera_reverse_intent211>.22f&&s&&!w&&av<.22f);
   int forwarding=(v>.35f)||(w&&!s);
   int stopped=av<.24f&&!w&&!s;
 
@@ -28,6 +30,7 @@ static void camera211_update(float dt){
   }else if(forwarding){
     g_camera_reverse_view211=0;
     g_camera_reverse_hold211=0.0f;
+    g_camera_reverse_intent211=0.0f;
   }else if(stopped&&g_camera_reverse_view211){
     g_camera_reverse_hold211=maxf(0.0f,g_camera_reverse_hold211-dt);
     if(g_camera_reverse_hold211<=0.0f)g_camera_reverse_view211=0;
