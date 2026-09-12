@@ -4,22 +4,37 @@ Mini-engine 3D nativa para Windows, construída do zero em C/Win32 + OpenGL — 
 
 ## Estado atual
 
-- Jogo: **2.2.0 — QA Fix Pass**
+- Jogo: **2.3.0 — Foundation Pass**
 - Updater: **1.1.0 — retry + rollback transacional + handoff automático**
 - Plataforma: Windows x64
 - Distribuição: GitHub Releases público + updater nativo
 - Build: GitHub Actions / Windows / clang-cl + lld-link
 - Release gate: `tools/release_check.py` valida EXE, PAK, frota, updater handoff, manifesto, hashes e canal antes da tag
 
+## Foundation Pass — 2.3
+
+A 2.3 volta a prioridade para a base física antes de continuar refinando os modelos dos carros:
+
+- cada carro jogável agora possui um **casco físico de três círculos** com largura e comprimento próprios, cobrindo nariz, centro e traseira;
+- o círculo central legado permanece como broad phase/compatibilidade, mas deixa de ser a única representação física do carro;
+- o casco usa os footprints OSM exatos da 2.2 no narrow phase;
+- deslocamentos maiores recebem **continuous sweep** adaptativo para reduzir tunneling em fachadas e sinais;
+- frames lentos são divididos automaticamente em até quatro **physics substeps**, reduzindo dependência do FPS;
+- colisão com tráfego ganha detecção complementar no nariz e na traseira;
+- o perfil físico do Renegade foi alinhado ao quarto carro jogável: wheelbase 2,57 m, track 1,55 m e massa aproximada de 1.470 kg;
+- `Tab` desenha os três círculos do casco em ciano e mostra substeps, hull hits, sweep hits e contatos com tráfego.
+
+Mais detalhes em `docs/FOUNDATION_2_3.md`.
+
 ## QA Fix Pass — 2.2
 
-A 2.2 parte diretamente do primeiro QA real da 2.1.1 (`SELF-CHECK 14/14`, GLSL ativo):
+A 2.2 partiu diretamente do primeiro QA real da 2.1.1 (`SELF-CHECK 14/14`, GLSL ativo):
 
 - colisão de prédios mantém AABB apenas como **broad phase** e usa o **footprint OSM real no narrow phase** quando o polígono está disponível, eliminando os cantos vazios que viravam paredes invisíveis;
 - prédios sem sidecar de footprint continuam com fallback AABB para nunca perder colisão;
 - freio de mão foi recalibrado: mais desaceleração longitudinal, menos yaw artificial e maior aderência lateral traseira durante o lock;
 - os oito glTF de veículos foram refeitos com **silhouette revision 22**, usando nove estações de carroceria e seis de teto/cabine por modelo em vez do perfil quase compartilhado anterior;
-- Uno, Gol, HB20, Strada, Corolla, Renegade, Onix e Celta agora têm volumes de teto/nariz/traseira muito mais distintos mesmo antes dos detalhes de trim.
+- Uno, Gol, HB20, Strada, Corolla, Renegade, Onix e Celta agora têm volumes de teto/nariz/traseira mais distintos, embora a fidelidade visual ainda seja deliberadamente low/mid-poly nesta fase.
 
 ## Mundo
 
@@ -41,6 +56,9 @@ A 2.2 parte diretamente do primeiro QA real da 2.1.1 (`SELF-CHECK 14/14`, GLSL a
 - comportamento distinto **FWD / RWD / AWD**
 - TCS/ABS aproximados, freio-motor, handbrake e perda de grip sob potência
 - FOV dinâmico e câmeras externas/cockpit
+- casco físico tridimensional no plano XZ por três círculos longitudinais
+- sweep contínuo contra colisores estáticos
+- substeps adaptativos em frames lentos
 
 ## Renderer — 1.9+
 
@@ -72,7 +90,7 @@ A 2.2 parte diretamente do primeiro QA real da 2.1.1 (`SELF-CHECK 14/14`, GLSL a
 
 ## Frota brasileira
 
-`tools/generate_vehicle_gltf.py` gera meshes originais procedurais usando proporções reconhecíveis de carros reais populares no Brasil. Badges/logotipos não são incluídos. Desde 2.2, cada modelo usa perfil longitudinal/cabine próprio em vez de apenas pequenas variações de uma carroceria comum.
+`tools/generate_vehicle_gltf.py` gera meshes originais procedurais usando proporções de carros populares no Brasil. Badges/logotipos não são incluídos. Desde 2.2, cada modelo usa perfil longitudinal/cabine próprio em vez de apenas pequenas variações de uma carroceria comum.
 
 - **Fiat Uno Way 2014**
 - **Volkswagen Gol G6**
@@ -102,6 +120,7 @@ Os quatro slots jogáveis usam Uno Way, Gol G6, HB20 e Renegade. O tráfego usa 
 - troca de faixa, yielding e densidade por horário/setor
 - pedestres leves, barcos e carros estacionados
 - carros estacionados próximos usam a apresentação completa da frota (paint/glass/rubber/chrome, trim e rodas); os distantes usam body-only LOD para preservar desempenho
+- 2.3 adiciona contato complementar do nariz/traseira do jogador com o tráfego
 
 ## Navegação e UI
 
@@ -111,7 +130,7 @@ Os quatro slots jogáveis usam Uno Way, Gol G6, HB20 e Renegade. O tráfego usa 
 - tour opcional por landmarks com **F2**
 - **F1** abre ajuda e **self-check 14/14**
 - o self-check mostra PAK/frota/renderer/streaming e se GLSL está ativo ou em fallback
-- `Tab` exibe telemetria de driving, renderer, wetness, iluminação, materiais e áudio; em 2.2 também informa se a colisão por footprint está ativa ou em fallback AABB
+- `Tab` exibe telemetria de driving, renderer, wetness, iluminação, materiais e áudio; desde 2.2 também informa colisão por footprint e, na 2.3, mostra o casco físico e os substeps
 
 ## Updater 1.1 + handoff 2.1
 
@@ -155,7 +174,7 @@ Se uma dessas verificações falhar, não há tag nem GitHub Release.
 | 1–8 no editor | tipo de prop |
 | Enter / Delete | colocar / remover prop |
 | [ / ] | girar prop |
-| Tab | debug / telemetria |
+| Tab | debug / telemetria / casco físico |
 | T | avançar horário |
 | Y | trocar clima |
 | U | limpar cache do mapa |
@@ -196,6 +215,7 @@ O workflow `.github/workflows/release.yml` compila os executáveis Windows x64, 
 - 2.0 — Release Candidate / hardening
 - 2.1 — Delivery Polish / updater handoff
 - 2.1.1 — parked fleet production presentation + LOD
-- **2.2 — QA Fix Pass: exact footprint collisions, handbrake retune e silhouette rev22**
+- 2.2 — QA Fix Pass: exact footprint collisions, handbrake retune e silhouette rev22
+- **2.3 — Foundation Pass: vehicle-sized hull, sweep collision e adaptive physics substeps**
 
 Dados de mapa: © OpenStreetMap contributors.
