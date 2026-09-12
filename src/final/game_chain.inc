@@ -69,5 +69,8 @@
 #define game_update game_update_legacy321
 #include "../sim/net321_game.inc"
 #undef game_update
+#include "../world/route381_world.inc"
+#define fetch_host route381_fetch_host
 #include "../world/city330_world.inc"
+#undef fetch_host
 #include "../ui/map380_game.inc"
