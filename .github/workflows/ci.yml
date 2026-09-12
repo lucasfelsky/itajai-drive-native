@@ -5,7 +5,7 @@ name: Development Build Gate
 # multiplayer transports and generated assets.
 on:
   push:
-    branches: [main, dev/multiplayer-foundation, dev/internet-multiplayer, dev/hamachi-lan-ui, dev/city-rebuild-330, dev/city-identity-340, dev/city-architecture-350, dev/city-urban-fabric-360, dev/city-final-polish-370, dev/interactive-map-380]
+    branches: [main, dev/multiplayer-foundation, dev/internet-multiplayer, dev/hamachi-lan-ui, dev/city-rebuild-330, dev/city-identity-340, dev/city-architecture-350, dev/city-urban-fabric-360, dev/city-final-polish-370, dev/interactive-map-380, dev/map-route-snap-381]
     paths:
       - 'VERSION'
       - 'src/**'
