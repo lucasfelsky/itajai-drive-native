@@ -153,4 +153,14 @@
 #undef draw_buildings
 #undef draw_hud
 #include "../render/roads29.inc"
+#define draw_ground draw_ground_legacy290
+#define draw_roads draw_roads_legacy290
+#define draw_buildings draw_buildings_legacy290
+#define draw_hud draw_hud_legacy290
 #include "../render/render290.inc"
+#undef draw_ground
+#undef draw_roads
+#undef draw_buildings
+#undef draw_hud
+#include "../render/vehicle211.inc"
+#include "../render/render211.inc"
