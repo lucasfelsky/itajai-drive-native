@@ -4,15 +4,13 @@ Uma mini-engine 3D nativa para Windows, construída do zero em C/Win32 + OpenGL 
 
 ## Estado atual
 
-- Jogo: **1.0.0 — Vertical Slice**
+- Jogo: **1.1.0 — Driving Feel 2.0**
 - Updater: **1.0.0**
 - Plataforma: Windows x64
 - Distribuição: GitHub Releases público + updater nativo
 - Build: GitHub Actions / Windows / clang-cl + lld-link
 
-## O que existe na 1.0
-
-### Mundo
+## Mundo
 
 - OpenStreetMap / Overpass para ruas, prédios e semáforos
 - corredor urbano de direção de arte: **Porto, Centro, Beira-Rio/Fazenda, Molhes, Atalaia, Cabeçudas e Praia Brava**
@@ -24,16 +22,25 @@ Uma mini-engine 3D nativa para Windows, construída do zero em C/Win32 + OpenGL 
 
 > Os setores são regiões aproximadas de direção de arte; não representam limites administrativos oficiais.
 
-### Direção e simulação
+## Direção e simulação — 1.1
 
-- física simcade com velocidade vetorial, slip e yaw
+A 1.1 mantém o chassis simcade validado da 1.0 e acrescenta uma camada dinâmica por eixo:
+
 - quatro rodas com estado próprio de superfície/suspensão/carga
-- transferência de peso, RPM, marchas e ABS/TCS aproximados
+- slip angle dianteiro/traseiro e saturação progressiva de pneu
+- transferência longitudinal de carga
+- comportamento distinto **FWD / RWD / AWD**
+- perda de aderência dos pneus motrizes sob potência
+- freio-motor por marcha
+- TCS/ABS aproximados integrados ao limite de aderência
+- handbrake com redução forte de grip traseiro
+- telemetria de understeer/oversteer, carga dos eixos e slip
+- FOV da câmera varia suavemente com a velocidade
 - asfalto, meio-fio e grama com comportamento diferente
 - colisão com prédios, props e tráfego
 - quatro perfis de carro jogável
 
-### Tráfego e mundo vivo
+## Tráfego e mundo vivo
 
 - grafo viário + A*
 - lane model, car-following, semáforos e lane connectors em interseções
@@ -41,7 +48,7 @@ Uma mini-engine 3D nativa para Windows, construída do zero em C/Win32 + OpenGL 
 - oito silhuetas fictícias de veículos inspiradas em categorias comuns no Brasil
 - pedestres leves, barcos e carros estacionados
 
-### Renderer
+## Renderer
 
 - OpenGL nativo com renderer GLSL 1.20 e fallback fixed-function
 - materiais procedurais e iluminação fisicamente inspirada compatível
@@ -51,7 +58,7 @@ Uma mini-engine 3D nativa para Windows, construída do zero em C/Win32 + OpenGL 
 - cache de meshes por display lists
 - LOD/frame budget adaptativo para preservar física e navegação antes de cortar detalhes cosméticos
 
-### Áudio
+## Áudio
 
 - áudio procedural nativo via WinMM
 - motor ligado a RPM/carga
@@ -59,13 +66,14 @@ Uma mini-engine 3D nativa para Windows, construída do zero em C/Win32 + OpenGL 
 - chuva e ambiente costeiro
 - fallback silencioso se o dispositivo de áudio não estiver disponível
 
-### Navegação e UI
+## Navegação e UI
 
 - GPS A* com reroute
 - minimapa em tempo real com ruas, rota, tráfego e jogador
 - Photo Mode: **P** congela a simulação; **H** esconde a HUD
 - tour opcional por landmarks: **F2** escolhe o próximo destino conectado
 - tela de ajuda/self-check: **F1**
+- `Tab` mostra também a telemetria da camada Driving Feel 2.0
 
 ## Controles
 
@@ -104,17 +112,7 @@ Uma mini-engine 3D nativa para Windows, construída do zero em C/Win32 + OpenGL 
 
 ## Build e releases
 
-O workflow `.github/workflows/release.yml`:
-
-1. compila `ItajaiDriveNative.exe` e `ItajaiDriveUpdater.exe` em Windows x64;
-2. gera as carrocerias fictícias em glTF;
-3. compila todos os assets para `itajai_assets_v08.pak`;
-4. gera `manifest.txt`, `VERSION.txt` e `update_config.ini`;
-5. calcula hashes SHA-256;
-6. cria a tag `v<versão>`;
-7. publica/atualiza a GitHub Release.
-
-O updater baixa para `.update/`, valida tamanho + SHA-256 e só então substitui os arquivos gerenciados. Caches, configurações e landmarks locais permanecem fora do manifesto e são preservados.
+O workflow `.github/workflows/release.yml` compila os executáveis em Windows x64, gera as carrocerias fictícias em glTF, compila todos os assets para o PAK, gera manifesto + hashes SHA-256, cria a tag e publica a GitHub Release. O updater valida tamanho e hash antes de substituir arquivos gerenciados; caches, configurações e landmarks permanecem preservados.
 
 ## Evolução principal
 
@@ -132,6 +130,7 @@ O updater baixa para `.update/`, valida tamanho + SHA-256 e só então substitui
 - 0.70 — minimapa, UI e Photo Mode
 - 0.80 — performance polish
 - 0.90 — conteúdo final de distritos
-- **1.0 — vertical slice integrado**
+- 1.0 — vertical slice integrado
+- **1.1 — Driving Feel 2.0**
 
 Dados de mapa: © OpenStreetMap contributors.
