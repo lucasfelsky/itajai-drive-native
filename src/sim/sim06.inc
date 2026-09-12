@@ -9,7 +9,7 @@ static const VehicleProfile g_vehicle_profiles[4]={
   {7.2f,40.0f,1010.0f,2.37f,1.43f,.54f,14.5f,1.00f,.018f,.68f},
   {8.2f,45.0f,1125.0f,2.48f,1.47f,.52f,15.0f,1.04f,.018f,.70f},
   {9.5f,52.0f,1260.0f,2.58f,1.51f,.50f,15.8f,1.08f,.019f,.72f},
-  {8.7f,47.0f,1390.0f,2.74f,1.56f,.49f,15.5f,.98f,.021f,.78f}
+  {8.7f,47.0f,1470.0f,2.57f,1.55f,.49f,15.5f,.98f,.021f,.78f}
 };
 
 static int g_traffic_lane[MAX_TRAFFIC];
