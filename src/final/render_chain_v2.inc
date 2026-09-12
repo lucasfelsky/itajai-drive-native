@@ -119,3 +119,4 @@
 #undef draw_hud
 #include "rc290.inc"
 #include "../render/render290_v2.inc"
+#include "../render/net301_render.inc"
