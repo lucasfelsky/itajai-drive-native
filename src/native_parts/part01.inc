@@ -1,4 +1,4 @@
-// Itajai Drive Native 0.4.2
+// Itajai Drive Native 0.7.0
 // Win32 + OpenGL 1.1, no browser / no external engine.
 #define WIN32_LEAN_AND_MEAN 1
 
@@ -89,6 +89,11 @@ __declspec(dllimport) HDC WINAPI GetDC(HWND);
 __declspec(dllimport) int WINAPI ReleaseDC(HWND,HDC);
 __declspec(dllimport) short WINAPI GetAsyncKeyState(int);
 __declspec(dllimport) BOOL WINAPI SetWindowTextA(HWND,LPCSTR);
+__declspec(dllimport) BOOL WINAPI ClientToScreen(HWND,POINT*);
+__declspec(dllimport) BOOL WINAPI SetCursorPos(int,int);
+__declspec(dllimport) int WINAPI ShowCursor(BOOL);
+__declspec(dllimport) HWND WINAPI SetCapture(HWND);
+__declspec(dllimport) BOOL WINAPI ReleaseCapture(void);
 
 __declspec(dllimport) int WINAPI ChoosePixelFormat(HDC,const PIXELFORMATDESCRIPTOR*);
 __declspec(dllimport) BOOL WINAPI SetPixelFormat(HDC,int,const PIXELFORMATDESCRIPTOR*);
