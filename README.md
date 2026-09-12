@@ -4,7 +4,7 @@ Uma mini-engine 3D nativa para Windows, construída do zero em C/Win32 + OpenGL 
 
 ## Estado atual
 
-- Jogo: **1.2.0 — Renderer 2.0**
+- Jogo: **1.3.0 — Roads 2.0**
 - Updater: **1.0.0**
 - Plataforma: Windows x64
 - Distribuição: GitHub Releases público + updater nativo
@@ -20,7 +20,7 @@ Uma mini-engine 3D nativa para Windows, construída do zero em C/Win32 + OpenGL 
 - quality layer da Beira-Rio e conteúdo curado para Porto, Molhes e setores costeiros
 - editor persistente de landmarks via `itajai_landmarks_v19.bin`
 
-> Os setores são regiões aproximadas de direção de arte; não representam limites administrativos oficiais.
+> Os setores e o relevo são art-directed; não representam limites administrativos ou levantamento topográfico oficial.
 
 ## Direção e simulação — 1.1+
 
@@ -34,24 +34,30 @@ Uma mini-engine 3D nativa para Windows, construída do zero em C/Win32 + OpenGL 
 - handbrake com redução forte de grip traseiro
 - telemetria de understeer/oversteer, carga dos eixos e slip
 - FOV da câmera varia suavemente com a velocidade
-- asfalto, meio-fio e grama com comportamento diferente
-- colisão com prédios, props e tráfego
 
-## Renderer — 1.2
+## Renderer — 1.2+
 
 - OpenGL nativo com **GLSL 1.20 PBR-compat** e fallback fixed-function
 - microfacet lighting + Fresnel e ACES-like tone mapping
 - wetness persistente alimenta roughness e resposta especular
-- farol do jogador calculado em eye space com cone/atenuação
-- pool de farol translúcido também aparece no caminho fallback
+- farol do jogador em eye space + pool de luz fallback
 - janelas emissivas procedurais durante a noite
-- material dedicado de água com Fresnel aproximado e ondulação procedural
+- água com material dedicado, Fresnel aproximado e ondulação procedural
 - iluminação/fog respondem a cloud, wetness e lightning
-- textura procedural de asfalto com variação de microfissuras
 - sombras projetadas, reflexos estilizados de pista molhada e pós leve
-- glTF/GLB compilado para runtime PAK
-- cache de meshes por display lists
-- LOD/frame budget adaptativo para preservar física e navegação antes de cortar detalhes cosméticos
+
+## Roads 2.0 — 1.3
+
+- ruas próximas seguem uma grade vertical derivada do terreno em vez de Y=0 global
+- jogador, tráfego e suspensão acompanham a altura da via
+- deck de asfalto elevado sobre o terreno
+- meio-fio, calçada e sarjeta procedurais
+- linhas de bordo, centro amarelo e divisões tracejadas
+- remendos de asfalto e grelhas/bueiros determinísticos
+- ciclovias em trechos largos de Beira-Rio e setores costeiros
+- lombadas procedurais esparsas em vias locais
+- lombadas têm resposta física leve em velocidade
+- debug mostra grade/altura e densidade de detalhes viários
 
 ## Tráfego e mundo vivo
 
@@ -76,7 +82,7 @@ Uma mini-engine 3D nativa para Windows, construída do zero em C/Win32 + OpenGL 
 - Photo Mode: **P** congela a simulação; **H** esconde a HUD
 - tour opcional por landmarks: **F2** escolhe o próximo destino conectado
 - tela de ajuda/self-check: **F1**
-- `Tab` mostra telemetria de driving, renderer e clima
+- `Tab` mostra telemetria de driving, renderer, clima e Roads 2.0
 
 ## Controles
 
@@ -126,15 +132,10 @@ O workflow `.github/workflows/release.yml` compila os executáveis em Windows x6
 - 0.10–0.12 — expansão urbana, terreno e footprints OSM
 - 0.15–0.18 — rodas, drivetrain, frota, tráfego e áudio
 - 0.19/0.20 — editor e otimização/LOD
-- 0.30 — Beira-Rio Quality District
-- 0.40 — frota ambiente expandida
-- 0.50 — mundo vivo
-- 0.60 — clima dinâmico
-- 0.70 — minimapa, UI e Photo Mode
-- 0.80 — performance polish
-- 0.90 — conteúdo final de distritos
+- 0.30–0.90 — quality district, mundo vivo, clima, UI, performance e conteúdo
 - 1.0 — vertical slice integrado
 - 1.1 — Driving Feel 2.0
-- **1.2 — Renderer 2.0**
+- 1.2 — Renderer 2.0
+- **1.3 — Roads 2.0**
 
 Dados de mapa: © OpenStreetMap contributors.
