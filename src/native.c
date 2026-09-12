@@ -73,7 +73,11 @@
 #define game_update game_update_legacy17
 #include "sim/sim17_game.inc"
 #undef game_update
+#define game_update game_update_legacy18
 #include "sim/audio18.inc"
+#undef game_update
+#include "world/editor19.inc"
+#include "sim/sim19_game.inc"
 
 #define setup_camera setup_camera_legacy06
 #define draw_ground draw_ground_legacy06
@@ -194,7 +198,16 @@
 #undef draw_roads
 #undef draw_buildings
 #undef draw_hud
+#define draw_ground draw_ground_legacy18
+#define draw_roads draw_roads_legacy18
+#define draw_buildings draw_buildings_legacy18
+#define draw_hud draw_hud_legacy18
 #include "render/render18.inc"
+#undef draw_ground
+#undef draw_roads
+#undef draw_buildings
+#undef draw_hud
+#include "render/render19.inc"
 
 #define draw_loading draw_loading_legacy06
 #define render render_legacy06
