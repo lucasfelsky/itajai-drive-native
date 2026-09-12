@@ -128,3 +128,4 @@
 #include "../render/city340_identity.inc"
 #include "../render/city340_streets.inc"
 #include "../render/city350_buildings.inc"
+#include "../render/city360_urban.inc"
