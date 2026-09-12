@@ -5,6 +5,13 @@
 // Delete clears the route and Home recenters on the player. Mouse click routing
 // is implemented by map380_render.inc / the final Win32 window procedure.
 // -----------------------------------------------------------------------------
+#define MAP380_VK_OEM_PLUS 0xBB
+#define MAP380_VK_ADD 0x6B
+#define MAP380_VK_OEM_MINUS 0xBD
+#define MAP380_VK_SUBTRACT 0x6D
+#define MAP380_VK_HOME 0x24
+#define MAP380_VK_DELETE 0x2E
+#define MAP380_VK_BACK 0x08
 static int g_map380_open=0,g_map380_m_prev=0;
 static V3 g_map380_center={0,0,0},g_map380_cursor={0,0,0};
 static float g_map380_range=1800.0f;
@@ -34,10 +41,10 @@ static void map380_close_now(void){g_map380_open=0;}
 static void map380_input(float dt){
   if(!g_map380_open)return;float step=maxf(55.0f,g_map380_range*.58f)*dt;
   if(key_down(VK_LEFT))g_map380_cursor.x-=step;if(key_down(VK_RIGHT))g_map380_cursor.x+=step;if(key_down(VK_UP))g_map380_cursor.z+=step;if(key_down(VK_DOWN))g_map380_cursor.z-=step;
-  if(key_tap(VK_OEM_PLUS)||key_tap(VK_ADD))map380_zoom(1);if(key_tap(VK_OEM_MINUS)||key_tap(VK_SUBTRACT))map380_zoom(-1);
-  if(key_tap(VK_HOME)){map380_center_player();map380_status("CENTRALIZADO NO JOGADOR");}
+  if(key_tap(MAP380_VK_OEM_PLUS)||key_tap(MAP380_VK_ADD))map380_zoom(1);if(key_tap(MAP380_VK_OEM_MINUS)||key_tap(MAP380_VK_SUBTRACT))map380_zoom(-1);
+  if(key_tap(MAP380_VK_HOME)){map380_center_player();map380_status("CENTRALIZADO NO JOGADOR");}
   if(key_tap(VK_RETURN))map380_set_destination(g_map380_cursor);
-  if(key_tap(VK_DELETE)||key_tap(VK_BACK))map380_clear_route();
+  if(key_tap(MAP380_VK_DELETE)||key_tap(MAP380_VK_BACK))map380_clear_route();
   map380_keep_cursor_visible();g_player.body.vel=v3(0,0,0);g_player.speed=0;g_player.lateralSpeed=0;g_player.body.angularVel=0;
 }
 
