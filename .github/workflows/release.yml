@@ -49,6 +49,12 @@ jobs:
           lld-link /nologo /entry:WinMainCRTStartup /subsystem:windows /machine:x64 /nodefaultlib /out:dist/ItajaiDriveUpdater.exe dist/updater.obj kernel32.lib user32.lib gdi32.lib winhttp.lib @crt
           if ($LASTEXITCODE -ne 0) { throw 'updater link failed' }
 
+      - name: Compile glTF/GLB runtime assets
+        shell: pwsh
+        run: |
+          python tools/compile_assets.py -o dist/itajai_assets_v08.pak assets/source/tree.gltf assets/source/streetlamp.gltf assets/source/container.gltf
+          if ($LASTEXITCODE -ne 0) { throw 'asset compilation failed' }
+
       - name: Generate updater channel files
         shell: pwsh
         run: |
@@ -63,10 +69,11 @@ jobs:
           auto_launch=1
           "@ | Set-Content -Encoding ascii dist/update_config.ini
 
-          python tools/make_manifest.py --version $version --base-url $baseUrl --notes "Itajai Drive Native $version" dist/ItajaiDriveNative.exe | Set-Content -Encoding ascii dist/manifest.txt
+          python tools/make_manifest.py --version $version --base-url $baseUrl --notes "Itajai Drive Native $version" dist/ItajaiDriveNative.exe dist/itajai_assets_v08.pak | Set-Content -Encoding ascii dist/manifest.txt
 
           Get-FileHash dist/ItajaiDriveNative.exe -Algorithm SHA256
           Get-FileHash dist/ItajaiDriveUpdater.exe -Algorithm SHA256
+          Get-FileHash dist/itajai_assets_v08.pak -Algorithm SHA256
 
       - name: Create tag if needed
         shell: pwsh
@@ -89,6 +96,7 @@ jobs:
           $files = @(
             'dist/ItajaiDriveNative.exe',
             'dist/ItajaiDriveUpdater.exe',
+            'dist/itajai_assets_v08.pak',
             'dist/VERSION.txt',
             'dist/update_config.ini',
             'dist/manifest.txt'
