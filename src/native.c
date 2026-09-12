@@ -31,7 +31,6 @@
 #include "foundation/globals.inc"
 #include "foundation/foundation.inc"
 #include "sim/sim06.inc"
-#include "urban/urban10_core.inc"
 #include "settings/settings07_state.inc"
 
 // Keep the original 0.7 mouse handler internally; 0.7.1 provides persistent
@@ -55,6 +54,9 @@
 #undef draw_box
 #include "render/primitives09.inc"
 
+// g_player is now declared, so the 0.10 sector/traffic policy can safely bind.
+#include "urban/urban10_core.inc"
+
 // 0.7 gameplay remains internally available; 0.7.1 wraps it with the pause menu.
 #define game_update game_update_legacy07
 #include "sim/sim07_game.inc"
@@ -63,13 +65,15 @@
 #include "settings/settings07_game.inc"
 #undef game_update
 
-// 0.8 asset/runtime regional streaming, then 0.10 sector-aware prop population.
+// 0.8 asset/runtime regional streaming.
 #include "assets/assets08.inc"
 #include "stream/stream08.inc"
-#include "urban/urban10_stream.inc"
 #define game_update game_update_legacy08
 #include "sim/sim08_game.inc"
 #undef game_update
+
+// sim08_game declares the stream-ready state consumed by the 0.10 prop layer.
+#include "urban/urban10_stream.inc"
 #include "sim/sim10_game.inc"
 
 // Keep original renderers as explicit fallbacks.
