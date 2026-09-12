@@ -191,7 +191,10 @@
 #undef draw_buildings
 #undef draw_hud
 #include "render/vehicle16.inc"
+#define draw_traffic draw_traffic_legacy17
 #include "render/traffic17.inc"
+#undef draw_traffic
+#include "render/traffic40.inc"
 #define draw_ground draw_ground_legacy17
 #define draw_roads draw_roads_legacy17
 #define draw_buildings draw_buildings_legacy17
@@ -228,7 +231,16 @@
 #undef draw_roads
 #undef draw_buildings
 #undef draw_hud
+#define draw_ground draw_ground_legacy30
+#define draw_roads draw_roads_legacy30
+#define draw_buildings draw_buildings_legacy30
+#define draw_hud draw_hud_legacy30
 #include "render/render30.inc"
+#undef draw_ground
+#undef draw_roads
+#undef draw_buildings
+#undef draw_hud
+#include "render/render40.inc"
 
 #define draw_loading draw_loading_legacy06
 #define render render_legacy06
