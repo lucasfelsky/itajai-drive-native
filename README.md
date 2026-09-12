@@ -1,10 +1,10 @@
 # Itajaí Drive Native
 
-Uma mini-engine 3D nativa para Windows, construída do zero em C/Win32 + OpenGL — sem Unity, Unreal, Electron ou navegador embutido. O objetivo é direção livre em uma versão comprimida e reconhecível de Itajaí/SC, usando OpenStreetMap como base de ruas, prédios e navegação.
+Mini-engine 3D nativa para Windows, construída do zero em C/Win32 + OpenGL — sem Unity, Unreal, Electron ou navegador embutido. O objetivo é direção livre em uma versão comprimida e reconhecível de Itajaí/SC, usando OpenStreetMap como base de ruas, prédios e navegação.
 
 ## Estado atual
 
-- Jogo: **1.8.0 — Vehicle Polish**
+- Jogo: **1.9.0 — Production Presentation**
 - Updater: **1.0.0**
 - Plataforma: Windows x64
 - Distribuição: GitHub Releases público + updater nativo
@@ -20,62 +20,51 @@ Uma mini-engine 3D nativa para Windows, construída do zero em C/Win32 + OpenGL 
 - quality layer da Beira-Rio e conteúdo curado para Porto, Molhes e setores costeiros
 - editor persistente de landmarks via `itajai_landmarks_v19.bin`
 
-> Os setores, relevo, fachadas e detalhes urbanos são art-directed; o objetivo é reconhecimento/atmosfera, não uma reconstrução cadastral ou fotogramétrica.
+> Os setores, relevo, fachadas e detalhes urbanos são art-directed; o objetivo é reconhecimento/atmosfera, não reconstrução cadastral ou fotogramétrica.
 
-## Direção e simulação — 1.1+
+## Direção e simulação
 
 - quatro rodas com estado próprio de superfície/suspensão/carga
 - slip angle dianteiro/traseiro e saturação progressiva de pneu
 - transferência longitudinal de carga
 - comportamento distinto **FWD / RWD / AWD**
-- perda de aderência dos pneus motrizes sob potência
-- freio-motor por marcha
-- TCS/ABS aproximados integrados ao limite de aderência
-- handbrake com redução forte de grip traseiro
-- telemetria de understeer/oversteer, carga dos eixos e slip
-- FOV da câmera varia suavemente com a velocidade
+- TCS/ABS aproximados, freio-motor, handbrake e perda de grip sob potência
+- FOV dinâmico e câmeras externas/cockpit
 
-## Renderer — 1.7+
+## Renderer — 1.9
 
 - OpenGL nativo com **GLSL 1.20 PBR-compat** e fallback fixed-function
 - microfacet lighting + Fresnel e ACES-like tone mapping
-- wetness persistente alimenta roughness e resposta especular
-- água com material dedicado, Fresnel aproximado e ondulação procedural
-- iluminação/fog respondem a cloud, wetness e lightning
-- dusk/amanhecer reforçados, céu estrelado e lua estilizada
-- postes e comércio criam pools locais de iluminação
-- feixes visuais de farol no piso para player e tráfego próximo
-- pista continua úmida enquanto `wetness` seca depois da chuva
-- poças determinísticas e reflexos locais
-- reflexo vermelho de freio em piso molhado
-- vegetação próxima recebe volume adicional de copa
+- wetness persistente, água dedicada, fog/clima e lightning
+- céu de dusk/noite com estrelas e lua estilizada
+- postes/comércio com pools locais de luz e feixes de farol no piso
+- poças, pista úmida persistente e reflexos locais de freio
+- materiais automotivos dedicados:
+  - `CAR_PAINT` com clearcoat/Fresnel e reflexão hemisférica aproximada
+  - `GLASS` tintado/refletivo
+  - `RUBBER` para pneus/plásticos
+  - `CHROME` para aro/trim/grade
+- reflexos locais da cor dos veículos sobre pista molhada
+- tachões refletivos procedurais em vias largas à noite
 
-## Roads 2.0 — 1.3
+## Roads 2.0
 
-- ruas próximas seguem uma grade vertical derivada do terreno em vez de Y=0 global
+- ruas acompanham a grade vertical do terreno
 - jogador, tráfego e suspensão acompanham a altura da via
-- deck de asfalto elevado sobre o terreno
-- meio-fio, calçada e sarjeta procedurais
-- linhas de bordo, centro amarelo e divisões tracejadas
-- remendos de asfalto e grelhas/bueiros determinísticos
-- ciclovias em trechos largos de Beira-Rio e setores costeiros
-- lombadas procedurais esparsas em vias locais com resposta física leve
+- deck de asfalto, meio-fio, calçada e sarjeta procedurais
+- linhas de bordo, centro amarelo, divisões tracejadas, remendos e bueiros
+- ciclovias em vias largas e lombadas procedurais
 
-## Itajaí Identity Pass — 1.5
+## Identidade de Itajaí
 
-- prédios/footprints próximos são ancorados à elevação do terreno
-- comércio recebe placas e marquises em português
-- casas baixas podem receber muro e portão frontal
-- torres costeiras podem receber varandas
-- galpões do Porto recebem portas de doca e detalhes logísticos
-- alguns comércios recebem estacionamentos e postos procedurais
+- comércio com placas e marquises em português
+- casas baixas com muro/portão, torres costeiras com varandas e galpões portuários
+- estacionamentos, postos e detalhes logísticos
 - marcos para **CENTRO DE ITAJAI, BEIRA-RIO, PORTO DE ITAJAI, MOLHES DA BARRA, ATALAIA, CABECUDAS e PRAIA BRAVA**
 
-## Frota real — 1.6+
+## Frota brasileira
 
-`tools/generate_vehicle_gltf.py` gera meshes originais por loft longitudinal usando proporções reconhecíveis de carros reais populares no Brasil. Os modelos são compilados para o PAK da engine.
-
-Frota atual:
+`tools/generate_vehicle_gltf.py` gera meshes originais por loft longitudinal usando proporções reconhecíveis de carros reais populares no Brasil. Badges/logotipos não são incluídos.
 
 - **Fiat Uno Way 2014**
 - **Volkswagen Gol G6**
@@ -86,47 +75,33 @@ Frota atual:
 - **Chevrolet Onix**
 - **Chevrolet Celta**
 
-Os quatro slots jogáveis usam Uno Way, Gol G6, HB20 e Renegade. O tráfego usa os oito modelos. Badges/logotipos não são incluídos nos meshes.
+Os quatro slots jogáveis usam Uno Way, Gol G6, HB20 e Renegade. O tráfego usa os oito modelos.
 
-## Vehicle Polish — 1.8
+## Vehicle Polish
 
-- câmera interna posicionada na região do motorista em vez de acima do teto;
-- offsets de cockpit próprios para Uno, Gol, HB20 e Renegade;
-- mouse-look continua livre dentro do carro;
-- interior procedural leve com dashboard, cluster, console, bancos, pilares A e retrovisor;
-- volante acompanha o esterço;
-- capô/fenders visíveis pelo para-brisa;
-- exterior ganha retrovisores, maçanetas e placas estilizadas;
-- rodas continuam girando/esterçando e a suspensão visual acompanha as quatro rodas;
-- áudio procedural passa a ter voz diferente para cada carro jogável: `UNO 4C SOFT`, `GOL 4C RASP`, `HB20 3C PULSE` e `RENEGADE 4C DEEP`;
-- som continua reagindo a RPM, throttle, marcha, rodagem, chuva e ambiente.
+- câmera interna na posição do motorista com offsets por carro
+- mouse-look livre
+- dashboard, cluster, console, bancos, pilares A, retrovisor e capô visível
+- volante acompanha o esterço
+- exterior com retrovisores, maçanetas e placas estilizadas
+- rodas giram/esterçam e suspensão visual acompanha as quatro rodas
+- áudio procedural por carro: `UNO 4C SOFT`, `GOL 4C RASP`, `HB20 3C PULSE`, `RENEGADE 4C DEEP`
 
 ## Tráfego e mundo vivo
 
 - grafo viário + A*
-- lane model, car-following, semáforos e lane connectors em interseções
+- lane model, car-following, semáforos e lane connectors
 - troca de faixa, yielding e densidade por horário/setor
-- oito modelos visuais reconhecíveis de veículos comuns no Brasil
 - pedestres leves, barcos e carros estacionados
-
-## Áudio
-
-- áudio procedural nativo via WinMM
-- perfis de motor distintos por carro jogável
-- motor ligado a RPM/carga/marcha
-- ruído de rodagem
-- chuva e ambiente costeiro
-- fallback silencioso se o dispositivo de áudio não estiver disponível
 
 ## Navegação e UI
 
 - GPS A* com reroute
-- minimapa em tempo real com ruas, rota, tráfego e jogador
+- minimapa em tempo real
 - Photo Mode: **P** congela a simulação; **H** esconde a HUD
-- tour opcional por landmarks: **F2** escolhe o próximo destino conectado
-- tela de ajuda/self-check: **F1**
-- HUD mostra o modelo jogável atual
-- `Tab` inclui telemetria de driving, renderer, iluminação, wetness e áudio do veículo
+- tour opcional por landmarks com **F2**
+- **F1** abre ajuda/self-check
+- `Tab` exibe telemetria de driving, renderer, wetness, iluminação, materiais e áudio
 
 ## Controles
 
@@ -140,14 +115,13 @@ Os quatro slots jogáveis usam Uno Way, Gol G6, HB20 e Renegade. O tráfego usa 
 | E | trocar carro |
 | R | reset |
 | M | destino GPS aleatório |
-| F2 | próximo ponto do tour opcional |
+| F2 | próximo ponto do tour |
 | P | Photo Mode |
 | H | esconder HUD no Photo Mode |
 | F10 | editor de mundo |
 | 1–8 no editor | tipo de prop |
-| Enter no editor | colocar prop |
-| Delete no editor | remover prop próximo |
-| [ / ] no editor | girar prop |
+| Enter / Delete | colocar / remover prop |
+| [ / ] | girar prop |
 | Tab | debug / telemetria |
 | T | avançar horário |
 | Y | trocar clima |
@@ -165,7 +139,7 @@ Os quatro slots jogáveis usam Uno Way, Gol G6, HB20 e Renegade. O tráfego usa 
 
 ## Build e releases
 
-O workflow `.github/workflows/release.yml` compila os executáveis em Windows x64, gera os veículos procedurais em glTF, compila todos os assets para o PAK, gera manifesto + hashes SHA-256, cria a tag e publica a GitHub Release. O updater valida tamanho e hash antes de substituir arquivos gerenciados; caches, configurações e landmarks permanecem preservados.
+O workflow `.github/workflows/release.yml` compila os executáveis Windows x64, gera os veículos procedurais em glTF, compila o PAK, cria manifesto/hashes, tag e GitHub Release. O updater valida tamanho e SHA-256 antes de substituir arquivos gerenciados; caches, configurações e landmarks são preservados.
 
 ## Evolução principal
 
@@ -184,6 +158,7 @@ O workflow `.github/workflows/release.yml` compila os executáveis em Windows x6
 - 1.5 — Itajaí Identity Pass
 - 1.6 — Real Car Model Pass
 - 1.7 — Graphics Uplift
-- **1.8 — Vehicle Polish**
+- 1.8 — Vehicle Polish
+- **1.9 — Production Presentation**
 
 Dados de mapa: © OpenStreetMap contributors.
