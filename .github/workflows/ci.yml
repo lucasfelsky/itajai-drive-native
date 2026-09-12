@@ -1,12 +1,14 @@
 name: Development Build Gate
 
+# 3.2 gate validates both the native Internet client and UDP relay integration.
 on:
   push:
-    branches: [main, dev/multiplayer-foundation]
+    branches: [main, dev/multiplayer-foundation, dev/internet-multiplayer]
     paths:
       - 'src/**'
       - 'tools/**'
       - 'assets/**'
+      - 'server/**'
       - '.github/workflows/ci.yml'
   workflow_dispatch:
 
@@ -39,6 +41,14 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'updater.c compile failed' }
           lld-link /nologo /entry:WinMainCRTStartup /subsystem:windows /machine:x64 /nodefaultlib /out:dist/ItajaiDriveUpdater.exe dist/updater.obj kernel32.lib user32.lib gdi32.lib winhttp.lib @crt
           if ($LASTEXITCODE -ne 0) { throw 'updater link failed' }
+
+      - name: Validate Internet relay
+        shell: pwsh
+        run: |
+          python -m py_compile server/relay_server.py server/test_relay.py
+          if ($LASTEXITCODE -ne 0) { throw 'relay Python validation failed' }
+          python server/test_relay.py
+          if ($LASTEXITCODE -ne 0) { throw 'relay integration test failed' }
 
       - name: Validate generated asset pipeline
         shell: pwsh

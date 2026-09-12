@@ -120,3 +120,6 @@
 #include "rc290.inc"
 #include "../render/render290_v2.inc"
 #include "../render/net301_render.inc"
+#define draw_hud draw_hud_legacy320
+#include "../render/net320_render.inc"
+#undef draw_hud

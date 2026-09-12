@@ -58,4 +58,8 @@
 #include "../sim/sim260_game.inc"
 #undef game_update
 #include "../net/net301.inc"
+#define game_update game_update_legacy301
 #include "../sim/net301_game.inc"
+#undef game_update
+#include "../net/net320.inc"
+#include "../sim/net320_game.inc"
