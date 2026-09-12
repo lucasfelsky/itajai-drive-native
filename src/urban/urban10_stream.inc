@@ -1,0 +1,25 @@
+// -----------------------------------------------------------------------------
+// 0.10 sector-aware prop population on top of the 0.8 regional disk stream.
+// Rebuilds only when the player crosses a 320m region boundary.
+// -----------------------------------------------------------------------------
+static int g_props_region_x10=0x7fffffff,g_props_region_z10=0x7fffffff;
+static int g_props_by_type10[8];
+
+static void urban10_generate_props(void){
+  g_asset_instance_count08=0;for(int i=0;i<8;i++)g_props_by_type10[i]=0;if(!g_asset_pack_ok08)return;
+  int tree=asset08_find("urban_tree"),palm=asset08_find("coastal_palm"),lamp=asset08_find("street_lamp"),container=asset08_find("port_container"),bench=asset08_find("urban_bench"),bus=asset08_find("bus_shelter"),guard=asset08_find("road_guardrail"),sign=asset08_find("road_sign");
+  for(int i=0;i<g_stream_road_count08;i++){StreamRoad08*s=&g_stream_roads08[i];if(s->road<0||s->road>=g_world.roadCount)continue;RoadWay*r=&g_world.roads[s->road];V3 d=vsub(s->b,s->a);float len=vlen(d);if(len<7)continue;V3 dir=vnorm(d),right=v3(dir.z,0,-dir.x);int steps=(int)(len/30.0f);if(steps<1)steps=1;for(int k=0;k<steps;k++){float t=(k+.5f)/steps;V3 p=vadd(s->a,vmul(d,t));const UrbanSector10*sec=urban10_sector_info(p);i32 hx=(i32)(p.x*2),hz=(i32)(p.z*2);u32 h=stream08_hash(hx,hz,(u32)(s->road*131+k*17));float side=(h&1)?1.0f:-1.0f;float edge=r->width*.5f;
+      if(lamp>=0&&r->width>=5.5f&&((h>>3)%100)<(int)(20+sec->urban*28)){V3 q=vadd(p,vmul(right,side*(edge+1.15f)));stream08_add_asset(lamp,q,(float)atan2((double)dir.x,(double)dir.z),1.0f,h^0x1188u);g_props_by_type10[0]++;}
+      if(palm>=0&&sec->coastal>.55f&&((h>>7)%100)<(int)(15+sec->coastal*28)){V3 q=vadd(p,vmul(right,side*(edge+3.6f)));stream08_add_asset(palm,q,(float)((h&255)*.0246f),.85f+.24f*((h>>16)&255)/255.0f,h^0x2200u);g_props_by_type10[1]++;}
+      else if(tree>=0&&r->width<13.5f&&((h>>7)%100)<(int)(18+sec->green*42)){V3 q=vadd(p,vmul(right,side*(edge+3.3f)));stream08_add_asset(tree,q,0,.78f+.34f*((h>>16)&255)/255.0f,h^0x3300u);g_props_by_type10[1]++;}
+      if(container>=0&&sec->port>.48f&&(str_eq(r->type,"service")||str_eq(r->type,"unclassified"))&&((h>>10)%100)<42){V3 q=vadd(p,vmul(right,side*(edge+5.5f)));stream08_add_asset(container,q,(float)atan2((double)dir.x,(double)dir.z),.92f+((h>>18)&31)*.006f,h^0x4400u);g_props_by_type10[2]++;}
+      if(bench>=0&&(sec->green>.52f||sec->coastal>.7f)&&r->width<12&&((h>>12)%100)<11){V3 q=vadd(p,vmul(right,side*(edge+2.3f)));stream08_add_asset(bench,q,(float)atan2((double)dir.x,(double)dir.z),1.0f,h^0x5500u);g_props_by_type10[3]++;}
+      if(bus>=0&&sec->urban>.5f&&(str_eq(r->type,"primary")||str_eq(r->type,"secondary")||str_eq(r->type,"tertiary"))&&((h>>14)%100)<5){V3 q=vadd(p,vmul(right,side*(edge+2.6f)));stream08_add_asset(bus,q,(float)atan2((double)dir.x,(double)dir.z),1.0f,h^0x6600u);g_props_by_type10[4]++;}
+      if(guard>=0&&(str_eq(r->type,"primary")||str_eq(r->type,"trunk"))&&((h>>16)%100)<10){V3 q=vadd(p,vmul(right,side*(edge+1.8f)));stream08_add_asset(guard,q,(float)atan2((double)dir.x,(double)dir.z),1.0f,h^0x7700u);g_props_by_type10[5]++;}
+      if(sign>=0&&r->width>=7&&((h>>18)%100)<8){V3 q=vadd(p,vmul(right,side*(edge+1.0f)));stream08_add_asset(sign,q,(float)atan2((double)dir.x,(double)dir.z),1.0f,h^0x8800u);g_props_by_type10[6]++;}
+    }}
+}
+
+static void urban10_refresh_props_if_needed(void){if(!g_stream_ready08)return;if(g_props_region_x10==g_stream_region_x08&&g_props_region_z10==g_stream_region_z08)return;g_props_region_x10=g_stream_region_x08;g_props_region_z10=g_stream_region_z08;urban10_generate_props();}
+
+static void urban10_draw_assets(void){int tree=asset08_find("urban_tree"),palm=asset08_find("coastal_palm"),lamp=asset08_find("street_lamp"),container=asset08_find("port_container"),bench=asset08_find("urban_bench"),bus=asset08_find("bus_shelter"),guard=asset08_find("road_guardrail"),sign=asset08_find("road_sign");for(int i=0;i<g_asset_instance_count08;i++){AssetInstance08*x=&g_asset_instances08[i];float dx=x->p.x-g_player.body.p.x,dz=x->p.z-g_player.body.p.z;if(dx*dx+dz*dz>430*430)continue;if(x->asset==tree)asset08_draw_instance(x->asset,x->p,x->yaw,x->scale,.18f,.48f,.17f);else if(x->asset==palm)asset08_draw_instance(x->asset,x->p,x->yaw,x->scale,.22f,.55f,.20f);else if(x->asset==lamp)asset08_draw_instance(x->asset,x->p,x->yaw,x->scale,.30f,.32f,.34f);else if(x->asset==bench)asset08_draw_instance(x->asset,x->p,x->yaw,x->scale,.42f,.27f,.16f);else if(x->asset==bus)asset08_draw_instance(x->asset,x->p,x->yaw,x->scale,.34f,.48f,.52f);else if(x->asset==guard)asset08_draw_instance(x->asset,x->p,x->yaw,x->scale,.62f,.64f,.66f);else if(x->asset==sign)asset08_draw_instance(x->asset,x->p,x->yaw,x->scale,.72f,.18f,.14f);else if(x->asset==container){u32 c=(x->seed>>8)%3;if(c==0)asset08_draw_instance(x->asset,x->p,x->yaw,x->scale,.62f,.19f,.11f);else if(c==1)asset08_draw_instance(x->asset,x->p,x->yaw,x->scale,.16f,.32f,.56f);else asset08_draw_instance(x->asset,x->p,x->yaw,x->scale,.48f,.50f,.46f);}else asset08_draw_instance(x->asset,x->p,x->yaw,x->scale,.55f,.55f,.55f);}}
