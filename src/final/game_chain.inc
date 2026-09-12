@@ -12,4 +12,7 @@
 #include "../sim/sim80_game.inc"
 #undef game_update
 #include "final100.inc"
+#define game_update game_update_legacy100
 #include "../sim/sim100_game.inc"
+#undef game_update
+#include "../sim/sim110_game.inc"
