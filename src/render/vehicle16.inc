@@ -1,8 +1,8 @@
 // -----------------------------------------------------------------------------
-// 1.8 Vehicle Polish.
+// 1.9 Vehicle Presentation.
 // Procedural glTF bodies use recognizable real-world Brazilian proportions;
-// badges/logos are deliberately omitted. 1.8 adds mirrors, plates, door trim,
-// cockpit geometry and an animated steering wheel for the player car.
+// badges/logos are deliberately omitted. 1.9 assigns dedicated paint, glass,
+// rubber and chrome materials while retaining the 1.8 cockpit/interior pass.
 // -----------------------------------------------------------------------------
 #define CAR160_COUNT 8
 #define CAR160_HATCH 0
@@ -45,60 +45,57 @@ static void vehicle160_cylinder_x(float radius,float width,float r,float g,float
 }
 
 static void vehicle160_wheel(float x,float y,float z,float radius,float width,float steerDeg,float spinDeg){
-  glPushMatrix();glTranslatef(x,y,z);if(steerDeg!=0)glRotatef(steerDeg,0,1,0);glRotatef(spinDeg,1,0,0);vehicle160_cylinder_x(radius,width,.035f,.035f,.042f);vehicle160_cylinder_x(radius*.57f,width*1.035f,.42f,.43f,.45f);vehicle160_cylinder_x(radius*.20f,width*1.05f,.10f,.11f,.12f);glPopMatrix();
+  glPushMatrix();glTranslatef(x,y,z);if(steerDeg!=0)glRotatef(steerDeg,0,1,0);glRotatef(spinDeg,1,0,0);renderer09_set_material(MAT09_RUBBER);vehicle160_cylinder_x(radius,width,.035f,.035f,.042f);renderer09_set_material(MAT09_CHROME);vehicle160_cylinder_x(radius*.57f,width*1.035f,.42f,.43f,.45f);vehicle160_cylinder_x(radius*.20f,width*1.05f,.10f,.11f,.12f);renderer09_set_material(MAT09_GENERIC);glPopMatrix();
 }
 
 static void vehicle180_plate(float y,float z,float front){
-  vehicle160_local_box_rot(0,y,z,.52f,.13f,.025f,0,0,0,.86f,.88f,.87f);vehicle160_local_box_rot(0,y+.055f,z+(front?.016f:-.016f),.50f,.020f,.030f,0,0,0,.12f,.24f,.42f);
+  renderer09_set_material(MAT09_GENERIC);vehicle160_local_box_rot(0,y,z,.52f,.13f,.025f,0,0,0,.86f,.88f,.87f);vehicle160_local_box_rot(0,y+.055f,z+(front?.016f:-.016f),.50f,.020f,.030f,0,0,0,.12f,.24f,.42f);
 }
 
 static void vehicle160_trim(int model,int braking,int headlights){
   const CarVisual160*v=&g_car_visual160[model];float W=v->w,L=v->l,H=v->h,cz=v->cabinZ,cl=v->cabinL;
   float gy=.98f+(H-1.43f)*.27f,gh=clampf((H-.83f)*.55f,.30f,.48f),sideZ=cz-.03f;
+  renderer09_set_material(MAT09_GLASS);
   vehicle160_local_box_rot(-W*.486f,gy,sideZ,.035f,gh,cl*.66f,0,0,0,.055f,.095f,.125f);vehicle160_local_box_rot(W*.486f,gy,sideZ,.035f,gh,cl*.66f,0,0,0,.055f,.095f,.125f);
   float rake=v->style==CAR160_BOX_HATCH||v->style==CAR160_SUV?8.0f:18.0f;vehicle160_local_box_rot(0,gy,cz+cl*.48f,W*.72f,gh*.92f,.045f,-rake,0,0,.07f,.11f,.14f);
   if(v->style!=CAR160_PICKUP)vehicle160_local_box_rot(0,gy,cz-cl*.48f,W*.70f,gh*.90f,.045f,rake*.70f,0,0,.065f,.10f,.13f);else vehicle160_local_box_rot(0,1.08f,cz-cl*.47f,W*.66f,.42f,.045f,2,0,0,.06f,.10f,.13f);
+  renderer09_set_material(MAT09_RUBBER);
   vehicle160_local_box_rot(0,.47f,L*.496f,W*.84f,.16f,.075f,0,0,0,.07f,.075f,.08f);vehicle160_local_box_rot(0,.47f,-L*.496f,W*.86f,.16f,.075f,0,0,0,.07f,.075f,.08f);vehicle160_local_box_rot(0,.43f,L*.501f,W*.39f,.20f,.040f,0,0,0,.035f,.04f,.045f);
+  renderer09_set_material(MAT09_GLASS);
   float lx=W*.31f,fy=.66f+(H-1.45f)*.08f;for(int s=-1;s<=1;s+=2){vehicle160_local_box_rot(s*lx,fy,L*.505f,W*.20f,.16f,.035f,0,0,0,headlights?1.0f:.72f,headlights?.94f:.72f,headlights?.72f:.68f);vehicle160_local_box_rot(s*lx,.66f,-L*.505f,W*.18f,.17f,.035f,0,0,0,braking?1.0f:.55f,.035f,.025f);}
   // Side mirrors and door handles improve the silhouette substantially at close range.
-  for(int s=-1;s<=1;s+=2){vehicle160_local_box_rot(s*W*.54f,gy-.02f,cz+cl*.29f,.16f,.12f,.26f,0,0,0,.055f,.065f,.07f);vehicle160_local_box_rot(s*W*.505f,.88f,cz-.06f,.025f,.035f,.22f,0,0,0,.25f,.26f,.27f);}
+  renderer09_set_material(MAT09_RUBBER);for(int s=-1;s<=1;s+=2){vehicle160_local_box_rot(s*W*.54f,gy-.02f,cz+cl*.29f,.16f,.12f,.26f,0,0,0,.055f,.065f,.07f);renderer09_set_material(MAT09_GLASS);vehicle160_local_box_rot(s*W*.545f,gy-.01f,cz+cl*.30f,.012f,.080f,.18f,0,0,0,.11f,.17f,.21f);renderer09_set_material(MAT09_CHROME);vehicle160_local_box_rot(s*W*.505f,.88f,cz-.06f,.025f,.035f,.22f,0,0,0,.25f,.26f,.27f);renderer09_set_material(MAT09_RUBBER);}
   vehicle180_plate(.49f,L*.512f,1);vehicle180_plate(.52f,-L*.512f,0);
-  if(v->style==CAR160_SUV){for(int k=-3;k<=3;k++)vehicle160_local_box_rot(k*.105f,.62f,L*.508f,.045f,.24f,.028f,0,0,0,.20f,.21f,.21f);}if(v->style==CAR160_BOX_HATCH)vehicle160_local_box_rot(0,.38f,0,W*.98f,.12f,L*.73f,0,0,0,.09f,.09f,.085f);if(v->style==CAR160_SEDAN)vehicle160_local_box_rot(0,.57f,L*.508f,W*.52f,.075f,.030f,0,0,0,.42f,.43f,.44f);if(v->style==CAR160_PICKUP)vehicle160_local_box_rot(0,.73f,-L*.30f,W*.78f,.055f,L*.31f,0,0,0,.095f,.10f,.10f);
+  if(v->style==CAR160_SUV){renderer09_set_material(MAT09_CHROME);for(int k=-3;k<=3;k++)vehicle160_local_box_rot(k*.105f,.62f,L*.508f,.045f,.24f,.028f,0,0,0,.20f,.21f,.21f);}if(v->style==CAR160_BOX_HATCH){renderer09_set_material(MAT09_RUBBER);vehicle160_local_box_rot(0,.38f,0,W*.98f,.12f,L*.73f,0,0,0,.09f,.09f,.085f);}if(v->style==CAR160_SEDAN){renderer09_set_material(MAT09_CHROME);vehicle160_local_box_rot(0,.57f,L*.508f,W*.52f,.075f,.030f,0,0,0,.42f,.43f,.44f);}if(v->style==CAR160_PICKUP){renderer09_set_material(MAT09_RUBBER);vehicle160_local_box_rot(0,.73f,-L*.30f,W*.78f,.055f,L*.31f,0,0,0,.095f,.10f,.10f);}renderer09_set_material(MAT09_GENERIC);
 }
 
 static void vehicle180_steering_ring(float cx,float cy,float cz,float radius,float steerDeg){
-  glPushMatrix();glTranslatef(cx,cy,cz);glRotatef(-12.0f,1,0,0);glRotatef(steerDeg*1.55f,0,0,1);for(int k=0;k<12;k++){float a=(float)k*6.2831853f/12.0f,x=(float)cos((double)a)*radius,y=(float)sin((double)a)*radius;vehicle160_local_box_rot(x,y,0,.085f,.030f,.030f,0,0,a*57.29578f+90.0f,.045f,.047f,.050f);}vehicle160_local_box_rot(0,0,.015f,.11f,.11f,.045f,0,0,0,.11f,.12f,.12f);vehicle160_local_box_rot(0,0,.010f,radius*.86f,.025f,.025f,0,0,0,.055f,.057f,.060f);glPopMatrix();
+  renderer09_set_material(MAT09_RUBBER);glPushMatrix();glTranslatef(cx,cy,cz);glRotatef(-12.0f,1,0,0);glRotatef(steerDeg*1.55f,0,0,1);for(int k=0;k<12;k++){float a=(float)k*6.2831853f/12.0f,x=(float)cos((double)a)*radius,y=(float)sin((double)a)*radius;vehicle160_local_box_rot(x,y,0,.085f,.030f,.030f,0,0,a*57.29578f+90.0f,.045f,.047f,.050f);}vehicle160_local_box_rot(0,0,.015f,.11f,.11f,.045f,0,0,0,.11f,.12f,.12f);vehicle160_local_box_rot(0,0,.010f,radius*.86f,.025f,.025f,0,0,0,.055f,.057f,.060f);glPopMatrix();renderer09_set_material(MAT09_GENERIC);
 }
 
 static void vehicle180_cockpit_local(int model,float steerDeg){
   const CarVisual160*v=&g_car_visual160[model];float W=v->w,L=v->l;g_vehicle180_cockpit_drawn=1;
-  // Hood/fenders visible through the windshield; external closed cabin is not drawn
-  // in cockpit mode to avoid back faces covering the camera.
-  vehicle160_local_box_rot(0,.69f,L*.31f,W*.93f,.20f,L*.34f,-2,0,0,.24f,.25f,.26f);
-  vehicle160_local_box_rot(0,.80f,.58f,W*.91f,.23f,.48f,-7,0,0,.075f,.080f,.085f); // dashboard
-  vehicle160_local_box_rot(0,.89f,.43f,W*.62f,.11f,.10f,-12,0,0,.025f,.030f,.035f); // cluster hood
-  vehicle160_local_box_rot(-W*.22f,.94f,.47f,.31f,.15f,.035f,-12,0,0,.06f,.09f,.12f); // gauges
+  renderer09_set_material(MAT09_CAR_PAINT);vehicle160_local_box_rot(0,.69f,L*.31f,W*.93f,.20f,L*.34f,-2,0,0,.24f,.25f,.26f);
+  renderer09_set_material(MAT09_RUBBER);vehicle160_local_box_rot(0,.80f,.58f,W*.91f,.23f,.48f,-7,0,0,.075f,.080f,.085f);vehicle160_local_box_rot(0,.89f,.43f,W*.62f,.11f,.10f,-12,0,0,.025f,.030f,.035f);
+  renderer09_set_material(MAT09_GLASS);vehicle160_local_box_rot(-W*.22f,.94f,.47f,.31f,.15f,.035f,-12,0,0,.06f,.09f,.12f);
   vehicle180_steering_ring(-W*.22f,.91f,.38f,.18f,steerDeg);
-  // Centre stack, vents and simple passenger-side trim.
-  vehicle160_local_box_rot(.03f,.75f,.43f,.25f,.30f,.08f,-9,0,0,.035f,.038f,.042f);vehicle160_local_box_rot(.03f,.83f,.38f,.16f,.05f,.025f,-9,0,0,.12f,.16f,.18f);vehicle160_local_box_rot(W*.25f,.82f,.42f,.29f,.035f,.035f,-9,0,0,.16f,.17f,.17f);
-  // A-pillars and rear-view mirror frame the cockpit without blocking mouse-look.
-  vehicle160_local_box_rot(-W*.38f,1.17f,.82f,.055f,.66f,.055f,-18,0,-5,.08f,.085f,.09f);vehicle160_local_box_rot(W*.38f,1.17f,.82f,.055f,.66f,.055f,-18,0,5,.08f,.085f,.09f);vehicle160_local_box_rot(0,1.28f,.65f,.31f,.10f,.055f,0,0,0,.055f,.065f,.07f);
-  // Seat shoulder edges are useful when looking sideways/back.
-  vehicle160_local_box_rot(-W*.23f,.82f,-.38f,.43f,.63f,.36f,-5,0,0,.11f,.115f,.12f);vehicle160_local_box_rot(W*.23f,.82f,-.38f,.43f,.63f,.36f,-5,0,0,.11f,.115f,.12f);
+  renderer09_set_material(MAT09_RUBBER);vehicle160_local_box_rot(.03f,.75f,.43f,.25f,.30f,.08f,-9,0,0,.035f,.038f,.042f);vehicle160_local_box_rot(.03f,.83f,.38f,.16f,.05f,.025f,-9,0,0,.12f,.16f,.18f);renderer09_set_material(MAT09_CHROME);vehicle160_local_box_rot(W*.25f,.82f,.42f,.29f,.035f,.035f,-9,0,0,.16f,.17f,.17f);
+  renderer09_set_material(MAT09_RUBBER);vehicle160_local_box_rot(-W*.38f,1.17f,.82f,.055f,.66f,.055f,-18,0,-5,.08f,.085f,.09f);vehicle160_local_box_rot(W*.38f,1.17f,.82f,.055f,.66f,.055f,-18,0,5,.08f,.085f,.09f);renderer09_set_material(MAT09_GLASS);vehicle160_local_box_rot(0,1.28f,.65f,.31f,.10f,.055f,0,0,0,.055f,.065f,.07f);
+  renderer09_set_material(MAT09_RUBBER);vehicle160_local_box_rot(-W*.23f,.82f,-.38f,.43f,.63f,.36f,-5,0,0,.11f,.115f,.12f);vehicle160_local_box_rot(W*.23f,.82f,-.38f,.43f,.63f,.36f,-5,0,0,.11f,.115f,.12f);renderer09_set_material(MAT09_GENERIC);
 }
 
 static void vehicle160_draw_model_local(int model,float r,float g,float b,int braking,int headlights,float spinDeg,float steerDeg,int drawWheels){
-  vehicle160_resolve();const CarVisual160*v=&g_car_visual160[model];int asset=g_car_asset160[model];renderer09_set_material(0);if(asset>=0)asset08_draw_mesh(asset,r,g,b);else{draw_local_box(0,.70f,0,v->w,.62f,v->l,r,g,b);draw_local_box(0,1.10f,v->cabinZ,v->w*.78f,.62f,v->cabinL,.06f,.10f,.13f);}vehicle160_trim(model,braking,headlights);
-  if(drawWheels){float hx=v->track*.5f,hz=v->wheelbase*.5f;for(int k=0;k<4;k++){int front=k<2,right=(k&1);float comp=.50f;if(model==g_player_model160[g_player.car&3])comp=g_wheels15[k].compression;float x=right?hx:-hx,z=front?hz:-hz,y=.34f-(comp-.50f)*.10f;vehicle160_wheel(x,y,z,v->wheelR,.20f,front?steerDeg:0,spinDeg*(right?1.0f:-1.0f));}}renderer09_set_material(0);
+  vehicle160_resolve();const CarVisual160*v=&g_car_visual160[model];int asset=g_car_asset160[model];renderer09_set_material(MAT09_CAR_PAINT);if(asset>=0)asset08_draw_mesh(asset,r,g,b);else{draw_local_box(0,.70f,0,v->w,.62f,v->l,r,g,b);draw_local_box(0,1.10f,v->cabinZ,v->w*.78f,.62f,v->cabinL,r*.82f,g*.82f,b*.82f);}vehicle160_trim(model,braking,headlights);
+  if(drawWheels){float hx=v->track*.5f,hz=v->wheelbase*.5f;for(int k=0;k<4;k++){int front=k<2,right=(k&1);float comp=.50f;if(model==g_player_model160[g_player.car&3])comp=g_wheels15[k].compression;float x=right?hx:-hx,z=front?hz:-hz,y=.34f-(comp-.50f)*.10f;vehicle160_wheel(x,y,z,v->wheelR,.20f,front?steerDeg:0,spinDeg*(right?1.0f:-1.0f));}}renderer09_set_material(MAT09_GENERIC);
 }
 
 static void draw_player_vehicle(void){
   int model=g_player_model160[g_player.car&3];float cc[4][3]={{.72f,.69f,.58f},{.18f,.48f,.78f},{.72f,.12f,.10f},{.24f,.51f,.28f}};float*c=cc[g_player.car&3];int lights=(g_hour<6||g_hour>=18||g_weather>=2);float spin=(float)g_time*absf(g_player.speed)*52.0f,steer=g_player.steer*g_vehicle_profiles[g_player.car].maxSteer*57.29578f;g_vehicle180_cockpit_drawn=0;
-  glPushMatrix();glTranslatef(g_player.body.p.x,g_player.body.p.y-.66f,g_player.body.p.z);glRotatef(g_player.body.yaw*57.29578f,0,1,0);glRotatef(g_player.pitch*57.29578f,1,0,0);glRotatef(g_player.roll*57.29578f,0,0,1);if(g_player.camera==2)vehicle180_cockpit_local(model,steer);else vehicle160_draw_model_local(model,c[0],c[1],c[2],0,lights,spin,steer,1);glPopMatrix();
+  glPushMatrix();glTranslatef(g_player.body.p.x,g_player.body.p.y-.66f,g_player.body.p.z);glRotatef(g_player.body.yaw*57.29578f,0,1,0);glRotatef(g_player.pitch*57.29578f,1,0,0);glRotatef(g_player.roll*57.29578f,0,0,1);if(g_player.camera==2)vehicle180_cockpit_local(model,steer);else vehicle160_draw_model_local(model,c[0],c[1],c[2],0,lights,spin,steer,1);glPopMatrix();renderer09_set_material(MAT09_GENERIC);
 }
 
 // Legacy internal names are kept because older presentation layers are still
-// compiled into the single translation unit even though 1.8 supersedes them.
+// compiled into the single translation unit even though 1.9 supersedes them.
 static void vehicle16_resolve(void){vehicle160_resolve();}
 #define g_car_asset16 g_car_asset160
 static void traffic40_resolve_assets(void){vehicle160_resolve();}
