@@ -7,6 +7,7 @@
 #include "native_parts/part05.inc"
 #include "foundation/globals.inc"
 #include "foundation/foundation.inc"
+#include "sim/sim06.inc"
 #include "native_parts/part06.inc"
 #include "native_parts/part07.inc"
 #include "native_parts/part08.inc"
