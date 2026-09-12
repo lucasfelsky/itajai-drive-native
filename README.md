@@ -4,7 +4,7 @@ Uma mini-engine 3D nativa para Windows, construída do zero em C/Win32 + OpenGL 
 
 ## Estado atual
 
-- Jogo: **1.3.0 — Roads 2.0**
+- Jogo: **1.5.0 — Itajaí Identity Pass**
 - Updater: **1.0.0**
 - Plataforma: Windows x64
 - Distribuição: GitHub Releases público + updater nativo
@@ -20,7 +20,7 @@ Uma mini-engine 3D nativa para Windows, construída do zero em C/Win32 + OpenGL 
 - quality layer da Beira-Rio e conteúdo curado para Porto, Molhes e setores costeiros
 - editor persistente de landmarks via `itajai_landmarks_v19.bin`
 
-> Os setores e o relevo são art-directed; não representam limites administrativos ou levantamento topográfico oficial.
+> Os setores, relevo, fachadas e detalhes urbanos são art-directed; o objetivo é reconhecimento/atmosfera, não uma reconstrução cadastral ou fotogramétrica.
 
 ## Direção e simulação — 1.1+
 
@@ -55,9 +55,19 @@ Uma mini-engine 3D nativa para Windows, construída do zero em C/Win32 + OpenGL 
 - linhas de bordo, centro amarelo e divisões tracejadas
 - remendos de asfalto e grelhas/bueiros determinísticos
 - ciclovias em trechos largos de Beira-Rio e setores costeiros
-- lombadas procedurais esparsas em vias locais
-- lombadas têm resposta física leve em velocidade
-- debug mostra grade/altura e densidade de detalhes viários
+- lombadas procedurais esparsas em vias locais com resposta física leve
+
+## Itajaí Identity Pass — 1.5
+
+- prédios/footprints próximos são ancorados à elevação do terreno
+- comércio recebe placas e marquises com categorias em português, como **MERCADO, FARMACIA, PADARIA, AUTO PECAS, CAFE, RESTAURANTE e CONVENIENCIA**
+- casas baixas podem receber muro e portão frontal
+- torres costeiras de Atalaia/Cabeçudas/Praia Brava podem receber varandas
+- galpões do Porto recebem portas de doca e detalhes logísticos
+- alguns comércios recebem pequenos estacionamentos
+- vias largas urbanas podem receber postos procedurais com totem `POSTO`
+- marcos de direção de arte para **CENTRO DE ITAJAI, BEIRA-RIO, PORTO DE ITAJAI, MOLHES DA BARRA, ATALAIA, CABECUDAS e PRAIA BRAVA**
+- tudo é determinístico a partir dos seeds/mapa; não muda aleatoriamente a cada abertura
 
 ## Tráfego e mundo vivo
 
@@ -82,7 +92,7 @@ Uma mini-engine 3D nativa para Windows, construída do zero em C/Win32 + OpenGL 
 - Photo Mode: **P** congela a simulação; **H** esconde a HUD
 - tour opcional por landmarks: **F2** escolhe o próximo destino conectado
 - tela de ajuda/self-check: **F1**
-- `Tab` mostra telemetria de driving, renderer, clima e Roads 2.0
+- `Tab` mostra telemetria de driving, renderer, Roads 2.0 e Identity Pass
 
 ## Controles
 
@@ -136,6 +146,7 @@ O workflow `.github/workflows/release.yml` compila os executáveis em Windows x6
 - 1.0 — vertical slice integrado
 - 1.1 — Driving Feel 2.0
 - 1.2 — Renderer 2.0
-- **1.3 — Roads 2.0**
+- 1.3 — Roads 2.0
+- **1.5 — Itajaí Identity Pass**
 
 Dados de mapa: © OpenStreetMap contributors.
