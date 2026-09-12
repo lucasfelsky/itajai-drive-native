@@ -11,6 +11,7 @@ __declspec(dllimport) void APIENTRY glVertexPointer(int,u32,int,const void*);
 __declspec(dllimport) void APIENTRY glNormalPointer(u32,int,const void*);
 __declspec(dllimport) void APIENTRY glTexCoordPointer(int,u32,int,const void*);
 __declspec(dllimport) void APIENTRY glDrawElements(u32,int,u32,const void*);
+__declspec(dllimport) void APIENTRY glDepthMask(u8);
 
 #define GL_TEXTURE_2D 0x0DE1
 #define GL_TEXTURE_MIN_FILTER 0x2801
