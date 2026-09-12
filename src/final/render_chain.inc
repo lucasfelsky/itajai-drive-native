@@ -1,4 +1,5 @@
-// Final rendering chain from 0.60 onward.
+// Historical rendering chain through 2.9. Late-stage 2.11+ work lives in
+// render_chain_v2.inc so new polish checkpoints do not rewrite this archaeology.
 #include "../render/weather60_render.inc"
 #define draw_ground draw_ground_legacy60
 #define draw_roads draw_roads_legacy60
@@ -162,34 +163,4 @@
 #undef draw_roads
 #undef draw_buildings
 #undef draw_hud
-#include "../render/vehicle211.inc"
-#define draw_ground draw_ground_legacy211
-#define draw_roads draw_roads_legacy211
-#define draw_buildings draw_buildings_legacy211
-#define draw_hud draw_hud_legacy211
-#include "../render/render211.inc"
-#undef draw_ground
-#undef draw_roads
-#undef draw_buildings
-#undef draw_hud
-#include "../render/traffic212_render.inc"
-#define draw_ground draw_ground_legacy212
-#define draw_roads draw_roads_legacy212
-#define draw_buildings draw_buildings_legacy212
-#define draw_hud draw_hud_legacy212
-#include "../render/render212.inc"
-#undef draw_ground
-#undef draw_roads
-#undef draw_buildings
-#undef draw_hud
-#include "../render/life213_render.inc"
-#define draw_ground draw_ground_legacy213
-#define draw_roads draw_roads_legacy213
-#define draw_buildings draw_buildings_legacy213
-#define draw_hud draw_hud_legacy213
-#include "../render/render213.inc"
-#undef draw_ground
-#undef draw_roads
-#undef draw_buildings
-#undef draw_hud
-#include "../render/render214.inc"
+#include "render_chain_v2.inc"
