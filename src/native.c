@@ -33,11 +33,15 @@
 #undef draw_hud
 #include "sim/sim07_render.inc"
 
-// Preserve old Win32 bootstrap internally and expose the 0.7 mouse-aware one.
+// Preserve old Win32 bootstrap/loading path internally and expose the 0.7 one.
+#define draw_loading draw_loading_legacy06
+#define render render_legacy06
 #define wndproc wndproc_legacy06
 #define init_window init_window_legacy06
 #define WinMainCRTStartup WinMainCRTStartup_legacy06
 #include "native_parts/part08.inc"
+#undef draw_loading
+#undef render
 #undef wndproc
 #undef init_window
 #undef WinMainCRTStartup
