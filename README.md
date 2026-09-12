@@ -4,7 +4,7 @@ Mini-engine 3D nativa para Windows, construída do zero em C/Win32 + OpenGL — 
 
 ## Estado atual
 
-- Jogo: **2.1.0 — Delivery Polish**
+- Jogo: **2.1.1 — Delivery Polish**
 - Updater: **1.1.0 — retry + rollback transacional + handoff automático**
 - Plataforma: Windows x64
 - Distribuição: GitHub Releases público + updater nativo
@@ -40,11 +40,8 @@ Mini-engine 3D nativa para Windows, construída do zero em C/Win32 + OpenGL — 
 - céu de dusk/noite com estrelas e lua estilizada
 - postes/comércio com pools locais de luz e feixes de farol no piso
 - poças, pista úmida persistente e reflexos locais de freio
-- materiais automotivos dedicados:
-  - `CAR_PAINT` com clearcoat/Fresnel e reflexão hemisférica aproximada
-  - `GLASS` tintado/refletivo
-  - `RUBBER` para pneus/plásticos
-  - `CHROME` para aro/trim/grade
+- materiais automotivos dedicados: `CAR_PAINT`, `GLASS`, `RUBBER` e `CHROME`
+- clearcoat/Fresnel e reflexão hemisférica aproximada na pintura
 - reflexos locais da cor dos veículos sobre pista molhada
 - tachões refletivos procedurais em vias largas à noite
 
@@ -94,6 +91,7 @@ Os quatro slots jogáveis usam Uno Way, Gol G6, HB20 e Renegade. O tráfego usa 
 - lane model, car-following, semáforos e lane connectors
 - troca de faixa, yielding e densidade por horário/setor
 - pedestres leves, barcos e carros estacionados
+- **2.1.1:** carros estacionados próximos usam a apresentação completa da frota (paint/glass/rubber/chrome, trim e rodas); os distantes usam body-only LOD para preservar desempenho
 
 ## Navegação e UI
 
@@ -186,6 +184,7 @@ O workflow `.github/workflows/release.yml` compila os executáveis Windows x64, 
 - 1.8 — Vehicle Polish
 - 1.9 — Production Presentation
 - 2.0 — Release Candidate / hardening
-- **2.1 — Delivery Polish / updater handoff**
+- 2.1 — Delivery Polish / updater handoff
+- **2.1.1 — parked fleet production presentation + LOD**
 
 Dados de mapa: © OpenStreetMap contributors.
