@@ -4,6 +4,8 @@
 // M opens/closes the map. Arrows move the cursor, +/- zoom, Enter routes,
 // Delete clears the route and Home recenters on the player. Mouse click routing
 // is implemented by map380_render.inc / the final Win32 window procedure.
+// 3.8.1 makes destination snapping component-aware and retries nearby routable
+// nodes before declaring a point unreachable.
 // -----------------------------------------------------------------------------
 #define MAP380_VK_OEM_PLUS 0xBB
 #define MAP380_VK_ADD 0x6B
@@ -29,12 +31,20 @@ static void map380_keep_cursor_visible(void){
   if(g_map380_cursor.z<g_map380_center.z-mz)g_map380_center.z=g_map380_cursor.z+mz;
 }
 static void map380_clear_route(void){g_gps_n=0;g_gps_goal07=-1;g_gps_offroute07=0;g_gps_length07=0;map380_status("ROTA CANCELADA");}
+static int map380_seen_node(int n,const int*seen,int count){for(int i=0;i<count;i++)if(seen[i]==n)return 1;return 0;}
+static int map380_route_near_target(V3 target,int start,int*outGoal,float*outSnap){
+  if(start<0||start>=g_world.nodeCount)return 0;int comp=g_world.nodes[start].component,raw=nearest_node(target);float rawDist=1e20f,maxSnap=220.0f;
+  if(raw>=0&&raw<g_world.nodeCount){rawDist=vlen(vsub(g_world.nodes[raw].p,target));if(g_world.nodes[raw].component==comp)maxSnap=minf(360.0f,maxf(90.0f,rawDist+180.0f));else maxSnap=minf(220.0f,maxf(90.0f,rawDist+110.0f));}
+  int seen[18],seenN=0;for(int attempt=0;attempt<18;attempt++){
+    int best=-1;float bestD2=1e30f;for(int i=0;i<g_world.nodeCount;i++){Node*n=&g_world.nodes[i];if(n->component!=comp||(n->head<0&&n->headIn<0)||map380_seen_node(i,seen,seenN))continue;float dx=n->p.x-target.x,dz=n->p.z-target.z,d2=dx*dx+dz*dz;if(d2<bestD2){bestD2=d2;best=i;}}
+    if(best<0)break;float snap=(float)sqrt((double)bestD2);if(snap>maxSnap)break;seen[seenN++]=best;int n=astar_route(start,best,g_gps_route,MAX_ROUTE);if(n>0){if(outGoal)*outGoal=best;if(outSnap)*outSnap=snap;return n;}
+  }return 0;
+}
 static int map380_set_destination(V3 target){
-  int start=nearest_node(g_player.body.p),goal=nearest_node(target);if(start<0||goal<0){map380_status("SEM VIA PROXIMA AO DESTINO");g_map380_failed++;return 0;}
-  if(g_world.nodes[start].component!=g_world.nodes[goal].component){map380_status("DESTINO FORA DA MALHA VIARIA CONECTADA");g_map380_failed++;return 0;}
-  int n=astar_route(start,goal,g_gps_route,MAX_ROUTE);if(n<=0){map380_status("NAO FOI POSSIVEL CALCULAR A ROTA");g_map380_failed++;return 0;}
+  int start=nearest_node(g_player.body.p);if(start<0){map380_status("SEM VIA PROXIMA AO JOGADOR");g_map380_failed++;return 0;}
+  int goal=-1;float snap=0;int n=map380_route_near_target(target,start,&goal,&snap);if(n<=0||goal<0){map380_status("SEM ROTA VIARIA ACESSIVEL PERTO DO DESTINO");g_map380_failed++;return 0;}
   g_gps_n=n;g_gps_goal07=goal;g_gps_offroute07=0;g_gps_recalc_timer07=.15f;g_gps_length07=sim07_route_length(g_gps_route,g_gps_n);g_map380_cursor=g_world.nodes[goal].p;g_map380_routes_set++;
-  int road=-1;float center=9999.0f;foundation_nearest_road(g_world.nodes[goal].p,&road,&center);if(road>=0&&road<g_world.roadCount&&g_world.roads[road].name[0])sprintf(g_map380_status,"DESTINO: %s // %.1f KM",g_world.roads[road].name,g_gps_length07/1000.0f);else sprintf(g_map380_status,"DESTINO DEFINIDO // %.1f KM",g_gps_length07/1000.0f);return 1;
+  int road=-1;if(n>0){int eid=g_gps_route[n-1];if(eid>=0&&eid<g_world.edgeCount)road=g_world.edges[eid].road;}if(road>=0&&road<g_world.roadCount&&g_world.roads[road].name[0]){if(snap>24.0f)sprintf(g_map380_status,"DESTINO: %s // %.1f KM // AJUSTE %.0f M",g_world.roads[road].name,g_gps_length07/1000.0f,snap);else sprintf(g_map380_status,"DESTINO: %s // %.1f KM",g_world.roads[road].name,g_gps_length07/1000.0f);}else{if(snap>24.0f)sprintf(g_map380_status,"DESTINO DEFINIDO // %.1f KM // AJUSTE %.0f M",g_gps_length07/1000.0f,snap);else sprintf(g_map380_status,"DESTINO DEFINIDO // %.1f KM",g_gps_length07/1000.0f);}return 1;
 }
 static void map380_open_now(void){g_map380_open=1;map380_center_player();if(g_gps_goal07>=0&&g_gps_goal07<g_world.nodeCount){g_map380_cursor=g_world.nodes[g_gps_goal07].p;map380_status("ROTA ATUAL // CLIQUE OU ENTER PARA TROCAR O DESTINO");}else map380_status("CLIQUE NO MAPA OU USE AS SETAS + ENTER");if(g_camera_captured)camera_release_mouse();}
 static void map380_close_now(void){g_map380_open=0;}
