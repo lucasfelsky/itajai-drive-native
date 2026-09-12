@@ -11,6 +11,10 @@ PRESETS={
  'compact_sedan': dict(w=1.78,l=4.32,h=.60,cw=1.50,cl=1.86,ch=.68,cz=.05,hood=1.05,rear=.92),
  'sport_hatch':   dict(w=1.82,l=4.04,h=.56,cw=1.57,cl=1.88,ch=.62,cz=.03,hood=1.00,rear=.60),
  'compact_suv':   dict(w=1.86,l=4.28,h=.72,cw=1.62,cl=2.12,ch=.82,cz=.00,hood=.92,rear=.70),
+ 'city_hatch':    dict(w=1.67,l=3.58,h=.64,cw=1.43,cl=1.72,ch=.72,cz=.10,hood=.72,rear=.50),
+ 'small_pickup':  dict(w=1.79,l=4.46,h=.63,cw=1.49,cl=1.52,ch=.72,cz=.34,hood=.98,rear=1.30),
+ 'wagon':         dict(w=1.76,l=4.35,h=.64,cw=1.51,cl=2.50,ch=.70,cz=-.10,hood=.94,rear=.70),
+ 'midsize_sedan': dict(w=1.84,l=4.62,h=.61,cw=1.57,cl=2.02,ch=.69,cz=.02,hood=1.12,rear=1.02),
 }
 
 def box(verts,inds,cx,cy,cz,sx,sy,sz):
@@ -22,14 +26,17 @@ def box(verts,inds,cx,cy,cz,sx,sy,sz):
 
 def build(name,p):
     v=[];i=[]
-    # Lower body, narrower bumpers, hood/trunk and cabin create a recognizable silhouette.
     box(v,i,0,.47,0,p['w'],p['h'],p['l'])
     box(v,i,0,.48,p['l']*.5-.12,p['w']*.91,.34,.24)
     box(v,i,0,.48,-p['l']*.5+.12,p['w']*.91,.34,.24)
     box(v,i,0,.76,p['cz'],p['cw'],.30,p['cl']+.28)
     box(v,i,0,1.08,p['cz'],p['cw']*.93,p['ch'],p['cl'])
-    # roof slab and front/rear glass hint strips
     box(v,i,0,1.08+p['ch']*.5+.035,p['cz'],p['cw']*.88,.07,p['cl']*.78)
+    if name=='small_pickup':
+        # Open-bed hint behind the compact cab.
+        box(v,i,0,.72,-p['l']*.31,p['w']*.90,.16,p['rear']*.95)
+        box(v,i,-p['w']*.43,.91,-p['l']*.31,.10,.38,p['rear']*.95)
+        box(v,i,p['w']*.43,.91,-p['l']*.31,.10,.38,p['rear']*.95)
     pos=b''.join(struct.pack('<3f',*q) for q in v);idx=b''.join(struct.pack('<H',q) for q in i);raw=pos+idx
     mins=[min(q[a] for q in v) for a in range(3)];maxs=[max(q[a] for q in v) for a in range(3)]
     uri='data:application/octet-stream;base64,'+base64.b64encode(raw).decode()
