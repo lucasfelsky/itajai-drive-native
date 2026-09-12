@@ -2,11 +2,11 @@
 
 Mini engine 3D nativa para Windows, feita do zero em C/Win32 + OpenGL — sem Unity, Unreal, Electron ou navegador embutido.
 
-O projeto começou como um protótipo de direção livre inspirado em Itajaí/SC e evoluiu para uma engine própria com OpenStreetMap, tráfego, grafo viário, A*, collision world, spatial grid, simulação de faixas, física veicular simcade, câmera livre, GPS dinâmico e updater nativo.
+O projeto começou como um protótipo de direção livre inspirado em Itajaí/SC e evoluiu para uma engine própria com OpenStreetMap, tráfego, grafo viário, A*, collision world, spatial grid, simulação de faixas, física veicular simcade, câmera livre, GPS dinâmico, configurações persistentes e updater nativo.
 
 ## Estado atual
 
-- Jogo: **0.7.0 — Intersections, Camera & Streaming Layer**
+- Jogo: **0.7.1 — Settings & Camera QoL**
 - Updater: **1.0.0**
 - Plataforma: Windows x64
 - Canal de releases: **GitHub Releases público**
@@ -23,14 +23,19 @@ O projeto começou como um protótipo de direção livre inspirado em Itajaí/SC
 - Superfícies, grip, bicycle model simcade, slip, roll/pitch e quatro rodas amostradas individualmente
 - Modelo de faixas derivado da largura da via
 - Car-following, frenagem progressiva e semáforos
-- **Câmera controlável pelo mouse com captura por clique e suavização**
-- **Câmera externa orbitável e câmera interna com free-look**
-- **Lane connectors Bézier nas interseções**
-- **Seleção de faixa de saída conforme conversão esquerda/direita/reto**
-- **Redução de velocidade antes de curvas mais fechadas**
-- **GPS A* com destino persistente e reroute automático ao sair da rota**
-- **Working set de células ativas para ruas/prédios próximos**
-- **Renderer de ruas, faixas e prédios preparado para streaming regional futuro**
+- Câmera controlável pelo mouse com captura por clique e suavização
+- Câmera externa orbitável e câmera interna com free-look
+- **Sensibilidade padrão da câmera reduzida em relação à 0.7.0**
+- **Menu de configurações/pausa**
+- **Sensibilidade da câmera ajustável em tempo real**
+- **Opção de inverter eixo Y**
+- **Preferências persistidas em `itajai_settings.ini` e preservadas pelo updater**
+- Lane connectors Bézier nas interseções
+- Seleção de faixa de saída conforme conversão esquerda/direita/reto
+- Redução de velocidade antes de curvas mais fechadas
+- GPS A* com destino persistente e reroute automático ao sair da rota
+- Working set de células ativas para ruas/prédios próximos
+- Renderer de ruas, faixas e prédios preparado para streaming regional futuro
 - Debug visual do spatial grid/colliders e telemetria física/streaming via Tab
 - Updater com staging + tamanho + SHA-256
 - Build/release automático via GitHub Actions
@@ -40,6 +45,7 @@ Documentação técnica:
 - `docs/FOUNDATION_0.5.md`
 - `docs/SIMULATION_0_6.md`
 - `docs/SIMULATION_0_7.md`
+- `docs/SETTINGS_0.7.1.md`
 
 ## Próximas etapas naturais
 
@@ -54,7 +60,10 @@ A 0.7 cria o primeiro working set espacial real, mas o mapa completo ainda perma
 | Espaço | freio de mão / redução de grip |
 | Clique esquerdo | capturar mouse para controlar a câmera |
 | Mouse | orbitar / olhar ao redor |
-| Esc | soltar mouse; com mouse livre, sair |
+| Esc | soltar mouse; com mouse livre, abrir configurações |
+| W/S ou setas no menu | navegar |
+| A/D ou esquerda/direita no menu | ajustar opção |
+| Enter no menu | selecionar |
 | C | trocar câmera |
 | E | trocar carro |
 | R | reset |
@@ -64,6 +73,10 @@ A 0.7 cria o primeiro working set espacial real, mas o mapa completo ainda perma
 | Y | clima |
 | U | limpar cache do mapa |
 
+## Configurações locais
+
+A 0.7.1 cria `itajai_settings.ini` ao lado do executável. Esse arquivo é local e não faz parte do manifesto de atualização, então preferências de câmera não são apagadas por novas versões.
+
 ## Build e releases
 
 O workflow `.github/workflows/release.yml` compila `ItajaiDriveNative.exe` e `ItajaiDriveUpdater.exe` em um runner Windows. Alterar o arquivo `VERSION` na branch `main` dispara uma build de release, gera o manifesto com SHA-256, cria a tag correspondente e publica os binários no GitHub Releases.
@@ -72,7 +85,7 @@ O workflow `.github/workflows/release.yml` compila `ItajaiDriveNative.exe` e `It
 
 O updater consulta automaticamente o `manifest.txt` da release mais recente, baixa primeiro para `.update/`, valida tamanho e SHA-256 e só então substitui os arquivos instalados. Se a rede falhar, a instalação atual permanece intacta e o jogo abre normalmente.
 
-A 0.7 mantém o formato de mundo da 0.5/0.6 e reutiliza `itajai_world_v05.bin`, evitando reconstruir o mapa para mudanças apenas de simulação/render working set.
+A 0.7.1 mantém o formato de mundo da 0.5/0.6/0.7 e reutiliza `itajai_world_v05.bin`.
 
 O canal de releases é público, então o updater não precisa de login nem token GitHub.
 
