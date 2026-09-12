@@ -1,10 +1,10 @@
 name: Development Build Gate
 
-# 3.4 gate validates the native client, municipal/OSM city pipeline,
-# recognizable Itajai identity pass, multiplayer transports and generated assets.
+# City gate validates native client, municipal/OSM city pipeline,
+# identity/architecture passes, multiplayer transports and generated assets.
 on:
   push:
-    branches: [main, dev/multiplayer-foundation, dev/internet-multiplayer, dev/hamachi-lan-ui, dev/city-rebuild-330, dev/city-identity-340]
+    branches: [main, dev/multiplayer-foundation, dev/internet-multiplayer, dev/hamachi-lan-ui, dev/city-rebuild-330, dev/city-identity-340, dev/city-architecture-350]
     paths:
       - 'VERSION'
       - 'src/**'
