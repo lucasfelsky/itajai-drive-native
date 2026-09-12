@@ -2,12 +2,12 @@
 #define ITAJAI_BUILDING12_INCLUDED 1
 // -----------------------------------------------------------------------------
 // 0.12 exact OSM building footprint sidecar.
-// World/cache stays compatible: polygon vertices are rebuilt from the cached OSM
-// JSON and associated with deterministic building order/seeds at startup.
-// 2.2 may include this sidecar before the legacy game loop for polygon collision.
+// 3.3 also uses this exact-footprint store for GeoItajai cadastral polygons.
+// World/cache stays compatible: polygon vertices are rebuilt from source data
+// or restored from the municipal sidecar and associated by deterministic seeds.
 // -----------------------------------------------------------------------------
-#define MAX_BUILDING_VERTS12 260000
-#define BUILDING_HASH12 65536
+#define MAX_BUILDING_VERTS12 480000
+#define BUILDING_HASH12 131072
 static V3 g_building_verts12[MAX_BUILDING_VERTS12];
 static int g_building_vert_count12=0;
 static int g_building_poly_start12[MAX_BUILDINGS];
