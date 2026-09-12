@@ -123,4 +123,14 @@
 #undef draw_roads
 #undef draw_buildings
 #undef draw_hud
+#define draw_ground draw_ground_legacy200
+#define draw_roads draw_roads_legacy200
+#define draw_buildings draw_buildings_legacy200
+#define draw_hud draw_hud_legacy200
 #include "../render/render200.inc"
+#undef draw_ground
+#undef draw_roads
+#undef draw_buildings
+#undef draw_hud
+#include "../render/lighting27.inc"
+#include "../render/render270.inc"
