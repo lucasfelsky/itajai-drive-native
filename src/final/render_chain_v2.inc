@@ -126,3 +126,4 @@
 #include "../render/net321_render.inc"
 #include "../render/city330_render.inc"
 #include "../render/city340_identity.inc"
+#include "../render/city340_streets.inc"
