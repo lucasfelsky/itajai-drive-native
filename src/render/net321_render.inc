@@ -45,8 +45,7 @@ static void net321_draw_menu(void){
   settings_draw_2d_end();
 }
 
-static void draw_hud(float fps){
-  draw_hud_legacy321(fps);
+static void net321_draw_overlay(void){
   net321_draw_badge();
   net321_draw_menu();
 }
