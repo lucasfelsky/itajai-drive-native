@@ -1,10 +1,10 @@
 name: Development Build Gate
 
 # City gate validates native client, municipal/OSM city pipeline,
-# identity/architecture/urban passes, multiplayer transports and generated assets.
+# identity/architecture/urban/final polish passes, multiplayer transports and generated assets.
 on:
   push:
-    branches: [main, dev/multiplayer-foundation, dev/internet-multiplayer, dev/hamachi-lan-ui, dev/city-rebuild-330, dev/city-identity-340, dev/city-architecture-350, dev/city-urban-fabric-360]
+    branches: [main, dev/multiplayer-foundation, dev/internet-multiplayer, dev/hamachi-lan-ui, dev/city-rebuild-330, dev/city-identity-340, dev/city-architecture-350, dev/city-urban-fabric-360, dev/city-final-polish-370]
     paths:
       - 'VERSION'
       - 'src/**'
