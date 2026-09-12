@@ -4,7 +4,7 @@ Uma mini-engine 3D nativa para Windows, construída do zero em C/Win32 + OpenGL 
 
 ## Estado atual
 
-- Jogo: **1.6.0 — Real Car Model Pass**
+- Jogo: **1.7.0 — Graphics Uplift**
 - Updater: **1.0.0**
 - Plataforma: Windows x64
 - Distribuição: GitHub Releases público + updater nativo
@@ -35,16 +35,23 @@ Uma mini-engine 3D nativa para Windows, construída do zero em C/Win32 + OpenGL 
 - telemetria de understeer/oversteer, carga dos eixos e slip
 - FOV da câmera varia suavemente com a velocidade
 
-## Renderer — 1.2+
+## Renderer — 1.7
 
 - OpenGL nativo com **GLSL 1.20 PBR-compat** e fallback fixed-function
 - microfacet lighting + Fresnel e ACES-like tone mapping
 - wetness persistente alimenta roughness e resposta especular
-- farol do jogador em eye space + pool de luz fallback
+- farol do jogador em eye space
 - janelas emissivas procedurais durante a noite
 - água com material dedicado, Fresnel aproximado e ondulação procedural
 - iluminação/fog respondem a cloud, wetness e lightning
-- sombras projetadas, reflexos estilizados de pista molhada e pós leve
+- dusk/amanhecer reforçados, céu estrelado e lua estilizada
+- postes de rua e comércio criam pools locais de iluminação
+- feixes visuais de farol no piso para player e tráfego próximo
+- pista continua molhada enquanto `wetness` seca, mesmo depois da chuva parar
+- poças determinísticas e reflexos locais no piso úmido
+- luz de freio pode refletir em vermelho no asfalto molhado
+- vegetação próxima recebe volume adicional de copa
+- sombras projetadas, reflexos estilizados e pós leve continuam ativos
 
 ## Roads 2.0 — 1.3
 
@@ -85,16 +92,7 @@ Frota inicial:
 
 Os quatro slots jogáveis usam Uno Way, Gol G6, HB20 e Renegade. O tráfego usa os oito modelos. Badges/logotipos não são incluídos nos meshes.
 
-Detalhes visuais:
-
-- carroceria por loft, com capô/cabine/traseira próprios;
-- vidro lateral, para-brisa e vidro traseiro;
-- para-choques, grade e lower trim;
-- faróis e lanternas;
-- caçamba visual nas pickups;
-- rodas de 12 lados com pneu, aro e cubo;
-- giro das rodas e esterçamento dianteiro;
-- suspensão visual do player ligada à compressão das quatro rodas.
+Detalhes visuais incluem carroceria por loft, vidro, para-choques, grade, faróis/lanternas, caçamba nas pickups, rodas de 12 lados, giro/esterçamento e suspensão visual ligada às quatro rodas.
 
 ## Tráfego e mundo vivo
 
@@ -119,8 +117,8 @@ Detalhes visuais:
 - Photo Mode: **P** congela a simulação; **H** esconde a HUD
 - tour opcional por landmarks: **F2** escolhe o próximo destino conectado
 - tela de ajuda/self-check: **F1**
-- `Tab` mostra telemetria de driving, renderer, Roads 2.0 e Identity Pass
 - HUD mostra o modelo jogável atual
+- `Tab` inclui telemetria de driving, renderer, wetness, pools de luz, faróis e poças
 
 ## Controles
 
@@ -176,6 +174,7 @@ O workflow `.github/workflows/release.yml` compila os executáveis em Windows x6
 - 1.2 — Renderer 2.0
 - 1.3 — Roads 2.0
 - 1.5 — Itajaí Identity Pass
-- **1.6 — Real Car Model Pass**
+- 1.6 — Real Car Model Pass
+- **1.7 — Graphics Uplift**
 
 Dados de mapa: © OpenStreetMap contributors.
