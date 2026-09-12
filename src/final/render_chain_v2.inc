@@ -123,3 +123,4 @@
 #define draw_hud draw_hud_legacy320
 #include "../render/net320_render.inc"
 #undef draw_hud
+#include "../render/net321_render.inc"
