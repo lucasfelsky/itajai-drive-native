@@ -4,12 +4,12 @@ Mini-engine 3D nativa para Windows, construída do zero em C/Win32 + OpenGL — 
 
 ## Estado atual
 
-- Jogo: **2.0.0 — Release Candidate**
-- Updater: **1.1.0 — retry + rollback transacional**
+- Jogo: **2.1.0 — Delivery Polish**
+- Updater: **1.1.0 — retry + rollback transacional + handoff automático**
 - Plataforma: Windows x64
 - Distribuição: GitHub Releases público + updater nativo
 - Build: GitHub Actions / Windows / clang-cl + lld-link
-- Release gate: `tools/release_check.py` valida EXE, PAK, frota, manifesto, hashes e canal antes da tag
+- Release gate: `tools/release_check.py` valida EXE, PAK, frota, updater handoff, manifesto, hashes e canal antes da tag
 
 ## Mundo
 
@@ -105,22 +105,25 @@ Os quatro slots jogáveis usam Uno Way, Gol G6, HB20 e Renegade. O tráfego usa 
 - o self-check mostra PAK/frota/renderer/streaming e se GLSL está ativo ou em fallback
 - `Tab` exibe telemetria de driving, renderer, wetness, iluminação, materiais e áudio
 
-## Updater 1.1
+## Updater 1.1 + handoff 2.1
 
-O updater continua sendo um executável Win32/WinHTTP independente, sem navegador ou runtime externo. Ele consulta o manifesto `latest`, valida tamanho + SHA-256 de cada arquivo e agora possui uma segunda tentativa para falhas transitórias. Antes de aplicar, cria backups temporários dos arquivos gerenciados; se qualquer substituição falhar, restaura a instalação anterior e não altera `VERSION.txt`.
+O updater continua sendo um executável Win32/WinHTTP independente, sem navegador ou runtime externo. Ele consulta o manifesto `latest`, valida tamanho + SHA-256 de cada arquivo, repete uma vez falhas transitórias e usa backup/rollback antes de substituir os arquivos gerenciados.
 
-O manifesto gerencia o executável do jogo e o PAK. Cache OSM, world cache, configurações e landmarks ficam fora do update e são preservados.
+A 2.1 adiciona atualização automática do **próprio updater** sem exigir que um executável sobrescreva a si mesmo. A release publica `ItajaiDriveUpdater.next.exe`, uma cópia byte-idêntica do updater 1.1. Updaters antigos tratam esse arquivo normalmente e o baixam junto com o jogo; na abertura seguinte, o jogo tenta promovê-lo para `ItajaiDriveUpdater.exe` após o processo anterior encerrar. Se o Windows ainda mantiver o executável antigo bloqueado, o `.next` permanece e uma abertura posterior tenta novamente.
 
-## Release Candidate 2.0
+O manifesto gerencia o executável do jogo, o PAK e o updater `.next`. Cache OSM, world cache, configurações e landmarks ficam fora do update e são preservados.
 
-Antes de publicar uma release, o CI agora exige:
+## Gate de produção
+
+Antes de publicar uma release, o CI exige:
 
 - semver e README coerentes;
 - EXE principal e updater presentes;
 - PAK válido com pelo menos 16 assets;
 - os oito carros de produção presentes nominalmente no PAK;
-- manifesto protocolo 1 com `base_url` da tag correta;
-- tamanho e SHA-256 corretos para EXE e PAK;
+- updater oficial e `.next` byte-idênticos por SHA-256;
+- manifesto contendo exatamente EXE + PAK + updater `.next`;
+- `base_url` da tag correta e tamanho/SHA-256 dos arquivos gerenciados;
 - `update_config.ini` válido.
 
 Se uma dessas verificações falhar, não há tag nem GitHub Release.
@@ -161,7 +164,7 @@ Se uma dessas verificações falhar, não há tag nem GitHub Release.
 
 ## Build e releases
 
-O workflow `.github/workflows/release.yml` compila os executáveis Windows x64, gera os veículos procedurais em glTF, compila o PAK, cria manifesto/hashes, executa `tools/release_check.py` e só então cria tag/GitHub Release. O updater valida tamanho e SHA-256 antes de substituir arquivos e faz rollback em falhas de aplicação.
+O workflow `.github/workflows/release.yml` compila os executáveis Windows x64, gera os veículos procedurais em glTF, compila o PAK, cria o updater handoff, manifesto/hashes, executa `tools/release_check.py` e só então cria tag/GitHub Release.
 
 ## Evolução principal
 
@@ -182,6 +185,7 @@ O workflow `.github/workflows/release.yml` compila os executáveis Windows x64, 
 - 1.7 — Graphics Uplift
 - 1.8 — Vehicle Polish
 - 1.9 — Production Presentation
-- **2.0 — Release Candidate / hardening**
+- 2.0 — Release Candidate / hardening
+- **2.1 — Delivery Polish / updater handoff**
 
 Dados de mapa: © OpenStreetMap contributors.
