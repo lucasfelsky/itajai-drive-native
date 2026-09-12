@@ -54,4 +54,8 @@
 #define game_update game_update_legacy250feel
 #include "../sim/feel250_game.inc"
 #undef game_update
+#define game_update game_update_legacy260
 #include "../sim/sim260_game.inc"
+#undef game_update
+#include "../net/net301.inc"
+#include "../sim/net301_game.inc"
