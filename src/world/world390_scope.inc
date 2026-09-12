@@ -34,7 +34,18 @@ static int world390_parse_boundary(char*json,DWORD size){const char*end=json+siz
 
 static int world390_point_in_boundary(V3 p){if(g_world390_boundary_count<4)return 0;int inside=0;for(int i=0,j=g_world390_boundary_count-1;i<g_world390_boundary_count;j=i++){V3 a=g_world390_boundary[i],b=g_world390_boundary[j];int cross=((a.z>p.z)!=(b.z>p.z));if(cross){float den=b.z-a.z;if(absf(den)<.0001f)den=den<0?-.0001f:.0001f;float x=a.x+(p.z-a.z)*(b.x-a.x)/den;if(p.x<x)inside=!inside;}}return inside;}
 static int world390_geo_box(V3 p,double minLat,double minLon,double maxLat,double maxLon){V3 a=project_geo(minLat,minLon),b=project_geo(maxLat,maxLon);float minx=minf(a.x,b.x),maxx=maxf(a.x,b.x),minz=minf(a.z,b.z),maxz=maxf(a.z,b.z);return p.x>=minx&&p.x<=maxx&&p.z>=minz&&p.z<=maxz;}
-static int world390_scope_at(V3 p){if(g_world390_boundary_count>=4&&world390_point_in_boundary(p))return WORLD390_SCOPE_ITAJAI;if(world390_geo_box(p,-26.9250,-48.6850,-26.8350,-48.6200))return WORLD390_SCOPE_NAVEGANTES;if(world390_geo_box(p,-26.9350,-48.7450,-26.8350,-48.6750))return WORLD390_SCOPE_CONNECTOR;if(world390_geo_box(p,-27.0200,-48.6550,-26.9500,-48.6100))return WORLD390_SCOPE_EXIT;if(g_world390_boundary_ready==0&&world390_geo_box(p,-26.9580,-48.6860,-26.8840,-48.6250))return WORLD390_SCOPE_ITAJAI;return WORLD390_SCOPE_OUTSIDE;}
+static int world390_scope_at(V3 p){
+  if(g_world390_boundary_count>=4&&world390_point_in_boundary(p))return WORLD390_SCOPE_ITAJAI;
+  // Preserve the known Itajai urban core while the official polygon is loading.
+  if(g_world390_boundary_count<4&&world390_geo_box(p,-26.9580,-48.6860,-26.8840,-48.6250))return WORLD390_SCOPE_ITAJAI;
+  if(world390_geo_box(p,-26.9250,-48.6850,-26.8350,-48.6200))return WORLD390_SCOPE_NAVEGANTES;
+  if(world390_geo_box(p,-26.9350,-48.7450,-26.8350,-48.6750))return WORLD390_SCOPE_CONNECTOR;
+  if(world390_geo_box(p,-27.0200,-48.6550,-26.9500,-48.6100))return WORLD390_SCOPE_EXIT;
+  // Offline fallback: official service extent keeps the municipality usable, but
+  // explicit Navegantes/BR corridors above retain their own identity.
+  if(g_world390_boundary_ready<0&&world390_geo_box(p,-27.1000,-48.8740,-26.8360,-48.6170))return WORLD390_SCOPE_ITAJAI;
+  return WORLD390_SCOPE_OUTSIDE;
+}
 static int world390_destination_allowed(V3 p){int s=world390_scope_at(p);return s==WORLD390_SCOPE_ITAJAI||s==WORLD390_SCOPE_NAVEGANTES||s==WORLD390_SCOPE_CONNECTOR;}
 static const char*world390_scope_name(int s){if(s==WORLD390_SCOPE_ITAJAI)return "ITAJAI // AREA PRINCIPAL";if(s==WORLD390_SCOPE_NAVEGANTES)return "NAVEGANTES // EXTENSAO JOGAVEL";if(s==WORLD390_SCOPE_CONNECTOR)return "BR-470 / BR-101 // CORREDOR";if(s==WORLD390_SCOPE_EXIT)return "SAIDA PARA BC // FORA DO MAPA";return "FORA DA AREA JOGAVEL";}
 
