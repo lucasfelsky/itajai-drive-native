@@ -1,5 +1,6 @@
 name: Development Build Gate
 
+# 3.2 gate validates both the native Internet client and UDP relay integration.
 on:
   push:
     branches: [main, dev/multiplayer-foundation, dev/internet-multiplayer]
