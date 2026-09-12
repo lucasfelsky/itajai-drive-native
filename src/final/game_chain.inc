@@ -48,4 +48,7 @@
 #include "../sim/sim213_game.inc"
 #undef game_update
 #include "../ui/ui215_state.inc"
+#define game_update game_update_legacy215
 #include "../sim/sim215_game.inc"
+#undef game_update
+#include "../sim/feel250_game.inc"
