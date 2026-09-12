@@ -37,7 +37,7 @@ jobs:
         run: |
           $ErrorActionPreference = 'Stop'
           New-Item -ItemType Directory -Force dist | Out-Null
-          $crt = @('ucrt.lib', 'legacy_stdio_definitions.lib', 'vcruntime.lib')
+          $crt = @('ucrt.lib', 'legacy_stdio_definitions.lib', 'legacy_stdio_wide_specifiers.lib', 'vcruntime.lib')
 
           clang-cl /nologo /TC /O2 /GS- /Oi- /c src/native.c /Fo:dist/native.obj
           if ($LASTEXITCODE -ne 0) { throw 'native.c compile failed' }
