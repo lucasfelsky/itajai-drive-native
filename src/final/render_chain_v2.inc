@@ -130,4 +130,7 @@
 #include "../render/city350_buildings.inc"
 #include "../render/city360_urban.inc"
 #include "../render/city370_final.inc"
+#define map380_draw map380_draw_legacy380
 #include "../ui/map380_render.inc"
+#undef map380_draw
+#include "../render/world390_render.inc"

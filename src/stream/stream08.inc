@@ -1,12 +1,12 @@
 // -----------------------------------------------------------------------------
 // 0.8 regional render/object streaming.
 // The routing graph remains resident; render geometry is cached by 320m regions
-// and read on demand from itajai_regions_v08.bin. 0.10 raises capacities only;
-// the disk format itself stays compatible.
+// and read on demand from itajai_regions_v08.bin. 3.9 expands region coverage
+// for the full Itajai municipality while preserving the disk format.
 // -----------------------------------------------------------------------------
 #define REGION_SIZE08 320.0f
 #define REGION_RADIUS08 2
-#define MAX_REGIONS08 1024
+#define MAX_REGIONS08 4096
 #define MAX_STREAM_ROADS08 30000
 #define MAX_STREAM_BUILDINGS08 12000
 #define MAX_ASSET_INSTANCES08 5000
@@ -38,7 +38,7 @@ static int stream08_build_cache(void){
   for(int i=0;i<g_world.segCount;i++){V3 m=vmul(vadd(g_world.segs[i].a,g_world.segs[i].b),.5f);int ri=stream08_add_region(stream08_coord(m.x),stream08_coord(m.z));if(ri>=0)g_regions08[ri].roadCount++;}
   for(int i=0;i<g_world.buildingCount;i++){Building*b=&g_world.buildings[i];int ri=stream08_add_region(stream08_coord(b->c.x),stream08_coord(b->c.z));if(ri>=0)g_regions08[ri].buildingCount++;}
   RegionHeader08 h;memset(&h,0,sizeof(h));memcpy(h.magic,"IDREG08",7);h.version=1;h.regionCount=(u32)g_region_count08;h.worldSegCount=(u32)g_world.segCount;h.worldBuildingCount=(u32)g_world.buildingCount;
-  u64 cursor=sizeof(h)+(u64)g_region_count08*sizeof(RegionMeta08);for(int i=0;i<g_region_count08;i++){g_regions08[i].roadOffset=cursor;cursor+=(u64)g_regions08[i].roadCount*sizeof(StreamRoad08);g_regions08[i].buildingOffset=cursor;cursor+=(u64)g_regions08[i].buildingCount*sizeof(StreamBuilding08);}if(cursor>16ull*1024ull*1024ull)return 0;
+  u64 cursor=sizeof(h)+(u64)g_region_count08*sizeof(RegionMeta08);for(int i=0;i<g_region_count08;i++){g_regions08[i].roadOffset=cursor;cursor+=(u64)g_regions08[i].roadCount*sizeof(StreamRoad08);g_regions08[i].buildingOffset=cursor;cursor+=(u64)g_regions08[i].buildingCount*sizeof(StreamBuilding08);}if(cursor>64ull*1024ull*1024ull)return 0;
   char*mem=(char*)VirtualAlloc(NULL,(SIZE_T)cursor,MEM_COMMIT|MEM_RESERVE,4);if(!mem)return 0;memset(mem,0,(SIZE_T)cursor);memcpy(mem,&h,sizeof(h));memcpy(mem+sizeof(h),g_regions08,(SIZE_T)g_region_count08*sizeof(RegionMeta08));
   for(int r=0;r<g_region_count08;r++){u32 rc=0,bc=0;for(int i=0;i<g_world.segCount;i++){RoadSegment*s=&g_world.segs[i];V3 m=vmul(vadd(s->a,s->b),.5f);if(stream08_coord(m.x)!=g_regions08[r].rx||stream08_coord(m.z)!=g_regions08[r].rz)continue;StreamRoad08 sr;sr.a=s->a;sr.b=s->b;sr.road=s->road;memcpy(mem+g_regions08[r].roadOffset+(u64)rc*sizeof(sr),&sr,sizeof(sr));rc++;}
     for(int i=0;i<g_world.buildingCount;i++){Building*b=&g_world.buildings[i];if(stream08_coord(b->c.x)!=g_regions08[r].rx||stream08_coord(b->c.z)!=g_regions08[r].rz)continue;StreamBuilding08 sb;sb.b=*b;memcpy(mem+g_regions08[r].buildingOffset+(u64)bc*sizeof(sb),&sb,sizeof(sb));bc++;}}
