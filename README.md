@@ -2,67 +2,67 @@
 
 Mini engine 3D nativa para Windows, feita do zero em C/Win32 + OpenGL — sem Unity, Unreal, Electron ou navegador embutido.
 
-O projeto começou como um protótipo de direção livre inspirado em Itajaí/SC e evoluiu para uma engine própria com OpenStreetMap, tráfego, grafo viário, A*, collision world, spatial grid, simulação de faixas, física veicular simcade, clima, horário, cache binário do mundo e updater nativo.
+O projeto começou como um protótipo de direção livre inspirado em Itajaí/SC e evoluiu para uma engine própria com OpenStreetMap, tráfego, grafo viário, A*, collision world, spatial grid, simulação de faixas, física veicular simcade, câmera livre, GPS dinâmico e updater nativo.
 
 ## Estado atual
 
-- Jogo: **0.6.0 — Road & Vehicle Simulation**
+- Jogo: **0.7.0 — Intersections, Camera & Streaming Layer**
 - Updater: **1.0.0**
 - Plataforma: Windows x64
 - Canal de releases: **GitHub Releases público**
 
 ### Implementado
 
-- Janela Win32 nativa
-- Renderização OpenGL 1.1
+- Janela Win32 nativa e renderização OpenGL 1.1
 - Quatro perfis de veículo e quatro câmeras
 - Ruas e construções via OpenStreetMap / Overpass
 - Cache local do mundo (`itajai_world_v05.bin`)
 - Grafo viário direcionado, mão única e `oneway=-1`
-- A* para tráfego e GPS
-- Spatial grid de 40 m com hash espacial
-- Indexação espacial de colliders e segmentos de rua
-- Colliders para construções e postes de semáforo
-- Broad phase via spatial grid + narrow phase circle-vs-AABB
-- Colisão jogador × cenário e jogador × tráfego
-- PhysicsBody com posição, velocidade, yaw, velocidade angular, massa, restituição e aderência
-- Superfícies: asfalto, meio-fio/calçada e grama/fora da via
-- **Modelo de faixas derivado da largura da via**
-- **Tráfego posicionado no centro da faixa do sentido correto**
-- **Car-following com distância segura e frenagem progressiva**
-- **Frenagem para semáforo vermelho baseada em distância de parada**
-- **Luzes de freio no tráfego**
-- **VehicleProfile com massa, wheelbase, track, esterço, freio, grip, aero e rolling resistance**
-- **Bicycle model simcade com velocidade lateral/slip e yaw rate**
-- **Amostragem independente das quatro rodas no spatial grid**
-- **Roll/pitch visual e rodas dianteiras esterçando**
-- **Marcações de faixa renderizadas a partir do mesmo lane model usado pela IA**
-- Debug visual do spatial grid/colliders e telemetria física via Tab
+- Spatial grid de 40 m e collision world
+- Colliders de prédios/semáforos e colisão jogador × tráfego
+- Superfícies, grip, bicycle model simcade, slip, roll/pitch e quatro rodas amostradas individualmente
+- Modelo de faixas derivado da largura da via
+- Car-following, frenagem progressiva e semáforos
+- **Câmera controlável pelo mouse com captura por clique e suavização**
+- **Câmera externa orbitável e câmera interna com free-look**
+- **Lane connectors Bézier nas interseções**
+- **Seleção de faixa de saída conforme conversão esquerda/direita/reto**
+- **Redução de velocidade antes de curvas mais fechadas**
+- **GPS A* com destino persistente e reroute automático ao sair da rota**
+- **Working set de células ativas para ruas/prédios próximos**
+- **Renderer de ruas, faixas e prédios preparado para streaming regional futuro**
+- Debug visual do spatial grid/colliders e telemetria física/streaming via Tab
 - Updater com staging + tamanho + SHA-256
 - Build/release automático via GitHub Actions
 
-A fundação espacial está em `docs/FOUNDATION_0.5.md` e a simulação viária/veicular em `docs/SIMULATION_0_6.md`.
+Documentação técnica:
+
+- `docs/FOUNDATION_0.5.md`
+- `docs/SIMULATION_0_6.md`
+- `docs/SIMULATION_0_7.md`
 
 ## Próximas etapas naturais
 
-A base agora já separa mundo, colisão, faixas e dinâmica veicular. Os próximos blocos naturais são connectors de faixa em interseções/troca de faixa, GPS com reroute dinâmico, streaming de regiões e depois loader glTF + renderer moderno.
+A 0.7 cria o primeiro working set espacial real, mas o mapa completo ainda permanece em RAM. Os próximos blocos naturais são streaming regional de verdade, objetos urbanos adicionais, loader glTF e a evolução gradual do renderer para materiais/texturas/iluminação modernos.
 
 ## Controles
 
-| Tecla | Ação |
+| Controle | Ação |
 |---|---|
 | W / S | acelerar / frear / ré |
 | A / D | esterço |
 | Espaço | freio de mão / redução de grip |
-| C | câmera |
+| Clique esquerdo | capturar mouse para controlar a câmera |
+| Mouse | orbitar / olhar ao redor |
+| Esc | soltar mouse; com mouse livre, sair |
+| C | trocar câmera |
 | E | trocar carro |
 | R | reset |
-| M | GPS / A* |
+| M | criar destino GPS / A* |
 | Tab | debug + grid/colliders/telemetria |
 | T | horário |
 | Y | clima |
 | U | limpar cache do mapa |
-| Esc | sair |
 
 ## Build e releases
 
@@ -72,8 +72,8 @@ O workflow `.github/workflows/release.yml` compila `ItajaiDriveNative.exe` e `It
 
 O updater consulta automaticamente o `manifest.txt` da release mais recente, baixa primeiro para `.update/`, valida tamanho e SHA-256 e só então substitui os arquivos instalados. Se a rede falhar, a instalação atual permanece intacta e o jogo abre normalmente.
 
-`itajai_osm_cache.json` não é gerenciado pelo updater. A 0.6 mantém o formato de mundo da 0.5 e reutiliza `itajai_world_v05.bin`, evitando invalidar o mapa apenas por uma mudança de simulação.
+A 0.7 mantém o formato de mundo da 0.5/0.6 e reutiliza `itajai_world_v05.bin`, evitando reconstruir o mapa para mudanças apenas de simulação/render working set.
 
-O canal de releases é público, então o updater não precisa de login nem token GitHub. Nenhum token pessoal é embutido no executável.
+O canal de releases é público, então o updater não precisa de login nem token GitHub.
 
 Dados de mapa: © OpenStreetMap contributors.
