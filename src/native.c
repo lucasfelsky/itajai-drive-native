@@ -33,16 +33,12 @@
 #include "sim/sim06.inc"
 #include "settings/settings07_state.inc"
 
-// Keep the original 0.7 mouse handler internally; 0.7.1 provides persistent
-// sensitivity/invert-Y without disturbing the rest of the intersection code.
 #define camera_mouse_move camera_mouse_move_legacy07
 #include "sim/sim07.inc"
 #undef camera_mouse_move
 #include "settings/camera071.inc"
 #include "settings/settings07.inc"
 
-// Keep the 0.6 game loop and box primitives as explicit fallbacks. 0.9 replaces
-// the public box primitive with normals/UVs required by lighting/materials.
 #define traffic_update traffic_update_legacy06
 #define game_update game_update_legacy06
 #define draw_unit_box draw_unit_box_legacy06
@@ -54,10 +50,8 @@
 #undef draw_box
 #include "render/primitives09.inc"
 
-// g_player is now declared, so the 0.10 sector/traffic policy can safely bind.
 #include "urban/urban10_core.inc"
 
-// 0.7 gameplay remains internally available; 0.7.1 wraps it with the pause menu.
 #define game_update game_update_legacy07
 #include "sim/sim07_game.inc"
 #undef game_update
@@ -65,16 +59,18 @@
 #include "settings/settings07_game.inc"
 #undef game_update
 
-// 0.8 asset/runtime regional streaming.
 #include "assets/assets08.inc"
 #include "stream/stream08.inc"
 #define game_update game_update_legacy08
 #include "sim/sim08_game.inc"
 #undef game_update
 
-// sim08_game declares the stream-ready state consumed by the 0.10 prop layer.
 #include "urban/urban10_stream.inc"
+#define game_update game_update_legacy10
 #include "sim/sim10_game.inc"
+#undef game_update
+#include "world/terrain11.inc"
+#include "sim/sim11_game.inc"
 
 // Keep original renderers as explicit fallbacks.
 #define setup_camera setup_camera_legacy06
@@ -103,12 +99,10 @@
 #undef draw_buildings
 #undef draw_hud
 
-// Preserve settings HUD/menu underneath the later version layers.
 #define draw_hud draw_hud_legacy071
 #include "settings/settings07_ui.inc"
 #undef draw_hud
 
-// Preserve the 0.8 disk-streamed renderer as a complete visual fallback.
 #define draw_roads draw_roads_legacy08
 #define draw_buildings draw_buildings_legacy08
 #define draw_hud draw_hud_legacy08
@@ -117,17 +111,26 @@
 #undef draw_buildings
 #undef draw_hud
 
-// 0.9 programmable renderer + atmosphere/effects remain the graphics backend.
 #include "render/renderer09.inc"
 #include "render/effects09.inc"
+#define draw_ground draw_ground_legacy09
 #define draw_roads draw_roads_legacy09
 #define draw_buildings draw_buildings_legacy09
 #define draw_hud draw_hud_legacy09
 #include "render/render09.inc"
+#undef draw_ground
 #undef draw_roads
 #undef draw_buildings
 #undef draw_hud
+
+#define draw_roads draw_roads_legacy10
+#define draw_buildings draw_buildings_legacy10
+#define draw_hud draw_hud_legacy10
 #include "render/render10.inc"
+#undef draw_roads
+#undef draw_buildings
+#undef draw_hud
+#include "render/render11.inc"
 
 // Historical bootstraps remain compiled under private names for regression.
 #define draw_loading draw_loading_legacy06
@@ -167,4 +170,16 @@
 #undef wndproc
 #undef init_window
 #undef WinMainCRTStartup
+
+#define draw_loading draw_loading_legacy10
+#define render render_legacy10
+#define wndproc wndproc_legacy10
+#define init_window init_window_legacy10
+#define WinMainCRTStartup WinMainCRTStartup_legacy10
 #include "sim/sim10_win32.inc"
+#undef draw_loading
+#undef render
+#undef wndproc
+#undef init_window
+#undef WinMainCRTStartup
+#include "sim/sim11_win32.inc"
