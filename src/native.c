@@ -79,7 +79,11 @@
 #include "sim/audio18.inc"
 #undef game_update
 #include "world/editor19.inc"
+#define game_update game_update_legacy19
 #include "sim/sim19_game.inc"
+#undef game_update
+#include "world/life50.inc"
+#include "sim/sim50_game.inc"
 
 #define setup_camera setup_camera_legacy06
 #define draw_ground draw_ground_legacy06
@@ -195,6 +199,7 @@
 #include "render/traffic17.inc"
 #undef draw_traffic
 #include "render/traffic40.inc"
+#include "render/life50_render.inc"
 #define draw_ground draw_ground_legacy17
 #define draw_roads draw_roads_legacy17
 #define draw_buildings draw_buildings_legacy17
@@ -240,7 +245,16 @@
 #undef draw_roads
 #undef draw_buildings
 #undef draw_hud
+#define draw_ground draw_ground_legacy40
+#define draw_roads draw_roads_legacy40
+#define draw_buildings draw_buildings_legacy40
+#define draw_hud draw_hud_legacy40
 #include "render/render40.inc"
+#undef draw_ground
+#undef draw_roads
+#undef draw_buildings
+#undef draw_hud
+#include "render/render50.inc"
 
 #define draw_loading draw_loading_legacy06
 #define render render_legacy06
