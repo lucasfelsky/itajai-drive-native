@@ -6,6 +6,7 @@ on:
   push:
     branches: [main, dev/multiplayer-foundation, dev/internet-multiplayer, dev/hamachi-lan-ui, dev/city-rebuild-330]
     paths:
+      - 'VERSION'
       - 'src/**'
       - 'tools/**'
       - 'assets/**'
