@@ -77,6 +77,13 @@ jobs:
           Get-FileHash dist/ItajaiDriveUpdater.exe -Algorithm SHA256
           Get-FileHash dist/itajai_assets_v08.pak -Algorithm SHA256
 
+      - name: Validate release candidate
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          python tools/release_check.py
+          if ($LASTEXITCODE -ne 0) { throw 'release candidate validation failed' }
+
       - name: Create tag if needed
         shell: pwsh
         run: |
