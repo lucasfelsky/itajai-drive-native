@@ -2,12 +2,15 @@
 // 0.70 minimap and photo-mode overlay.
 // 3.9.1 switches the minimap to heading-up navigation: the player stays pointed
 // toward the top of the display while roads, traffic and GPS rotate around it.
-// The small N marker shows where true north lies relative to the car heading.
+// 3.9.2 fixes the lateral basis to match the engine camera handedness, removing
+// the horizontal mirror while preserving heading-up behavior and true north.
 // -----------------------------------------------------------------------------
 static void ui70_map_point(V3 p,float cx,float cy,float scale,float*outX,float*outY){
   float dx=p.x-g_player.body.p.x,dz=p.z-g_player.body.p.z,a=g_player.body.yaw;
   float s=(float)sin(a),c=(float)cos(a);
-  float localRight=dx*c-dz*s;
+  // Camera screen-right is cross(forward, up): (-cos(yaw), 0, sin(yaw)).
+  // Using the opposite vector mirrors left/right when the minimap is heading-up.
+  float localRight=-dx*c+dz*s;
   float localForward=dx*s+dz*c;
   *outX=cx+localRight*scale;
   *outY=cy-localForward*scale;
@@ -21,9 +24,9 @@ static void ui70_draw_minimap(void){
   glColor3f(.92f,.72f,.18f);glBegin(GL_QUADS);for(int i=0;i<g_traffic_count;i++){Traffic*t=&g_traffic[i];if(!t->active||!ui70_in_range(t->p,range))continue;float px,py;ui70_map_point(t->p,cx,cy,scale,&px,&py);glVertex2f(px-2,py-2);glVertex2f(px+2,py-2);glVertex2f(px+2,py+2);glVertex2f(px-2,py+2);}glEnd();
   // Heading-up: player icon is fixed pointing toward the top of the minimap.
   glColor3f(1,.22f,.16f);glBegin(GL_TRIANGLES);glVertex2f(cx,cy-10);glVertex2f(cx+6,cy+6);glVertex2f(cx-6,cy+6);glEnd();
-  // True north indicator rotates around the player as the vehicle heading changes.
+  // True north uses the same corrected lateral basis as map geometry.
   float a=g_player.body.yaw,sn=(float)sin(a),cs=(float)cos(a),nr=size*.39f;
-  float nx=cx+sn*nr,ny=cy+cs*nr;glColor3f(.96f,.82f,.30f);glBegin(GL_LINES);glVertex2f(nx,ny+5);glVertex2f(nx,ny-5);glEnd();gl_text(nx-4,ny-8,"N",.96f,.84f,.34f);
+  float nx=cx-sn*nr,ny=cy+cs*nr;glColor3f(.96f,.82f,.30f);glBegin(GL_LINES);glVertex2f(nx,ny+5);glVertex2f(nx,ny-5);glEnd();gl_text(nx-4,ny-8,"N",.96f,.84f,.34f);
   gl_text(x0+10,y0+18,"GPS / ITAJAI // HEADING UP",.82f,.88f,.94f);
 }
 static void ui70_draw_photo_overlay(void){if(!g_photo70)return;hud_panel(20,(float)g_h-74,450,54);gl_text(34,(float)g_h-50,"PHOTO MODE // mouse: orbita  P: sair  H: HUD",1,.92f,.72f);gl_text(34,(float)g_h-30,"simulacao congelada",.70f,.78f,.84f);}
