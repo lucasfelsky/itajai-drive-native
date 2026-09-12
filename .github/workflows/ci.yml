@@ -1,0 +1,59 @@
+name: Development Build Gate
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'tools/**'
+      - 'assets/**'
+      - '.github/workflows/ci.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure MSVC environment
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+
+      - name: Compile native targets
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          New-Item -ItemType Directory -Force dist | Out-Null
+          $crt = @('ucrt.lib', 'legacy_stdio_definitions.lib', 'legacy_stdio_wide_specifiers.lib', 'vcruntime.lib')
+          clang-cl /nologo /TC /O2 /GS- /Oi- /c src/native.c /Fo:dist/native.obj
+          if ($LASTEXITCODE -ne 0) { throw 'native.c compile failed' }
+          lld-link /nologo /entry:WinMainCRTStartup /subsystem:windows /machine:x64 /nodefaultlib /out:dist/ItajaiDriveNative.exe dist/native.obj kernel32.lib user32.lib gdi32.lib winhttp.lib opengl32.lib winmm.lib @crt
+          if ($LASTEXITCODE -ne 0) { throw 'native link failed' }
+          clang-cl /nologo /TC /O2 /GS- /Oi- /c src/updater.c /Fo:dist/updater.obj
+          if ($LASTEXITCODE -ne 0) { throw 'updater.c compile failed' }
+          lld-link /nologo /entry:WinMainCRTStartup /subsystem:windows /machine:x64 /nodefaultlib /out:dist/ItajaiDriveUpdater.exe dist/updater.obj kernel32.lib user32.lib gdi32.lib winhttp.lib @crt
+          if ($LASTEXITCODE -ne 0) { throw 'updater link failed' }
+
+      - name: Validate generated asset pipeline
+        shell: pwsh
+        run: |
+          python -m py_compile tools/compile_assets.py tools/generate_vehicle_gltf.py tools/generate_vehicle_parts.py tools/make_manifest.py tools/release_check.py
+          if ($LASTEXITCODE -ne 0) { throw 'Python tool validation failed' }
+          python tools/generate_vehicle_gltf.py
+          if ($LASTEXITCODE -ne 0) { throw 'vehicle glTF generation failed' }
+          python tools/generate_vehicle_parts.py
+          if ($LASTEXITCODE -ne 0) { throw 'vehicle part generation failed' }
+          $generated = Get-ChildItem assets/generated/*.gltf | Sort-Object Name | ForEach-Object { $_.FullName }
+          python tools/compile_assets.py -o dist/itajai_assets_v08.pak assets/source/tree.gltf assets/source/streetlamp.gltf assets/source/container.gltf assets/source/palm.gltf assets/source/bench.gltf assets/source/busstop.gltf assets/source/guardrail.gltf assets/source/roadsign.gltf @generated
+          if ($LASTEXITCODE -ne 0) { throw 'asset compilation failed' }
+
+      - name: Build gate summary
+        shell: pwsh
+        run: |
+          Get-Item dist/ItajaiDriveNative.exe, dist/ItajaiDriveUpdater.exe, dist/itajai_assets_v08.pak | Select-Object Name,Length
