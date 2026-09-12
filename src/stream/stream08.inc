@@ -1,14 +1,15 @@
 // -----------------------------------------------------------------------------
 // 0.8 regional render/object streaming.
 // The routing graph remains resident; render geometry is cached by 320m regions
-// and read on demand from itajai_regions_v08.bin.
+// and read on demand from itajai_regions_v08.bin. 0.10 raises capacities only;
+// the disk format itself stays compatible.
 // -----------------------------------------------------------------------------
 #define REGION_SIZE08 320.0f
 #define REGION_RADIUS08 2
-#define MAX_REGIONS08 512
-#define MAX_STREAM_ROADS08 16000
-#define MAX_STREAM_BUILDINGS08 5000
-#define MAX_ASSET_INSTANCES08 1800
+#define MAX_REGIONS08 1024
+#define MAX_STREAM_ROADS08 30000
+#define MAX_STREAM_BUILDINGS08 12000
+#define MAX_ASSET_INSTANCES08 5000
 
 #pragma pack(push,1)
 typedef struct { char magic[8]; u32 version,regionCount,worldSegCount,worldBuildingCount; } RegionHeader08;
