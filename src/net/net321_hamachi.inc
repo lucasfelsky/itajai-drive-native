@@ -60,6 +60,8 @@ static char g_net321_status[96]="";
 static float g_net321_scan_timer=0;
 static int g_net321_initialized=0;
 
+static int net321_len(const char*s){int n=0;if(!s)return 0;while(s[n])n++;return n;}
+static int net321_streq(const char*a,const char*b){if(!a||!b)return 0;int i=0;while(a[i]&&b[i]&&a[i]==b[i])i++;return a[i]==0&&b[i]==0;}
 static char net321_lower(char c){if(c>='A'&&c<='Z')return (char)(c-'A'+'a');return c;}
 static int net321_contains_ci(const char*s,const char*needle){
   if(!s||!needle||!needle[0])return 0;
@@ -70,7 +72,7 @@ static int net321_contains_ci(const char*s,const char*needle){
   return 0;
 }
 static int net321_ip_is_usable(const char*ip){
-  if(!ip||!ip[0]||!strcmp(ip,"0.0.0.0")||!strcmp(ip,"127.0.0.1"))return 0;
+  if(!ip||!ip[0]||net321_streq(ip,"0.0.0.0")||net321_streq(ip,"127.0.0.1"))return 0;
   DWORD a=inet_addr(ip);return a!=0xffffffffu;
 }
 static int net321_ip_looks_hamachi(const char*ip){return ip&&ip[0]=='2'&&ip[1]=='5'&&ip[2]=='.';}
@@ -106,7 +108,7 @@ static void net321_join(void){
 }
 
 static void net321_input_ip(void){
-  int len=(int)strlen(g_net321_join_ip);
+  int len=net321_len(g_net321_join_ip);
   if(key_tap(NET321_VK_BACK)&&len>0){g_net321_join_ip[len-1]=0;return;}
   if(len>=30)return;
   for(int k=0;k<=9;k++)if(key_tap('0'+k)){g_net321_join_ip[len]=(char)('0'+k);g_net321_join_ip[len+1]=0;return;}
