@@ -1,0 +1,19 @@
+# Local build outputs
+build/
+dist/
+*.obj
+*.pdb
+*.ilk
+*.exe
+
+# Runtime caches / user state
+itajai_osm_cache.json
+itajai_world_v04.bin
+.update/
+
+# Local updater config
+update_config.ini
+
+# Misc
+.DS_Store
+Thumbs.db
