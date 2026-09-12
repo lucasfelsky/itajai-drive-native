@@ -4,7 +4,7 @@ Uma mini-engine 3D nativa para Windows, construída do zero em C/Win32 + OpenGL 
 
 ## Estado atual
 
-- Jogo: **1.7.0 — Graphics Uplift**
+- Jogo: **1.8.0 — Vehicle Polish**
 - Updater: **1.0.0**
 - Plataforma: Windows x64
 - Distribuição: GitHub Releases público + updater nativo
@@ -35,23 +35,20 @@ Uma mini-engine 3D nativa para Windows, construída do zero em C/Win32 + OpenGL 
 - telemetria de understeer/oversteer, carga dos eixos e slip
 - FOV da câmera varia suavemente com a velocidade
 
-## Renderer — 1.7
+## Renderer — 1.7+
 
 - OpenGL nativo com **GLSL 1.20 PBR-compat** e fallback fixed-function
 - microfacet lighting + Fresnel e ACES-like tone mapping
 - wetness persistente alimenta roughness e resposta especular
-- farol do jogador em eye space
-- janelas emissivas procedurais durante a noite
 - água com material dedicado, Fresnel aproximado e ondulação procedural
 - iluminação/fog respondem a cloud, wetness e lightning
 - dusk/amanhecer reforçados, céu estrelado e lua estilizada
-- postes de rua e comércio criam pools locais de iluminação
+- postes e comércio criam pools locais de iluminação
 - feixes visuais de farol no piso para player e tráfego próximo
-- pista continua molhada enquanto `wetness` seca, mesmo depois da chuva parar
-- poças determinísticas e reflexos locais no piso úmido
-- luz de freio pode refletir em vermelho no asfalto molhado
+- pista continua úmida enquanto `wetness` seca depois da chuva
+- poças determinísticas e reflexos locais
+- reflexo vermelho de freio em piso molhado
 - vegetação próxima recebe volume adicional de copa
-- sombras projetadas, reflexos estilizados e pós leve continuam ativos
 
 ## Roads 2.0 — 1.3
 
@@ -67,19 +64,18 @@ Uma mini-engine 3D nativa para Windows, construída do zero em C/Win32 + OpenGL 
 ## Itajaí Identity Pass — 1.5
 
 - prédios/footprints próximos são ancorados à elevação do terreno
-- comércio recebe placas e marquises com categorias em português
+- comércio recebe placas e marquises em português
 - casas baixas podem receber muro e portão frontal
-- torres costeiras de Atalaia/Cabeçudas/Praia Brava podem receber varandas
+- torres costeiras podem receber varandas
 - galpões do Porto recebem portas de doca e detalhes logísticos
-- alguns comércios recebem pequenos estacionamentos
-- vias largas urbanas podem receber postos procedurais
-- marcos de direção de arte para **CENTRO DE ITAJAI, BEIRA-RIO, PORTO DE ITAJAI, MOLHES DA BARRA, ATALAIA, CABECUDAS e PRAIA BRAVA**
+- alguns comércios recebem estacionamentos e postos procedurais
+- marcos para **CENTRO DE ITAJAI, BEIRA-RIO, PORTO DE ITAJAI, MOLHES DA BARRA, ATALAIA, CABECUDAS e PRAIA BRAVA**
 
-## Real Car Model Pass — 1.6
+## Frota real — 1.6+
 
-A frota deixa de usar caixas/silhuetas genéricas. `tools/generate_vehicle_gltf.py` gera meshes originais por loft longitudinal usando proporções reconhecíveis de carros reais populares no Brasil; os modelos são compilados para o mesmo PAK da engine.
+`tools/generate_vehicle_gltf.py` gera meshes originais por loft longitudinal usando proporções reconhecíveis de carros reais populares no Brasil. Os modelos são compilados para o PAK da engine.
 
-Frota inicial:
+Frota atual:
 
 - **Fiat Uno Way 2014**
 - **Volkswagen Gol G6**
@@ -92,7 +88,18 @@ Frota inicial:
 
 Os quatro slots jogáveis usam Uno Way, Gol G6, HB20 e Renegade. O tráfego usa os oito modelos. Badges/logotipos não são incluídos nos meshes.
 
-Detalhes visuais incluem carroceria por loft, vidro, para-choques, grade, faróis/lanternas, caçamba nas pickups, rodas de 12 lados, giro/esterçamento e suspensão visual ligada às quatro rodas.
+## Vehicle Polish — 1.8
+
+- câmera interna posicionada na região do motorista em vez de acima do teto;
+- offsets de cockpit próprios para Uno, Gol, HB20 e Renegade;
+- mouse-look continua livre dentro do carro;
+- interior procedural leve com dashboard, cluster, console, bancos, pilares A e retrovisor;
+- volante acompanha o esterço;
+- capô/fenders visíveis pelo para-brisa;
+- exterior ganha retrovisores, maçanetas e placas estilizadas;
+- rodas continuam girando/esterçando e a suspensão visual acompanha as quatro rodas;
+- áudio procedural passa a ter voz diferente para cada carro jogável: `UNO 4C SOFT`, `GOL 4C RASP`, `HB20 3C PULSE` e `RENEGADE 4C DEEP`;
+- som continua reagindo a RPM, throttle, marcha, rodagem, chuva e ambiente.
 
 ## Tráfego e mundo vivo
 
@@ -105,7 +112,8 @@ Detalhes visuais incluem carroceria por loft, vidro, para-choques, grade, farói
 ## Áudio
 
 - áudio procedural nativo via WinMM
-- motor ligado a RPM/carga
+- perfis de motor distintos por carro jogável
+- motor ligado a RPM/carga/marcha
 - ruído de rodagem
 - chuva e ambiente costeiro
 - fallback silencioso se o dispositivo de áudio não estiver disponível
@@ -118,7 +126,7 @@ Detalhes visuais incluem carroceria por loft, vidro, para-choques, grade, farói
 - tour opcional por landmarks: **F2** escolhe o próximo destino conectado
 - tela de ajuda/self-check: **F1**
 - HUD mostra o modelo jogável atual
-- `Tab` inclui telemetria de driving, renderer, wetness, pools de luz, faróis e poças
+- `Tab` inclui telemetria de driving, renderer, iluminação, wetness e áudio do veículo
 
 ## Controles
 
@@ -128,7 +136,7 @@ Detalhes visuais incluem carroceria por loft, vidro, para-choques, grade, farói
 | A / D | direção |
 | Espaço | freio de mão |
 | Mouse | orbitar / olhar ao redor |
-| C | trocar câmera |
+| C | trocar câmera, incluindo cockpit |
 | E | trocar carro |
 | R | reset |
 | M | destino GPS aleatório |
@@ -175,6 +183,7 @@ O workflow `.github/workflows/release.yml` compila os executáveis em Windows x6
 - 1.3 — Roads 2.0
 - 1.5 — Itajaí Identity Pass
 - 1.6 — Real Car Model Pass
-- **1.7 — Graphics Uplift**
+- 1.7 — Graphics Uplift
+- **1.8 — Vehicle Polish**
 
 Dados de mapa: © OpenStreetMap contributors.
