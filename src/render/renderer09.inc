@@ -1,0 +1,46 @@
+// -----------------------------------------------------------------------------
+// 0.9 programmable compatibility renderer: GLSL 1.20 + procedural materials.
+// Falls back cleanly to fixed-function rendering when shader entry points are
+// unavailable or shader compilation/linking fails.
+// -----------------------------------------------------------------------------
+static PFN09CREATESHADER p09CreateShader=NULL;static PFN09SHADERSOURCE p09ShaderSource=NULL;static PFN09COMPILESHADER p09CompileShader=NULL;static PFN09GETSHADERIV p09GetShaderiv=NULL;static PFN09DELETESHADER p09DeleteShader=NULL;static PFN09CREATEPROGRAM p09CreateProgram=NULL;static PFN09ATTACHSHADER p09AttachShader=NULL;static PFN09LINKPROGRAM p09LinkProgram=NULL;static PFN09GETPROGRAMIV p09GetProgramiv=NULL;static PFN09USEPROGRAM p09UseProgram=NULL;static PFN09GETUNIFORMLOCATION p09GetUniformLocation=NULL;static PFN09UNIFORM1I p09Uniform1i=NULL;static PFN09UNIFORM1F p09Uniform1f=NULL;static PFN09UNIFORM3F p09Uniform3f=NULL;
+static u32 g_program09=0,g_tex_grass09=0,g_tex_road09=0,g_tex_build09=0;static int g_renderer09_init=0,g_renderer09_shader=0,g_renderer09_material=0;
+static int g_u_sun09=-1,g_u_ambient09=-1,g_u_sun_strength09=-1,g_u_fog_color09=-1,g_u_fog_density09=-1,g_u_wet09=-1,g_u_use_tex09=-1,g_u_tex09=-1;
+static u8 g_tex_pixels09[64*64*3];
+
+static void* renderer09_proc(const char*n){return wglGetProcAddress(n);}
+static int renderer09_load_shader_api(void){
+#define R09_LOAD(dst,type,name) dst=(type)renderer09_proc(name);if(!dst)return 0
+  R09_LOAD(p09CreateShader,PFN09CREATESHADER,"glCreateShader");R09_LOAD(p09ShaderSource,PFN09SHADERSOURCE,"glShaderSource");R09_LOAD(p09CompileShader,PFN09COMPILESHADER,"glCompileShader");R09_LOAD(p09GetShaderiv,PFN09GETSHADERIV,"glGetShaderiv");R09_LOAD(p09DeleteShader,PFN09DELETESHADER,"glDeleteShader");R09_LOAD(p09CreateProgram,PFN09CREATEPROGRAM,"glCreateProgram");R09_LOAD(p09AttachShader,PFN09ATTACHSHADER,"glAttachShader");R09_LOAD(p09LinkProgram,PFN09LINKPROGRAM,"glLinkProgram");R09_LOAD(p09GetProgramiv,PFN09GETPROGRAMIV,"glGetProgramiv");R09_LOAD(p09UseProgram,PFN09USEPROGRAM,"glUseProgram");R09_LOAD(p09GetUniformLocation,PFN09GETUNIFORMLOCATION,"glGetUniformLocation");R09_LOAD(p09Uniform1i,PFN09UNIFORM1I,"glUniform1i");R09_LOAD(p09Uniform1f,PFN09UNIFORM1F,"glUniform1f");R09_LOAD(p09Uniform3f,PFN09UNIFORM3F,"glUniform3f");
+#undef R09_LOAD
+  return 1;
+}
+static u32 renderer09_compile_shader(u32 type,const char*src){u32 s=p09CreateShader(type);if(!s)return 0;p09ShaderSource(s,1,&src,NULL);p09CompileShader(s);int ok=0;p09GetShaderiv(s,GL_COMPILE_STATUS,&ok);if(!ok){p09DeleteShader(s);return 0;}return s;}
+static int renderer09_build_program(void){
+  static const char*vs=
+    "#version 120\n"
+    "varying vec3 vN;varying vec3 vEye;varying vec2 vUV;varying vec4 vColor;"
+    "void main(){vec4 e=gl_ModelViewMatrix*gl_Vertex;vEye=e.xyz;vN=normalize(gl_NormalMatrix*gl_Normal);vUV=gl_MultiTexCoord0.xy;vColor=gl_Color;gl_Position=gl_ProjectionMatrix*e;}";
+  static const char*fs=
+    "#version 120\n"
+    "uniform vec3 uSun;uniform float uAmbient;uniform float uSunStrength;uniform vec3 uFogColor;uniform float uFogDensity;uniform float uWet;uniform int uUseTex;uniform sampler2D uTex;"
+    "varying vec3 vN;varying vec3 vEye;varying vec2 vUV;varying vec4 vColor;"
+    "void main(){vec4 base=vColor;if(uUseTex!=0)base*=texture2D(uTex,vUV);float nd=max(dot(normalize(vN),normalize(uSun)),0.0);float light=clamp(uAmbient+nd*uSunStrength,0.0,1.35);base.rgb*=light;base.rgb=mix(base.rgb,base.rgb*0.62+vec3(0.025,0.035,0.045),uWet);float d=length(vEye);float fog=clamp(1.0-exp(-uFogDensity*d),0.0,0.94);base.rgb=mix(base.rgb,uFogColor,fog);gl_FragColor=base;}";
+  u32 sv=renderer09_compile_shader(GL_VERTEX_SHADER,vs),sf=renderer09_compile_shader(GL_FRAGMENT_SHADER,fs);if(!sv||!sf){if(sv)p09DeleteShader(sv);if(sf)p09DeleteShader(sf);return 0;}u32 p=p09CreateProgram();if(!p){p09DeleteShader(sv);p09DeleteShader(sf);return 0;}p09AttachShader(p,sv);p09AttachShader(p,sf);p09LinkProgram(p);int ok=0;p09GetProgramiv(p,GL_LINK_STATUS,&ok);p09DeleteShader(sv);p09DeleteShader(sf);if(!ok)return 0;g_program09=p;
+  g_u_sun09=p09GetUniformLocation(p,"uSun");g_u_ambient09=p09GetUniformLocation(p,"uAmbient");g_u_sun_strength09=p09GetUniformLocation(p,"uSunStrength");g_u_fog_color09=p09GetUniformLocation(p,"uFogColor");g_u_fog_density09=p09GetUniformLocation(p,"uFogDensity");g_u_wet09=p09GetUniformLocation(p,"uWet");g_u_use_tex09=p09GetUniformLocation(p,"uUseTex");g_u_tex09=p09GetUniformLocation(p,"uTex");return 1;
+}
+static u32 renderer09_hash(u32 x,u32 y,u32 s){u32 h=x*0x9e3779b1u^y*0x85ebca6bu^s;h^=h>>16;h*=0x7feb352du;h^=h>>15;h*=0x846ca68bu;return h^(h>>16);}
+static u32 renderer09_make_texture(int kind){
+  for(int y=0;y<64;y++)for(int x=0;x<64;x++){u32 h=renderer09_hash((u32)x,(u32)y,(u32)(kind*991));int i=(y*64+x)*3;if(kind==1){int n=(int)(h&31);g_tex_pixels09[i]=(u8)(38+n/3);g_tex_pixels09[i+1]=(u8)(72+n);g_tex_pixels09[i+2]=(u8)(38+n/4);}else if(kind==2){int n=(int)(h&23);int v=42+n;g_tex_pixels09[i]=(u8)v;g_tex_pixels09[i+1]=(u8)(v+1);g_tex_pixels09[i+2]=(u8)(v+2);}else{int mortar=(x%16<2)||(y%12<2);int window=(x%16>4&&x%16<12&&y%12>3&&y%12<9);int base=mortar?92:(window?48:142);g_tex_pixels09[i]=(u8)base;g_tex_pixels09[i+1]=(u8)(base+(window?10:5));g_tex_pixels09[i+2]=(u8)(base+(window?18:8));}}
+  u32 t=0;glGenTextures(1,&t);glBindTexture(GL_TEXTURE_2D,t);glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);glTexImage2D(GL_TEXTURE_2D,0,GL_RGB,64,64,0,GL_RGB,GL_UNSIGNED_BYTE,g_tex_pixels09);return t;
+}
+static void renderer09_init_once(void){if(g_renderer09_init)return;g_renderer09_init=1;g_tex_grass09=renderer09_make_texture(1);g_tex_road09=renderer09_make_texture(2);g_tex_build09=renderer09_make_texture(3);if(renderer09_load_shader_api()&&renderer09_build_program())g_renderer09_shader=1;}
+static void renderer09_set_material(int material){g_renderer09_material=material;u32 tex=material==1?g_tex_grass09:material==2?g_tex_road09:material==3?g_tex_build09:0;if(tex){glEnable(GL_TEXTURE_2D);glBindTexture(GL_TEXTURE_2D,tex);}else{glDisable(GL_TEXTURE_2D);glBindTexture(GL_TEXTURE_2D,0);}if(g_renderer09_shader&&g_u_use_tex09>=0)p09Uniform1i(g_u_use_tex09,tex?1:0);}
+static void renderer09_begin_world(V3 side,V3 up,V3 fw){
+  renderer09_init_once();if(!g_renderer09_shader){renderer09_set_material(0);return;}p09UseProgram(g_program09);
+  float phase=((float)g_hour-6.0f)/12.0f*3.14159265f;float elev=(float)sin((double)phase);if(elev<.08f)elev=.08f;V3 sunW=vnorm(v3((float)cos((double)phase)*.55f,elev,-.62f));V3 sunE=v3(vdot(side,sunW),vdot(up,sunW),-vdot(fw,sunW));float daylight=(g_hour>=6&&g_hour<=18)?1.0f:.18f;float cloud=g_weather==0?1.0f:g_weather==1?.78f:g_weather==2?.62f:.48f;float ambient=.20f+.34f*daylight*cloud,sunStrength=.72f*daylight*cloud;float fogD=g_weather==0?.0013f:g_weather==1?.0020f:g_weather==2?.0030f:.0045f;float wet=g_weather<2?0.0f:(g_weather==2?.48f:.78f);float fr=.10f*daylight,fg=.16f*daylight,fb=.22f*daylight;if(g_weather>=2){fr*=.72f;fg*=.78f;fb*=.82f;}
+  if(g_u_sun09>=0)p09Uniform3f(g_u_sun09,sunE.x,sunE.y,sunE.z);if(g_u_ambient09>=0)p09Uniform1f(g_u_ambient09,ambient);if(g_u_sun_strength09>=0)p09Uniform1f(g_u_sun_strength09,sunStrength);if(g_u_fog_color09>=0)p09Uniform3f(g_u_fog_color09,fr,fg,fb);if(g_u_fog_density09>=0)p09Uniform1f(g_u_fog_density09,fogD);if(g_u_wet09>=0)p09Uniform1f(g_u_wet09,wet);if(g_u_tex09>=0)p09Uniform1i(g_u_tex09,0);renderer09_set_material(0);
+}
+static void renderer09_end_world(void){renderer09_set_material(0);if(g_renderer09_shader)p09UseProgram(0);glDisable(GL_TEXTURE_2D);}
+static void renderer09_suspend_shader(void){if(g_renderer09_shader)p09UseProgram(0);glDisable(GL_TEXTURE_2D);}
+static void renderer09_resume_shader(void){if(g_renderer09_shader){p09UseProgram(g_program09);if(g_u_use_tex09>=0)p09Uniform1i(g_u_use_tex09,0);}g_renderer09_material=0;}
