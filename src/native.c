@@ -83,7 +83,10 @@
 #include "sim/sim19_game.inc"
 #undef game_update
 #include "world/life50.inc"
+#define game_update game_update_legacy50
 #include "sim/sim50_game.inc"
+#undef game_update
+#include "final/game_chain.inc"
 
 #define setup_camera setup_camera_legacy06
 #define draw_ground draw_ground_legacy06
@@ -254,7 +257,16 @@
 #undef draw_roads
 #undef draw_buildings
 #undef draw_hud
+#define draw_ground draw_ground_legacy50
+#define draw_roads draw_roads_legacy50
+#define draw_buildings draw_buildings_legacy50
+#define draw_hud draw_hud_legacy50
 #include "render/render50.inc"
+#undef draw_ground
+#undef draw_roads
+#undef draw_buildings
+#undef draw_hud
+#include "final/render_chain.inc"
 
 #define draw_loading draw_loading_legacy06
 #define render render_legacy06
