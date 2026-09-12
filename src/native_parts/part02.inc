@@ -97,11 +97,11 @@ static u32 rng_u32(void){rng_state^=rng_state<<13;rng_state^=rng_state>>17;rng_s
 static float rng01(void){return (rng_u32()&0xffff)/65535.0f;}
 
 // -----------------------------------------------------------------------------
-// world data - 0.10 capacity bump for the expanded Itajai corridor
+// world data - 3.3 capacity bump for municipal cadastral building coverage
 // -----------------------------------------------------------------------------
 #define MAX_ROAD_WAYS 8000
 #define MAX_SEGMENTS 60000
-#define MAX_BUILDINGS 24000
+#define MAX_BUILDINGS 40000
 #define MAX_SIGNALS 2048
 #define MAX_NODES 40000
 #define MAX_EDGES 120000
@@ -128,7 +128,7 @@ typedef struct {
 } World;
 static World g_world;
 static volatile LONG g_world_state=0; // 0 load,1 ready,2 fallback
-static volatile LONG g_load_stage=0;  // 0 cache,1 network,2 parse,3 graph,4 ready,5 fallback
+static volatile LONG g_load_stage=0;  // 0 cache,1 network,2 parse,3 graph,4 ready,5 fallback,7 municipal enrichment
 static char g_cache_path[520];
 static char g_cache_bin_path[520];
 static char g_exe_dir[480];
