@@ -97,17 +97,17 @@ static u32 rng_u32(void){rng_state^=rng_state<<13;rng_state^=rng_state>>17;rng_s
 static float rng01(void){return (rng_u32()&0xffff)/65535.0f;}
 
 // -----------------------------------------------------------------------------
-// world data
+// world data - 0.10 capacity bump for the expanded Itajai corridor
 // -----------------------------------------------------------------------------
-#define MAX_ROAD_WAYS 2600
-#define MAX_SEGMENTS 16000
-#define MAX_BUILDINGS 5000
-#define MAX_SIGNALS 384
-#define MAX_NODES 10000
-#define MAX_EDGES 30000
-#define MAX_TRAFFIC 28
-#define MAX_ROUTE 420
-#define NODE_HASH_SIZE 32768
+#define MAX_ROAD_WAYS 8000
+#define MAX_SEGMENTS 60000
+#define MAX_BUILDINGS 24000
+#define MAX_SIGNALS 2048
+#define MAX_NODES 40000
+#define MAX_EDGES 120000
+#define MAX_TRAFFIC 48
+#define MAX_ROUTE 1200
+#define NODE_HASH_SIZE 131072
 
 typedef struct { char name[64]; char type[24]; float width,speed; int oneway; } RoadWay;
 typedef struct { V3 a,b; int road; } RoadSegment;
