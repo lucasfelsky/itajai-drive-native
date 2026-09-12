@@ -67,3 +67,4 @@
 #undef game_update
 #include "../net/net321_hamachi.inc"
 #include "../sim/net321_game.inc"
+#include "../world/city330_world.inc"
