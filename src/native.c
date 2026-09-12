@@ -57,7 +57,14 @@
 #undef game_update
 #include "stream/lod20_state.inc"
 #include "assets/assets08.inc"
+#define stream08_build_cache stream08_build_cache_legacy08
+#define stream08_prepare stream08_prepare_legacy08
+#define stream08_refresh stream08_refresh_legacy08
 #include "stream/stream08.inc"
+#undef stream08_build_cache
+#undef stream08_prepare
+#undef stream08_refresh
+#include "stream/stream220.inc"
 #define game_update game_update_legacy08
 #include "sim/sim08_game.inc"
 #undef game_update
