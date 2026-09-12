@@ -8,4 +8,8 @@
 #include "../sim/sim70_game.inc"
 #undef game_update
 #include "../perf/perf80.inc"
+#define game_update game_update_legacy80
 #include "../sim/sim80_game.inc"
+#undef game_update
+#include "final100.inc"
+#include "../sim/sim100_game.inc"
