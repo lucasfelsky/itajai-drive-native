@@ -1,5 +1,6 @@
 // Itajai Drive Native source bundle.
 #include "native_parts/part01.inc"
+#include "platform/audio18.inc"
 #include "native_parts/part02.inc"
 #include "platform/extra08.inc"
 #include "platform/extra09.inc"
@@ -69,7 +70,10 @@
 #define game_update game_update_legacy15
 #include "sim/sim15_game.inc"
 #undef game_update
+#define game_update game_update_legacy17
 #include "sim/sim17_game.inc"
+#undef game_update
+#include "sim/audio18.inc"
 
 #define setup_camera setup_camera_legacy06
 #define draw_ground draw_ground_legacy06
@@ -181,7 +185,16 @@
 #undef draw_hud
 #include "render/vehicle16.inc"
 #include "render/traffic17.inc"
+#define draw_ground draw_ground_legacy17
+#define draw_roads draw_roads_legacy17
+#define draw_buildings draw_buildings_legacy17
+#define draw_hud draw_hud_legacy17
 #include "render/render17.inc"
+#undef draw_ground
+#undef draw_roads
+#undef draw_buildings
+#undef draw_hud
+#include "render/render18.inc"
 
 #define draw_loading draw_loading_legacy06
 #define render render_legacy06
