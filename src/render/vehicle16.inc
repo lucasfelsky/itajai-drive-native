@@ -49,8 +49,6 @@ static void vehicle160_wheel(float x,float y,float z,float radius,float width,fl
 
 static void vehicle160_trim(int model,int braking,int headlights){
   const CarVisual160*v=&g_car_visual160[model];float W=v->w,L=v->l,H=v->h,cz=v->cabinZ,cl=v->cabinL;
-  // Side glass, windshield and rear glass. A dark blue-grey reads well in both
-  // fixed-function and programmable renderer paths.
   float gy=.98f+(H-1.43f)*.27f,gh=clampf((H-.83f)*.55f,.30f,.48f),sideZ=cz-.03f;
   vehicle160_local_box_rot(-W*.486f,gy,sideZ,.035f,gh,cl*.66f,0,0,0,.055f,.095f,.125f);
   vehicle160_local_box_rot( W*.486f,gy,sideZ,.035f,gh,cl*.66f,0,0,0,.055f,.095f,.125f);
@@ -58,17 +56,11 @@ static void vehicle160_trim(int model,int braking,int headlights){
   vehicle160_local_box_rot(0,gy,cz+cl*.48f,W*.72f,gh*.92f,.045f,-rake,0,0,.07f,.11f,.14f);
   if(v->style!=CAR160_PICKUP)vehicle160_local_box_rot(0,gy,cz-cl*.48f,W*.70f,gh*.90f,.045f,rake*.70f,0,0,.065f,.10f,.13f);
   else vehicle160_local_box_rot(0,1.08f,cz-cl*.47f,W*.66f,.42f,.045f,2,0,0,.06f,.10f,.13f);
-
-  // Bumpers / lower black trim.
   vehicle160_local_box_rot(0,.47f,L*.496f,W*.84f,.16f,.075f,0,0,0,.07f,.075f,.08f);
   vehicle160_local_box_rot(0,.47f,-L*.496f,W*.86f,.16f,.075f,0,0,0,.07f,.075f,.08f);
   vehicle160_local_box_rot(0,.43f,L*.501f,W*.39f,.20f,.040f,0,0,0,.035f,.04f,.045f);
-
-  // Headlights / taillights. Bright geometry doubles as an emissive cue before
-  // the stronger 1.7 lighting pass.
   float lx=W*.31f,fy=.66f+(H-1.45f)*.08f;
   for(int s=-1;s<=1;s+=2){vehicle160_local_box_rot(s*lx,fy,L*.505f,W*.20f,.16f,.035f,0,0,0,headlights?1.0f:.72f,headlights?.94f:.72f,headlights?.72f:.68f);vehicle160_local_box_rot(s*lx,.66f,-L*.505f,W*.18f,.17f,.035f,0,0,0,braking?1.0f:.55f,.035f,.025f);}
-
   if(v->style==CAR160_SUV){for(int k=-3;k<=3;k++)vehicle160_local_box_rot(k*.105f,.62f,L*.508f,.045f,.24f,.028f,0,0,0,.20f,.21f,.21f);}
   if(v->style==CAR160_BOX_HATCH){vehicle160_local_box_rot(0,.38f,0,W*.98f,.12f,L*.73f,0,0,0,.09f,.09f,.085f);}
   if(v->style==CAR160_SEDAN){vehicle160_local_box_rot(0,.57f,L*.508f,W*.52f,.075f,.030f,0,0,0,.42f,.43f,.44f);}
@@ -85,3 +77,10 @@ static void draw_player_vehicle(void){
   int model=g_player_model160[g_player.car&3];const CarVisual160*v=&g_car_visual160[model];float cc[4][3]={{.72f,.69f,.58f},{.18f,.48f,.78f},{.72f,.12f,.10f},{.24f,.51f,.28f}};float*c=cc[g_player.car&3];int lights=(g_hour<6||g_hour>=18||g_weather>=2);float spin=(float)g_time*absf(g_player.speed)*52.0f,steer=g_player.steer*g_vehicle_profiles[g_player.car].maxSteer*57.29578f;
   glPushMatrix();glTranslatef(g_player.body.p.x,g_player.body.p.y-.66f,g_player.body.p.z);glRotatef(g_player.body.yaw*57.29578f,0,1,0);glRotatef(g_player.pitch*57.29578f,1,0,0);glRotatef(g_player.roll*57.29578f,0,0,1);vehicle160_draw_model_local(model,c[0],c[1],c[2],0,lights,spin,steer,1);glPopMatrix();(void)v;
 }
+
+// Legacy internal names are kept because older presentation layers are still
+// compiled into the single translation unit even though 1.6 supersedes them.
+static void vehicle16_resolve(void){vehicle160_resolve();}
+#define g_car_asset16 g_car_asset160
+static void traffic40_resolve_assets(void){vehicle160_resolve();}
+#define g_traffic_car_assets40 g_car_asset160
