@@ -40,4 +40,8 @@
 #define game_update game_update_legacy211
 #include "../sim/sim211_game.inc"
 #undef game_update
+#define game_update game_update_legacy212
 #include "../sim/sim212_game.inc"
+#undef game_update
+#include "../world/life213.inc"
+#include "../sim/sim213_game.inc"
