@@ -4,11 +4,12 @@ Mini-engine 3D nativa para Windows, construída do zero em C/Win32 + OpenGL — 
 
 ## Estado atual
 
-- Jogo: **1.9.0 — Production Presentation**
-- Updater: **1.0.0**
+- Jogo: **2.0.0 — Release Candidate**
+- Updater: **1.1.0 — retry + rollback transacional**
 - Plataforma: Windows x64
 - Distribuição: GitHub Releases público + updater nativo
 - Build: GitHub Actions / Windows / clang-cl + lld-link
+- Release gate: `tools/release_check.py` valida EXE, PAK, frota, manifesto, hashes e canal antes da tag
 
 ## Mundo
 
@@ -31,7 +32,7 @@ Mini-engine 3D nativa para Windows, construída do zero em C/Win32 + OpenGL — 
 - TCS/ABS aproximados, freio-motor, handbrake e perda de grip sob potência
 - FOV dinâmico e câmeras externas/cockpit
 
-## Renderer — 1.9
+## Renderer — 1.9+
 
 - OpenGL nativo com **GLSL 1.20 PBR-compat** e fallback fixed-function
 - microfacet lighting + Fresnel e ACES-like tone mapping
@@ -100,8 +101,29 @@ Os quatro slots jogáveis usam Uno Way, Gol G6, HB20 e Renegade. O tráfego usa 
 - minimapa em tempo real
 - Photo Mode: **P** congela a simulação; **H** esconde a HUD
 - tour opcional por landmarks com **F2**
-- **F1** abre ajuda/self-check
+- **F1** abre ajuda e **self-check 14/14**
+- o self-check mostra PAK/frota/renderer/streaming e se GLSL está ativo ou em fallback
 - `Tab` exibe telemetria de driving, renderer, wetness, iluminação, materiais e áudio
+
+## Updater 1.1
+
+O updater continua sendo um executável Win32/WinHTTP independente, sem navegador ou runtime externo. Ele consulta o manifesto `latest`, valida tamanho + SHA-256 de cada arquivo e agora possui uma segunda tentativa para falhas transitórias. Antes de aplicar, cria backups temporários dos arquivos gerenciados; se qualquer substituição falhar, restaura a instalação anterior e não altera `VERSION.txt`.
+
+O manifesto gerencia o executável do jogo e o PAK. Cache OSM, world cache, configurações e landmarks ficam fora do update e são preservados.
+
+## Release Candidate 2.0
+
+Antes de publicar uma release, o CI agora exige:
+
+- semver e README coerentes;
+- EXE principal e updater presentes;
+- PAK válido com pelo menos 16 assets;
+- os oito carros de produção presentes nominalmente no PAK;
+- manifesto protocolo 1 com `base_url` da tag correta;
+- tamanho e SHA-256 corretos para EXE e PAK;
+- `update_config.ini` válido.
+
+Se uma dessas verificações falhar, não há tag nem GitHub Release.
 
 ## Controles
 
@@ -139,7 +161,7 @@ Os quatro slots jogáveis usam Uno Way, Gol G6, HB20 e Renegade. O tráfego usa 
 
 ## Build e releases
 
-O workflow `.github/workflows/release.yml` compila os executáveis Windows x64, gera os veículos procedurais em glTF, compila o PAK, cria manifesto/hashes, tag e GitHub Release. O updater valida tamanho e SHA-256 antes de substituir arquivos gerenciados; caches, configurações e landmarks são preservados.
+O workflow `.github/workflows/release.yml` compila os executáveis Windows x64, gera os veículos procedurais em glTF, compila o PAK, cria manifesto/hashes, executa `tools/release_check.py` e só então cria tag/GitHub Release. O updater valida tamanho e SHA-256 antes de substituir arquivos e faz rollback em falhas de aplicação.
 
 ## Evolução principal
 
@@ -159,6 +181,7 @@ O workflow `.github/workflows/release.yml` compila os executáveis Windows x64, 
 - 1.6 — Real Car Model Pass
 - 1.7 — Graphics Uplift
 - 1.8 — Vehicle Polish
-- **1.9 — Production Presentation**
+- 1.9 — Production Presentation
+- **2.0 — Release Candidate / hardening**
 
 Dados de mapa: © OpenStreetMap contributors.
