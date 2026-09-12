@@ -58,4 +58,14 @@
 #undef draw_buildings
 #undef draw_hud
 #include "../render/fidelity230.inc"
+#define draw_ground draw_ground_legacy230
+#define draw_roads draw_roads_legacy230
+#define draw_buildings draw_buildings_legacy230
+#define draw_hud draw_hud_legacy230
 #include "../render/render230.inc"
+#undef draw_ground
+#undef draw_roads
+#undef draw_buildings
+#undef draw_hud
+#include "../render/navegantes240.inc"
+#include "../render/render240.inc"
