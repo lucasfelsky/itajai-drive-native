@@ -37,15 +37,16 @@ jobs:
         run: |
           $ErrorActionPreference = 'Stop'
           New-Item -ItemType Directory -Force dist | Out-Null
+          $crt = @('ucrt.lib', 'legacy_stdio_definitions.lib', 'vcruntime.lib')
 
           clang-cl /nologo /TC /O2 /GS- /Oi- /c src/native.c /Fo:dist/native.obj
           if ($LASTEXITCODE -ne 0) { throw 'native.c compile failed' }
-          lld-link /nologo /entry:WinMainCRTStartup /subsystem:windows /machine:x64 /nodefaultlib /out:dist/ItajaiDriveNative.exe dist/native.obj kernel32.lib user32.lib gdi32.lib winhttp.lib opengl32.lib msvcrt.lib
+          lld-link /nologo /entry:WinMainCRTStartup /subsystem:windows /machine:x64 /nodefaultlib /out:dist/ItajaiDriveNative.exe dist/native.obj kernel32.lib user32.lib gdi32.lib winhttp.lib opengl32.lib @crt
           if ($LASTEXITCODE -ne 0) { throw 'native link failed' }
 
           clang-cl /nologo /TC /O2 /GS- /Oi- /c src/updater.c /Fo:dist/updater.obj
           if ($LASTEXITCODE -ne 0) { throw 'updater.c compile failed' }
-          lld-link /nologo /entry:WinMainCRTStartup /subsystem:windows /machine:x64 /nodefaultlib /out:dist/ItajaiDriveUpdater.exe dist/updater.obj kernel32.lib user32.lib gdi32.lib winhttp.lib msvcrt.lib
+          lld-link /nologo /entry:WinMainCRTStartup /subsystem:windows /machine:x64 /nodefaultlib /out:dist/ItajaiDriveUpdater.exe dist/updater.obj kernel32.lib user32.lib gdi32.lib winhttp.lib @crt
           if ($LASTEXITCODE -ne 0) { throw 'updater link failed' }
 
       - name: Generate updater channel files
@@ -56,7 +57,7 @@ jobs:
           $repo = '${{ github.repository }}'
           $baseUrl = "https://github.com/$repo/releases/download/$tag/"
 
-          Copy-Item VERSION dist/VERSION.txt
+          $version | Set-Content -Encoding ascii dist/VERSION.txt
           @"
           manifest_url=https://github.com/$repo/releases/latest/download/manifest.txt
           auto_launch=1
