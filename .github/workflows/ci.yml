@@ -1,10 +1,10 @@
 name: Development Build Gate
 
-# 3.2.x gate validates native multiplayer transports, Hamachi adapter detection,
-# the optional Internet relay and the generated runtime asset pipeline.
+# 3.3 gate validates the native client, municipal/OSM city pipeline integration,
+# multiplayer transports and the generated runtime asset pipeline.
 on:
   push:
-    branches: [main, dev/multiplayer-foundation, dev/internet-multiplayer, dev/hamachi-lan-ui]
+    branches: [main, dev/multiplayer-foundation, dev/internet-multiplayer, dev/hamachi-lan-ui, dev/city-rebuild-330]
     paths:
       - 'src/**'
       - 'tools/**'
