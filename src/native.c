@@ -8,16 +8,28 @@
 #include "foundation/globals.inc"
 #include "foundation/foundation.inc"
 #include "sim/sim06.inc"
-#include "sim/sim07.inc"
+#include "settings/settings07_state.inc"
 
-// Keep the 0.6 game loop/traffic code available as an internal fallback,
-// while 0.7 provides the public implementations used by the entry point.
+// Keep the original 0.7 mouse handler internally; 0.7.1 provides persistent
+// sensitivity/invert-Y without disturbing the rest of the intersection/stream code.
+#define camera_mouse_move camera_mouse_move_legacy07
+#include "sim/sim07.inc"
+#undef camera_mouse_move
+#include "settings/camera071.inc"
+#include "settings/settings07.inc"
+
+// Keep the 0.6 game loop/traffic code available as an internal fallback.
 #define traffic_update traffic_update_legacy06
 #define game_update game_update_legacy06
 #include "native_parts/part06.inc"
 #undef traffic_update
 #undef game_update
+
+// 0.7 gameplay remains internally available; 0.7.1 wraps it with the pause menu.
+#define game_update game_update_legacy07
 #include "sim/sim07_game.inc"
+#undef game_update
+#include "settings/settings07_game.inc"
 
 // Same strategy for renderer functions evolved by 0.7.
 #define setup_camera setup_camera_legacy06
@@ -31,9 +43,14 @@
 #undef draw_roads
 #undef draw_buildings
 #undef draw_hud
-#include "sim/sim07_render.inc"
 
-// Preserve old Win32 bootstrap/loading path internally and expose the 0.7 one.
+// Preserve the 0.7 HUD internally and layer the settings screen above it.
+#define draw_hud draw_hud_legacy07
+#include "sim/sim07_render.inc"
+#undef draw_hud
+#include "settings/settings07_ui.inc"
+
+// Preserve old Win32 bootstrap/loading path internally and expose the 0.7.1 one.
 #define draw_loading draw_loading_legacy06
 #define render render_legacy06
 #define wndproc wndproc_legacy06
