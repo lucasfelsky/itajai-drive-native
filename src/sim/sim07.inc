@@ -12,6 +12,7 @@ static int g_camera_captured=0;
 static float g_camera_yaw=0.0f,g_camera_yaw_target=0.0f;
 static float g_camera_pitch=0.0f,g_camera_pitch_target=0.0f;
 static float g_camera_sensitivity=.0031f;
+static int g_camera_cockpit_slot180=0;
 
 // Intersection transition state for each traffic vehicle.
 static int g_traffic_prev_edge[MAX_TRAFFIC];
@@ -42,12 +43,12 @@ static void sim07_camera_pose(int camera,V3 carPos,float carYaw,V3*eye,V3*target
   float yaw=carYaw+g_camera_yaw;
   if(camera==2){
     // Driver-eye offsets for the four player slots: Uno, Gol, HB20, Renegade.
-    // Body meshes are rendered around carPos-.66y, so these offsets place the
-    // eye behind the dashboard instead of above the roof as in the old camera.
+    // The slot is mirrored by the final gameplay layer because this legacy camera
+    // is compiled before Player itself is declared in the historical translation unit.
     static const float eyeY[4]={.51f,.48f,.49f,.61f};
     static const float eyeZ[4]={-.10f,-.13f,-.11f,-.16f};
     static const float eyeX[4]={-.31f,-.32f,-.33f,-.35f};
-    int ci=g_player.car&3;float pitch=clampf(g_camera_pitch,-.48f,.48f);float cp=(float)cos((double)pitch),sp=(float)sin((double)pitch);V3 dir=v3((float)sin((double)yaw)*cp,-sp,(float)cos((double)yaw)*cp);V3 carF=v3((float)sin((double)carYaw),0,(float)cos((double)carYaw)),carR=v3(carF.z,0,-carF.x);*eye=vadd(carPos,vadd(vadd(vmul(carF,eyeZ[ci]),vmul(carR,eyeX[ci])),v3(0,eyeY[ci],0)));*target=vadd(*eye,vmul(dir,28.0f));return;
+    int ci=g_camera_cockpit_slot180&3;float pitch=clampf(g_camera_pitch,-.48f,.48f);float cp=(float)cos((double)pitch),sp=(float)sin((double)pitch);V3 dir=v3((float)sin((double)yaw)*cp,-sp,(float)cos((double)yaw)*cp);V3 carF=v3((float)sin((double)carYaw),0,(float)cos((double)carYaw)),carR=v3(carF.z,0,-carF.x);*eye=vadd(carPos,vadd(vadd(vmul(carF,eyeZ[ci]),vmul(carR,eyeX[ci])),v3(0,eyeY[ci],0)));*target=vadd(*eye,vmul(dir,28.0f));return;
   }
   float dist=camera==0?8.7f:camera==1?5.0f:39.0f;float basePitch=camera==0?.38f:camera==1?.31f:1.18f;float pitch=clampf(basePitch+g_camera_pitch,camera==3?.72f:.08f,camera==3?1.42f:1.02f);float cp=(float)cos((double)pitch),sp=(float)sin((double)pitch);V3 orbit=v3(-(float)sin((double)yaw)*cp,sp,-(float)cos((double)yaw)*cp);*target=vadd(carPos,v3(0,camera==3?.35f:.92f,0));*eye=vadd(*target,vmul(orbit,dist));
 }
