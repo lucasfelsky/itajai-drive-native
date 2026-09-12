@@ -37,4 +37,7 @@
 #define game_update game_update_legacy250
 #include "../sim/sim250_game.inc"
 #undef game_update
+#define game_update game_update_legacy211
 #include "../sim/sim211_game.inc"
+#undef game_update
+#include "../sim/sim212_game.inc"
