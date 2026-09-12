@@ -54,7 +54,7 @@ jobs:
         run: |
           python tools/generate_vehicle_gltf.py
           if ($LASTEXITCODE -ne 0) { throw 'vehicle glTF generation failed' }
-          python tools/compile_assets.py -o dist/itajai_assets_v08.pak assets/source/tree.gltf assets/source/streetlamp.gltf assets/source/container.gltf assets/source/palm.gltf assets/source/bench.gltf assets/source/busstop.gltf assets/source/guardrail.gltf assets/source/roadsign.gltf assets/generated/compact_hatch.gltf assets/generated/compact_sedan.gltf assets/generated/sport_hatch.gltf assets/generated/compact_suv.gltf
+          python tools/compile_assets.py -o dist/itajai_assets_v08.pak assets/source/tree.gltf assets/source/streetlamp.gltf assets/source/container.gltf assets/source/palm.gltf assets/source/bench.gltf assets/source/busstop.gltf assets/source/guardrail.gltf assets/source/roadsign.gltf assets/generated/compact_hatch.gltf assets/generated/compact_sedan.gltf assets/generated/sport_hatch.gltf assets/generated/compact_suv.gltf assets/generated/city_hatch.gltf assets/generated/small_pickup.gltf assets/generated/wagon.gltf assets/generated/midsize_sedan.gltf
           if ($LASTEXITCODE -ne 0) { throw 'asset compilation failed' }
 
       - name: Generate updater channel files
