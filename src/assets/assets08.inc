@@ -32,7 +32,6 @@ static int asset08_find(const char*name){for(int i=0;i<g_asset_count08;i++)if(st
 static int asset08_load_pack(void){
   asset08_build_path();char*data=NULL;DWORD size=0;g_asset_pack_ok08=0;g_asset_count08=0;
   if(!file_read_all(g_asset_pack_path08,&data,&size)||size<16)return 0;
-  if(memcpy==NULL){VirtualFree(data,0,MEM_RELEASE);return 0;} // keeps freestanding compiler happy about import use
   if(!(data[0]=='I'&&data[1]=='D'&&data[2]=='A'&&data[3]=='P'&&data[4]=='A'&&data[5]=='K'&&data[6]=='0'&&data[7]=='8')){VirtualFree(data,0,MEM_RELEASE);return 0;}
   const u8*p=(const u8*)data;u32 version=asset08_u32(p+8),count=asset08_u32(p+12);if(version!=1||count>MAX_ASSETS08){VirtualFree(data,0,MEM_RELEASE);return 0;}
   const u32 recSize=84;u64 recEnd=16ull+(u64)count*recSize;if(recEnd>size){VirtualFree(data,0,MEM_RELEASE);return 0;}
