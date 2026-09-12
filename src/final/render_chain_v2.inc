@@ -108,4 +108,14 @@
 #undef draw_buildings
 #undef draw_hud
 #include "../render/atmos280.inc"
+#define draw_ground draw_ground_legacy280v2
+#define draw_roads draw_roads_legacy280v2
+#define draw_buildings draw_buildings_legacy280v2
+#define draw_hud draw_hud_legacy280v2
 #include "../render/render280_v2.inc"
+#undef draw_ground
+#undef draw_roads
+#undef draw_buildings
+#undef draw_hud
+#include "rc290.inc"
+#include "../render/render290_v2.inc"
