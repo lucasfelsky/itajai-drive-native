@@ -143,4 +143,14 @@
 #undef draw_buildings
 #undef draw_hud
 #include "../render/worldgeo28.inc"
+#define draw_ground draw_ground_legacy280
+#define draw_roads draw_roads_legacy280
+#define draw_buildings draw_buildings_legacy280
+#define draw_hud draw_hud_legacy280
 #include "../render/render280.inc"
+#undef draw_ground
+#undef draw_roads
+#undef draw_buildings
+#undef draw_hud
+#include "../render/roads29.inc"
+#include "../render/render290.inc"
