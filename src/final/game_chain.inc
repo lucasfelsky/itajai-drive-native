@@ -4,4 +4,8 @@
 #include "../sim/sim60_game.inc"
 #undef game_update
 #include "../ui/ui70_state.inc"
+#define game_update game_update_legacy70
 #include "../sim/sim70_game.inc"
+#undef game_update
+#include "../perf/perf80.inc"
+#include "../sim/sim80_game.inc"
