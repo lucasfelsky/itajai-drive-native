@@ -9,6 +9,7 @@ O projeto começou como um protótipo de direção livre inspirado em Itajaí/SC
 - Jogo: **0.4.2**
 - Updater: **1.0.0**
 - Plataforma: Windows x64
+- Canal de releases: **GitHub Releases público**
 
 ### Implementado
 
@@ -26,6 +27,7 @@ O projeto começou como um protótipo de direção livre inspirado em Itajaí/SC
 - Semáforos
 - Horário e clima
 - Updater com staging + tamanho + SHA-256
+- Build/release automático via GitHub Actions
 
 ## Roadmap imediato — Foundation 0.5
 
@@ -57,12 +59,18 @@ O projeto começou como um protótipo de direção livre inspirado em Itajaí/SC
 
 O workflow `.github/workflows/release.yml` compila `ItajaiDriveNative.exe` e `ItajaiDriveUpdater.exe` em um runner Windows. Alterar o arquivo `VERSION` na branch `main` dispara uma build de release, gera o manifesto com SHA-256, cria a tag correspondente e publica os binários no GitHub Releases.
 
+A release inicial `v0.4.2` foi compilada e publicada com sucesso pelo GitHub Actions.
+
 ## Atualizador
 
-O updater baixa tudo primeiro para `.update/`, valida tamanho e SHA-256 e só então substitui os arquivos instalados. Se a rede falhar, a instalação atual permanece intacta e o jogo abre normalmente.
+O updater consulta automaticamente:
+
+`https://github.com/lucasfelsky/itajai-drive-native/releases/latest/download/manifest.txt`
+
+Ele baixa tudo primeiro para `.update/`, valida tamanho e SHA-256 e só então substitui os arquivos instalados. Se a rede falhar, a instalação atual permanece intacta e o jogo abre normalmente.
 
 Arquivos locais como `itajai_osm_cache.json` e `itajai_world_v04.bin` não são gerenciados pelo updater e são preservados.
 
-> O repositório está privado no momento. Releases privadas exigem autenticação; para atualização automática anônima no PC, o canal de binários precisará ser público ou hospedado separadamente. Nenhum token pessoal será embutido no executável.
+O canal de releases é público, então o updater não precisa de login nem token GitHub. Nenhum token pessoal é embutido no executável.
 
 Dados de mapa: © OpenStreetMap contributors.
