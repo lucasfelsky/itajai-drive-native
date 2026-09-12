@@ -100,7 +100,14 @@
 #undef draw_buildings
 #undef draw_hud
 #include "render/renderer09.inc"
+#define renderer09_draw_sky renderer09_draw_sky_legacy09
+#define renderer09_draw_shadows renderer09_draw_shadows_legacy09
+#define renderer09_draw_rain renderer09_draw_rain_legacy09
 #include "render/effects09.inc"
+#undef renderer09_draw_sky
+#undef renderer09_draw_shadows
+#undef renderer09_draw_rain
+#include "render/effects14.inc"
 #define draw_ground draw_ground_legacy09
 #define draw_roads draw_roads_legacy09
 #define draw_buildings draw_buildings_legacy09
@@ -135,7 +142,16 @@
 #undef draw_roads
 #undef draw_buildings
 #undef draw_hud
+#define draw_ground draw_ground_legacy13
+#define draw_roads draw_roads_legacy13
+#define draw_buildings draw_buildings_legacy13
+#define draw_hud draw_hud_legacy13
 #include "render/render13.inc"
+#undef draw_ground
+#undef draw_roads
+#undef draw_buildings
+#undef draw_hud
+#include "render/render14.inc"
 
 #define draw_loading draw_loading_legacy06
 #define render render_legacy06
