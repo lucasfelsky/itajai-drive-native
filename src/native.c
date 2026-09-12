@@ -66,7 +66,10 @@
 #define game_update game_update_legacy12
 #include "sim/sim12_game.inc"
 #undef game_update
+#define game_update game_update_legacy15
 #include "sim/sim15_game.inc"
+#undef game_update
+#include "sim/sim17_game.inc"
 
 #define setup_camera setup_camera_legacy06
 #define draw_ground draw_ground_legacy06
@@ -75,6 +78,7 @@
 #define draw_buildings draw_buildings_legacy06
 #define draw_hud draw_hud_legacy06
 #define draw_player_vehicle draw_player_vehicle_legacy06
+#define draw_traffic draw_traffic_legacy06
 #include "native_parts/part07.inc"
 #undef setup_camera
 #undef draw_ground
@@ -83,6 +87,7 @@
 #undef draw_buildings
 #undef draw_hud
 #undef draw_player_vehicle
+#undef draw_traffic
 #define setup_camera setup_camera_legacy07
 #define draw_lane_markings draw_lane_markings_legacy07
 #define draw_roads draw_roads_legacy07
@@ -165,8 +170,18 @@
 #undef draw_roads
 #undef draw_buildings
 #undef draw_hud
+#define draw_ground draw_ground_legacy15
+#define draw_roads draw_roads_legacy15
+#define draw_buildings draw_buildings_legacy15
+#define draw_hud draw_hud_legacy15
 #include "render/render15.inc"
+#undef draw_ground
+#undef draw_roads
+#undef draw_buildings
+#undef draw_hud
 #include "render/vehicle16.inc"
+#include "render/traffic17.inc"
+#include "render/render17.inc"
 
 #define draw_loading draw_loading_legacy06
 #define render render_legacy06
