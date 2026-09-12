@@ -32,7 +32,10 @@
 #define camera_mouse_move camera_mouse_move_legacy07
 #include "sim/sim07.inc"
 #undef camera_mouse_move
+#define camera_mouse_move camera_mouse_move_legacy071
 #include "settings/camera071.inc"
+#undef camera_mouse_move
+#include "settings/camera211.inc"
 #include "settings/settings07.inc"
 #define traffic_update traffic_update_legacy06
 #define game_update game_update_legacy06
@@ -45,6 +48,7 @@
 #undef draw_box
 #include "render/primitives09.inc"
 #include "urban/urban10_core.inc"
+#include "sim/reverse211.inc"
 #define game_update game_update_legacy07
 #include "sim/sim07_game.inc"
 #undef game_update
