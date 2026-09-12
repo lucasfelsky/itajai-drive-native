@@ -7,8 +7,8 @@ static float g_terrain_grid11[TERRAIN11_N][TERRAIN11_N];
 
 static void terrain11_draw_ocean(void){
   float pz=g_player.body.p.z;int strips=38;float z0=pz-1900.0f,step=100.0f;
-  renderer09_set_material(0);glEnable(GL_BLEND);glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);glNormal3f(0,1,0);glBegin(GL_QUADS);
-  for(int i=0;i<strips;i++){float a=z0+i*step,b=a+step,sa=terrain11_shore_x(a)+6.0f,sb=terrain11_shore_x(b)+6.0f;float wa=-.18f+(float)sin((double)(g_time*.65+a*.018f))*.045f,wb=-.18f+(float)sin((double)(g_time*.65+b*.018f))*.045f;glColor4f(.08f,.33f,.48f,.78f);glVertex3f(sa,wa,a);glVertex3f(sa+2200,wa,a);glVertex3f(sb+2200,wb,b);glVertex3f(sb,wb,b);}glEnd();glDisable(GL_BLEND);renderer09_set_material(0);g_draw_calls++;
+  renderer09_set_material(4);glEnable(GL_BLEND);glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);glNormal3f(0,1,0);glBegin(GL_QUADS);
+  for(int i=0;i<strips;i++){float a=z0+i*step,b=a+step,sa=terrain11_shore_x(a)+6.0f,sb=terrain11_shore_x(b)+6.0f;float wa=-.18f+(float)sin((double)(g_time*.65+a*.018f))*.045f,wb=-.18f+(float)sin((double)(g_time*.65+b*.018f))*.045f;glColor4f(.08f,.33f,.48f,.78f);glTexCoord2f(sa*.018f,a*.018f);glVertex3f(sa,wa,a);glTexCoord2f((sa+2200)*.018f,a*.018f);glVertex3f(sa+2200,wa,a);glTexCoord2f((sb+2200)*.018f,b*.018f);glVertex3f(sb+2200,wb,b);glTexCoord2f(sb*.018f,b*.018f);glVertex3f(sb,wb,b);}glEnd();glDisable(GL_BLEND);renderer09_set_material(0);g_draw_calls++;
 }
 
 static void draw_ground(void){
