@@ -66,5 +66,8 @@
 #include "../sim/net320_game.inc"
 #undef game_update
 #include "../net/net321_hamachi.inc"
+#define game_update game_update_legacy321
 #include "../sim/net321_game.inc"
+#undef game_update
 #include "../world/city330_world.inc"
+#include "../ui/map380_game.inc"
