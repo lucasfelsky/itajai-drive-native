@@ -2,7 +2,7 @@
 // 1.1 Driving Feel 2.0
 // Adds axle slip angles, load transfer, progressive tyre saturation,
 // drivetrain personality (FWD/RWD/AWD), engine braking and camera FOV state
-// on top of the stable 1.0 chassis.
+// on top of the stable 1.0 chassis. 2.2 softens the rear-lock handbrake response.
 // -----------------------------------------------------------------------------
 enum { DRIVE110_FWD=0, DRIVE110_RWD=1, DRIVE110_AWD=2 };
 typedef struct {
@@ -45,7 +45,9 @@ static void sim110_update_driving(float dt){
   if(t->drive==DRIVE110_FWD)frontMu*=1.0f-throttle*t->throttleSaturation;
   else if(t->drive==DRIVE110_RWD)rearMu*=1.0f-throttle*t->throttleSaturation;
   else {frontMu*=1.0f-throttle*t->throttleSaturation*.45f;rearMu*=1.0f-throttle*t->throttleSaturation*.55f;}
-  if(hand>0)rearMu*=.34f;
+  // 2.2: rear wheels still lock enough to rotate the car, but retain substantially
+  // more lateral authority than the old .34 multiplier (QA reported soap-like slides).
+  if(hand>0)rearMu*=.58f;
   frontMu=clampf(frontMu,.16f,1.35f);rearMu=clampf(rearMu,.12f,1.35f);
 
   float fyF=sim110_force_clamp(-alphaF*t->cornerFront,frontMu*front);
@@ -55,7 +57,7 @@ static void sim110_update_driving(float dt){
   // Blend rather than replace the proven 0.7 bicycle model.
   latV+=latAcc*dt*.70f;g_player.body.angularVel+=yawAcc*dt*.58f;
   g_player.body.angularVel*=clampf(1.0f-t->yawDamping*dt*(speed<2.0f?1.8f:1.0f),0,1);
-  if(hand>0&&speed>6.0f)g_player.body.angularVel+=g_player.steer*sim_sign(longV)*dt*(.42f+speed*.012f);
+  if(hand>0&&speed>6.0f)g_player.body.angularVel+=g_player.steer*sim_sign(longV)*dt*(.18f+speed*.004f);
 
   // Engine braking and rolling drivetrain drag are deliberately mild.
   g_engine_brake110=0;if(throttle<.01f&&brake<.01f&&speed>.4f){g_engine_brake110=t->engineBrake*(.75f+.08f*g_gear15);longV=sim_move_toward(longV,0,g_engine_brake110*dt);}
