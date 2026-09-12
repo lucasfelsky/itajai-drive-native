@@ -4,12 +4,22 @@ Mini-engine 3D nativa para Windows, construída do zero em C/Win32 + OpenGL — 
 
 ## Estado atual
 
-- Jogo: **2.1.1 — Delivery Polish**
+- Jogo: **2.2.0 — QA Fix Pass**
 - Updater: **1.1.0 — retry + rollback transacional + handoff automático**
 - Plataforma: Windows x64
 - Distribuição: GitHub Releases público + updater nativo
 - Build: GitHub Actions / Windows / clang-cl + lld-link
 - Release gate: `tools/release_check.py` valida EXE, PAK, frota, updater handoff, manifesto, hashes e canal antes da tag
+
+## QA Fix Pass — 2.2
+
+A 2.2 parte diretamente do primeiro QA real da 2.1.1 (`SELF-CHECK 14/14`, GLSL ativo):
+
+- colisão de prédios mantém AABB apenas como **broad phase** e usa o **footprint OSM real no narrow phase** quando o polígono está disponível, eliminando os cantos vazios que viravam paredes invisíveis;
+- prédios sem sidecar de footprint continuam com fallback AABB para nunca perder colisão;
+- freio de mão foi recalibrado: mais desaceleração longitudinal, menos yaw artificial e maior aderência lateral traseira durante o lock;
+- os oito glTF de veículos foram refeitos com **silhouette revision 22**, usando nove estações de carroceria e seis de teto/cabine por modelo em vez do perfil quase compartilhado anterior;
+- Uno, Gol, HB20, Strada, Corolla, Renegade, Onix e Celta agora têm volumes de teto/nariz/traseira muito mais distintos mesmo antes dos detalhes de trim.
 
 ## Mundo
 
@@ -62,7 +72,7 @@ Mini-engine 3D nativa para Windows, construída do zero em C/Win32 + OpenGL — 
 
 ## Frota brasileira
 
-`tools/generate_vehicle_gltf.py` gera meshes originais por loft longitudinal usando proporções reconhecíveis de carros reais populares no Brasil. Badges/logotipos não são incluídos.
+`tools/generate_vehicle_gltf.py` gera meshes originais procedurais usando proporções reconhecíveis de carros reais populares no Brasil. Badges/logotipos não são incluídos. Desde 2.2, cada modelo usa perfil longitudinal/cabine próprio em vez de apenas pequenas variações de uma carroceria comum.
 
 - **Fiat Uno Way 2014**
 - **Volkswagen Gol G6**
@@ -91,7 +101,7 @@ Os quatro slots jogáveis usam Uno Way, Gol G6, HB20 e Renegade. O tráfego usa 
 - lane model, car-following, semáforos e lane connectors
 - troca de faixa, yielding e densidade por horário/setor
 - pedestres leves, barcos e carros estacionados
-- **2.1.1:** carros estacionados próximos usam a apresentação completa da frota (paint/glass/rubber/chrome, trim e rodas); os distantes usam body-only LOD para preservar desempenho
+- carros estacionados próximos usam a apresentação completa da frota (paint/glass/rubber/chrome, trim e rodas); os distantes usam body-only LOD para preservar desempenho
 
 ## Navegação e UI
 
@@ -101,7 +111,7 @@ Os quatro slots jogáveis usam Uno Way, Gol G6, HB20 e Renegade. O tráfego usa 
 - tour opcional por landmarks com **F2**
 - **F1** abre ajuda e **self-check 14/14**
 - o self-check mostra PAK/frota/renderer/streaming e se GLSL está ativo ou em fallback
-- `Tab` exibe telemetria de driving, renderer, wetness, iluminação, materiais e áudio
+- `Tab` exibe telemetria de driving, renderer, wetness, iluminação, materiais e áudio; em 2.2 também informa se a colisão por footprint está ativa ou em fallback AABB
 
 ## Updater 1.1 + handoff 2.1
 
@@ -185,6 +195,7 @@ O workflow `.github/workflows/release.yml` compila os executáveis Windows x64, 
 - 1.9 — Production Presentation
 - 2.0 — Release Candidate / hardening
 - 2.1 — Delivery Polish / updater handoff
-- **2.1.1 — parked fleet production presentation + LOD**
+- 2.1.1 — parked fleet production presentation + LOD
+- **2.2 — QA Fix Pass: exact footprint collisions, handbrake retune e silhouette rev22**
 
 Dados de mapa: © OpenStreetMap contributors.
