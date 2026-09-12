@@ -15,4 +15,8 @@
 #define game_update game_update_legacy100
 #include "../sim/sim100_game.inc"
 #undef game_update
+#define game_update game_update_legacy110
 #include "../sim/sim110_game.inc"
+#undef game_update
+#include "../world/roads130.inc"
+#include "../sim/sim130_game.inc"
