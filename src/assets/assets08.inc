@@ -1,6 +1,7 @@
 // -----------------------------------------------------------------------------
 // 0.8 runtime asset pack. Source assets are glTF/GLB, compiled by
 // tools/compile_assets.py into itajai_assets_v08.pak during CI.
+// 0.20 adds lazy OpenGL display-list caching for static mesh geometry.
 // -----------------------------------------------------------------------------
 #define MAX_ASSETS08 32
 
@@ -11,6 +12,7 @@ typedef struct {
   V3 bmin,bmax;
   const float* vertices; // interleaved pos3 normal3 uv2
   const u32* indices;
+  u32 displayList;
 } AssetMesh08;
 
 static AssetMesh08 g_assets08[MAX_ASSETS08];
@@ -39,15 +41,21 @@ static int asset08_load_pack(void){
     a->vertexCount=asset08_u32(r+32);a->indexCount=asset08_u32(r+36);a->colliderRadius=asset08_f32(r+40);
     a->bmin=v3(asset08_f32(r+44),asset08_f32(r+48),asset08_f32(r+52));a->bmax=v3(asset08_f32(r+56),asset08_f32(r+60),asset08_f32(r+64));
     u64 vo=asset08_u64(r+68),io=asset08_u64(r+76),vb=(u64)a->vertexCount*8ull*4ull,ib=(u64)a->indexCount*4ull;if(vo+vb>size||io+ib>size){VirtualFree(data,0,MEM_RELEASE);g_asset_count08=0;return 0;}
-    a->vertices=(const float*)(data+vo);a->indices=(const u32*)(data+io);
+    a->vertices=(const float*)(data+vo);a->indices=(const u32*)(data+io);a->displayList=0;
   }
   g_asset_pack_mem08=data;g_asset_pack_size08=size;g_asset_count08=(int)count;g_asset_pack_ok08=1;return 1;
 }
 
-static void asset08_draw_mesh(int id,float r,float g,float b){
-  if(id<0||id>=g_asset_count08)return;AssetMesh08*a=&g_assets08[id];glColor3f(r,g,b);glBegin(GL_TRIANGLES);
+static void asset08_emit_geometry(AssetMesh08*a){
+  glBegin(GL_TRIANGLES);
   for(u32 ii=0;ii<a->indexCount;ii++){u32 vi=a->indices[ii];if(vi>=a->vertexCount)continue;const float*v=a->vertices+vi*8;glNormal3f(v[3],v[4],v[5]);glTexCoord2f(v[6],v[7]);glVertex3f(v[0],v[1],v[2]);}
-  glEnd();g_draw_calls++;
+  glEnd();
+}
+static int asset08_build_display_list(AssetMesh08*a){
+  if(a->displayList)return 1;u32 list=glGenLists(1);if(!list)return 0;glNewList(list,GL_COMPILE);asset08_emit_geometry(a);glEndList();a->displayList=list;g_lod20_mesh_lists_built++;return 1;
+}
+static void asset08_draw_mesh(int id,float r,float g,float b){
+  if(id<0||id>=g_asset_count08)return;AssetMesh08*a=&g_assets08[id];glColor3f(r,g,b);if(asset08_build_display_list(a))glCallList(a->displayList);else asset08_emit_geometry(a);g_draw_calls++;
 }
 
 static void asset08_draw_instance(int id,V3 p,float yaw,float scale,float r,float g,float b){
