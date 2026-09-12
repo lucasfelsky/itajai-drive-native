@@ -50,6 +50,15 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'updater link failed' }
           Copy-Item dist/ItajaiDriveUpdater.exe dist/ItajaiDriveUpdater.next.exe -Force
 
+      - name: Validate Internet relay
+        shell: pwsh
+        run: |
+          python -m py_compile server/relay_server.py server/test_relay.py
+          if ($LASTEXITCODE -ne 0) { throw 'relay Python validation failed' }
+          python server/test_relay.py
+          if ($LASTEXITCODE -ne 0) { throw 'relay integration test failed' }
+          Copy-Item server/relay_server.py dist/ItajaiDriveRelay.py -Force
+
       - name: Compile glTF/GLB runtime assets
         shell: pwsh
         run: |
@@ -81,6 +90,7 @@ jobs:
           Get-FileHash dist/ItajaiDriveUpdater.exe -Algorithm SHA256
           Get-FileHash dist/ItajaiDriveUpdater.next.exe -Algorithm SHA256
           Get-FileHash dist/itajai_assets_v08.pak -Algorithm SHA256
+          Get-FileHash dist/ItajaiDriveRelay.py -Algorithm SHA256
 
       - name: Validate release candidate
         shell: pwsh
@@ -112,6 +122,7 @@ jobs:
             'dist/ItajaiDriveUpdater.exe',
             'dist/ItajaiDriveUpdater.next.exe',
             'dist/itajai_assets_v08.pak',
+            'dist/ItajaiDriveRelay.py',
             'dist/VERSION.txt',
             'dist/update_config.ini',
             'dist/manifest.txt'
