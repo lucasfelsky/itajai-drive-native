@@ -29,6 +29,7 @@
 static int landmark506_replaces(const Building*b);
 static void landmark506_colliders(void);
 #include "foundation/foundation.inc"
+static int landmark506_contact(int source,V3 p,float radius,Contact*out,int collider);
 #include "sim/sim06.inc"
 #include "settings/settings07_state.inc"
 #define camera_mouse_move camera_mouse_move_legacy07
