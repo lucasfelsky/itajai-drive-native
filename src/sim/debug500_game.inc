@@ -3,6 +3,7 @@
 // TAB keeps the historical show/hide behavior. SHIFT+TAB cycles pages without
 // toggling the overlay off, so telemetry can stay readable at any resolution.
 // -----------------------------------------------------------------------------
+static int g_window_active500=1;
 static int g_debug500_page=0;
 static int g_debug500_shift_tab_prev=0;
 static void game_update(float dt){
