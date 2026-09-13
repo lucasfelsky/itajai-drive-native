@@ -14,9 +14,33 @@ itajai_world_v04.bin
 # Local updater config
 update_config.ini
 
+# Native generated assets / Python caches
+assets/generated/
+__pycache__/
+
+# Unity generated state
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+[Uu]serSettings/
+[Mm]emoryCaptures/
+Recordings/
+.vs/
+.idea/
+*.csproj
+*.sln
+*.suo
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.pdb.meta
+*.mdb.meta
+
 # Misc
 .DS_Store
 Thumbs.db
-
-assets/generated/
-__pycache__/
