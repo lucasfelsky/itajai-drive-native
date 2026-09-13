@@ -83,4 +83,7 @@
 #define game_update game_update_legacy400
 #include "../sim/polish400_game.inc"
 #undef game_update
+#define game_update game_update_legacy500
 #include "../sim/traffic500_game.inc"
+#undef game_update
+#include "../sim/events500_game.inc"
