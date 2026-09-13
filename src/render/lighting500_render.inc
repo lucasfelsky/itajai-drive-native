@@ -78,4 +78,4 @@ static void lighting500_draw(void){
   glEnd();glDepthMask(TRUE);glDisable(GL_BLEND);renderer09_resume_shader();if(g_lighting500_lamps)g_draw_calls++;
 }
 
-static void lighting500_overlay(void){if(!g_debug||g_settings_menu_open||(g_photo70&&g_photo70_hide_hud))return;settings_draw_2d_begin();char b[220];sprintf(b,"LIGHT 5.0 // poles %d | pools %d | wet %d | city %d | stream %d | %.2f",g_lighting500_lamps,g_lighting500_pools,g_lighting500_wet_streaks,g_lighting500_registered,g_lighting500_streamed,g_lighting500_strength);gl_text((float)g_w-462,108,b,.82f,.72f,.52f);settings_draw_2d_end();}
+static void lighting500_overlay(void){if(!g_debug||g_settings_menu_open||(g_photo70&&g_photo70_hide_hud))return;settings_draw_2d_begin();char b[220];sprintf(b,"LIGHT 5.0 // poles %d | pools %d | wet %d | city %d | stream %d | %.2f",g_lighting500_lamps,g_lighting500_pools,g_lighting500_wet_streaks,g_lighting500_registered,g_lighting500_streamed,g_lighting500_strength);gl_text((float)g_w-462,127,b,.82f,.72f,.52f);settings_draw_2d_end();}
