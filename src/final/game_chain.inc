@@ -86,4 +86,9 @@
 #define game_update game_update_legacy500
 #include "../sim/traffic500_game.inc"
 #undef game_update
+#define game_update game_update_legacy510
+#include "../sim/handling500_game.inc"
+#undef game_update
+#define game_update_legacy500 game_update_legacy510
 #include "../sim/events500_game.inc"
+#undef game_update_legacy500
