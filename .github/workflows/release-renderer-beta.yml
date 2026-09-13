@@ -1,21 +1,22 @@
 name: Publish Renderer 5.0 Beta
 
 on:
-  push:
-    branches: [dev/renderer500]
-    paths:
-      - VERSION
-  workflow_dispatch:
+  workflow_run:
+    workflows: ["Renderer 5.0 Build Gate"]
+    types: [completed]
 
 permissions:
   contents: write
 
 jobs:
   beta:
+    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'dev/renderer500' }}
     runs-on: windows-latest
     steps:
-      - name: Checkout
+      - name: Checkout exact gated head
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
 
       - name: Configure MSVC environment
         uses: ilammy/msvc-dev-cmd@v1
@@ -104,7 +105,7 @@ jobs:
             'dist/update_config.ini',
             'dist/manifest.txt'
           )
-          gh release create renderer-beta @files --target '${{ github.sha }}' --title "Itajai Drive Renderer 5.0 Beta ${{ steps.version.outputs.version }}" --prerelease --notes "Experimental Renderer 5.0 channel. Stable remains on the normal latest release. Use Updater 1.2 to switch channels."
+          gh release create renderer-beta @files --target '${{ github.event.workflow_run.head_sha }}' --title "Itajai Drive Renderer 5.0 Beta ${{ steps.version.outputs.version }}" --prerelease --notes "Experimental Renderer 5.0 channel. Stable remains on the normal latest release. Use Updater 1.2 to switch channels."
 
       - name: Beta summary
         shell: pwsh
