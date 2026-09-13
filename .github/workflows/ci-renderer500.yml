@@ -1,0 +1,32 @@
+name: Renderer 5.0 Build Gate
+on:
+  push:
+    branches: [dev/renderer500]
+    paths: ['VERSION','src/**','assets/**','.github/workflows/ci-renderer500.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+      - name: Compile native client
+        shell: pwsh
+        run: |
+          $ErrorActionPreference='Stop'
+          New-Item -ItemType Directory -Force dist | Out-Null
+          $crt=@('ucrt.lib','legacy_stdio_definitions.lib','legacy_stdio_wide_specifiers.lib','vcruntime.lib')
+          clang-cl /nologo /TC /O2 /GS- /Oi- /c src/native.c /Fo:dist/native.obj
+          if ($LASTEXITCODE -ne 0) { throw 'native compile failed' }
+          lld-link /nologo /entry:WinMainCRTStartup /subsystem:windows /machine:x64 /nodefaultlib /out:dist/ItajaiDriveNative.exe dist/native.obj kernel32.lib user32.lib gdi32.lib winhttp.lib ws2_32.lib iphlpapi.lib opengl32.lib winmm.lib @crt
+          if ($LASTEXITCODE -ne 0) { throw 'native link failed' }
+      - name: Validate asset tools
+        shell: pwsh
+        run: |
+          python -m py_compile tools/compile_assets.py tools/generate_vehicle_gltf.py tools/generate_vehicle_parts.py
+          python tools/generate_vehicle_gltf.py
+          python tools/generate_vehicle_parts.py
