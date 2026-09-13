@@ -2,10 +2,11 @@ name: Development Build Gate
 
 # City gate validates native client, municipal/OSM city pipeline,
 # identity/architecture/urban/final polish passes, interactive map/GPS,
-# canonical world scope, map orientation, multiplayer transports and generated assets.
+# canonical world scope, map orientation, single-player 4.0 polish,
+# multiplayer transports and generated assets.
 on:
   push:
-    branches: [main, dev/multiplayer-foundation, dev/internet-multiplayer, dev/hamachi-lan-ui, dev/city-rebuild-330, dev/city-identity-340, dev/city-architecture-350, dev/city-urban-fabric-360, dev/city-final-polish-370, dev/interactive-map-380, dev/map-route-snap-381, dev/world-scope-390, dev/map-orientation-391, dev/minimap-xfix-392]
+    branches: [main, dev/multiplayer-foundation, dev/internet-multiplayer, dev/hamachi-lan-ui, dev/city-rebuild-330, dev/city-identity-340, dev/city-architecture-350, dev/city-urban-fabric-360, dev/city-final-polish-370, dev/interactive-map-380, dev/map-route-snap-381, dev/world-scope-390, dev/map-orientation-391, dev/minimap-xfix-392, dev/singleplayer-400]
     paths:
       - 'VERSION'
       - 'src/**'

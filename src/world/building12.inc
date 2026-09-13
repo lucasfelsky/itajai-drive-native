@@ -2,12 +2,12 @@
 #define ITAJAI_BUILDING12_INCLUDED 1
 // -----------------------------------------------------------------------------
 // 0.12 exact OSM building footprint sidecar.
-// 3.3 also uses this exact-footprint store for GeoItajai cadastral polygons.
-// World/cache stays compatible: polygon vertices are rebuilt from source data
-// or restored from the municipal sidecar and associated by deterministic seeds.
+// 4.0 also uses this exact-footprint store for whole-municipality GeoItajai
+// cadastral polygons. Capacity is doubled so outer neighborhoods do not lose
+// collision/render footprints when the municipal layer is loaded in full.
 // -----------------------------------------------------------------------------
-#define MAX_BUILDING_VERTS12 480000
-#define BUILDING_HASH12 131072
+#define MAX_BUILDING_VERTS12 960000
+#define BUILDING_HASH12 262144
 static V3 g_building_verts12[MAX_BUILDING_VERTS12];
 static int g_building_vert_count12=0;
 static int g_building_poly_start12[MAX_BUILDINGS];

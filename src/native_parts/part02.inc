@@ -97,17 +97,17 @@ static u32 rng_u32(void){rng_state^=rng_state<<13;rng_state^=rng_state>>17;rng_s
 static float rng01(void){return (rng_u32()&0xffff)/65535.0f;}
 
 // -----------------------------------------------------------------------------
-// world data - 3.9 full-municipality road graph capacity
+// world data - 4.0 full-municipality production capacity
 // -----------------------------------------------------------------------------
-#define MAX_ROAD_WAYS 18000
-#define MAX_SEGMENTS 180000
-#define MAX_BUILDINGS 40000
-#define MAX_SIGNALS 4096
-#define MAX_NODES 100000
-#define MAX_EDGES 300000
-#define MAX_TRAFFIC 48
-#define MAX_ROUTE 6000
-#define NODE_HASH_SIZE 262144
+#define MAX_ROAD_WAYS 24000
+#define MAX_SEGMENTS 220000
+#define MAX_BUILDINGS 80000
+#define MAX_SIGNALS 6144
+#define MAX_NODES 130000
+#define MAX_EDGES 420000
+#define MAX_TRAFFIC 64
+#define MAX_ROUTE 9000
+#define NODE_HASH_SIZE 524288
 
 typedef struct { char name[64]; char type[24]; float width,speed; int oneway; } RoadWay;
 typedef struct { V3 a,b; int road; } RoadSegment;

@@ -134,3 +134,7 @@
 #include "../ui/map380_render.inc"
 #undef map380_draw
 #include "../render/world390_render.inc"
+#include "../render/city400_world.inc"
+#include "../render/vehicle400.inc"
+#include "../render/render400.inc"
+#include "../ui/ui400_render.inc"
