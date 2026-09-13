@@ -7,6 +7,7 @@
 #include "renderer500_diag.inc"
 #include "renderer500_runtime.inc"
 #include "renderer500_present.inc"
+#include "worldlight500_render.inc"
 #include "renderer500_debug.inc"
 #include "sky500_render.inc"
 #include "shadows500_render.inc"
