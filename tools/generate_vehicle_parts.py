@@ -3,7 +3,8 @@
 
 Bodies remain independent glTF assets. Glass and trim are separate meshes so the
 runtime can assign dedicated materials now and accept hand-authored replacements
-later without changing simulation or renderer call sites.
+later without changing simulation or renderer call sites. 5.0 opts curved glass
+shells into smooth-normal compilation while keeping trim edges intentionally hard.
 """
 import base64, json, pathlib, struct
 import generate_vehicle_gltf as bodygen
@@ -27,11 +28,11 @@ def glass_shell(v,i,sections):
     za,wa,ba,ta=sections[0];quad(v,i,(-wa,ba,za),(-wa,ta,za),(wa,ta,za),(wa,ba,za))
     za,wa,ba,ta=sections[-1];quad(v,i,(-wa,ba,za),(wa,ba,za),(wa,ta,za),(-wa,ta,za))
 
-def write(path,name,v,i,collider=0.0):
+def write(path,name,v,i,collider=0.0,smooth=False):
     pos=b''.join(struct.pack('<3f',*q) for q in v);idx=b''.join(struct.pack('<H',q) for q in i);raw=pos+idx
     mins=[min(q[a] for q in v) for a in range(3)];maxs=[max(q[a] for q in v) for a in range(3)]
     uri='data:application/octet-stream;base64,'+base64.b64encode(raw).decode()
-    doc={'asset':{'version':'2.0','generator':'Itajai Drive named vehicle parts 2.11'},'extras':{'itajaiColliderRadius':collider},
+    doc={'asset':{'version':'2.0','generator':'Itajai Drive named vehicle parts 5.0'},'extras':{'itajaiColliderRadius':collider,'smoothNormals':bool(smooth)},
          'buffers':[{'byteLength':len(raw),'uri':uri}],
          'bufferViews':[{'buffer':0,'byteOffset':0,'byteLength':len(pos),'target':34962},{'buffer':0,'byteOffset':len(pos),'byteLength':len(idx),'target':34963}],
          'accessors':[{'bufferView':0,'componentType':5126,'count':len(v),'type':'VEC3','min':mins,'max':maxs},{'bufferView':1,'componentType':5123,'count':len(i),'type':'SCALAR'}],
@@ -62,8 +63,8 @@ def trim_for(p):
 def main():
     out=pathlib.Path('assets/generated');out.mkdir(parents=True,exist_ok=True)
     for name,p in bodygen.PRESETS.items():
-        v,i=glass_for(p);write(out/(name+'_glass.gltf'),'glass_'+name,v,i)
-        v,i=trim_for(p);write(out/(name+'_trim.gltf'),'trim_'+name,v,i)
+        v,i=glass_for(p);write(out/(name+'_glass.gltf'),'glass_'+name,v,i,smooth=True)
+        v,i=trim_for(p);write(out/(name+'_trim.gltf'),'trim_'+name,v,i,smooth=False)
         print(out/(name+'_glass.gltf'));print(out/(name+'_trim.gltf'))
 
 if __name__=='__main__':main()
