@@ -80,4 +80,7 @@
 #define game_update game_update_legacy390
 #include "../world/world390_game.inc"
 #undef game_update
+#define game_update game_update_legacy400
 #include "../sim/polish400_game.inc"
+#undef game_update
+#include "../sim/traffic500_game.inc"
