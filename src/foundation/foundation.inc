@@ -1,11 +1,11 @@
 // -----------------------------------------------------------------------------
 // Foundation 0.5: spatial grid, collision world, physics body and surfaces
-// 0.10 capacity pass: sized for the expanded Itajai world.
+// 4.0 capacity pass: sized for full-municipality buildings and road streaming.
 // -----------------------------------------------------------------------------
-#define GRID_BUCKETS 65536
-#define MAX_GRID_CELLS 65536
-#define MAX_GRID_COLLIDER_LINKS 320000
-#define MAX_GRID_ROAD_LINKS 520000
+#define GRID_BUCKETS 131072
+#define MAX_GRID_CELLS 131072
+#define MAX_GRID_COLLIDER_LINKS 700000
+#define MAX_GRID_ROAD_LINKS 760000
 #define MAX_STATIC_COLLIDERS (MAX_BUILDINGS+MAX_SIGNALS+64)
 #define FOUNDATION_QUERY_MAX 512
 #define GRID_CELL_SIZE 40.0f
