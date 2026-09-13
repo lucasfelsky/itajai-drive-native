@@ -48,6 +48,6 @@ static void renderer500_debug_overlay(void){
     sprintf(v,"%s%s",g_net321_hamachi_found?g_net321_hamachi_ip:"nao detectado",g_net321_hamachi_probable?" (provavel)":"");renderer500_debug_line(c2,y+154,"HAMACHI",v,g_net321_hamachi_found?.55f:1.0f,g_net321_hamachi_found?.95f:.62f,.72f);
     renderer500_debug_line(c2,y+178,"STATUS",g_net321_status[0]?g_net321_status:"sem mensagem",.82f,.88f,.92f);
   }
-  gl_text(x+18,y+h-18,"Renderer 5.0.2 // TAB substitui HUD legado enquanto aberto",.52f,.68f,.76f);
+  gl_text(x+18,y+h-18,"Renderer " ITAJAI_VERSION " // TAB substitui HUD legado enquanto aberto",.52f,.68f,.76f);
   settings_draw_2d_end();
 }
