@@ -1,3 +1,6 @@
+#ifndef GL_TRIANGLE_FAN
+#define GL_TRIANGLE_FAN 0x0006
+#endif
 // -----------------------------------------------------------------------------
 // Renderer 5.0.3 world pass: make the streamed/open-data city read unmistakably
 // as Itajai before pushing renderer complexity further. Geometry is intentionally
@@ -14,11 +17,19 @@ static void world503_cafe_set(V3 p,float yaw,u32 h){
   draw_box(v3(p.x,p.y+1.28f,p.z),.10f,1.55f,.10f,yaw,.30f,.29f,.27f);g_world503_props+=4;
 }
 static void world503_boat(V3 p,float yaw,float s,u32 h){
-  float cr=(h&1u)?.90f:.16f,cg=(h&2u)?.22f:.50f,cb=(h&4u)?.18f:.72f;
-  draw_box(v3(p.x,p.y+.34f*s,p.z),2.1f*s,.55f*s,6.4f*s,yaw,.88f,.88f,.84f);
-  draw_box(city340_rot(v3(p.x,p.y+.72f*s,p.z),0,-.25f*s,yaw),1.55f*s,.72f*s,2.2f*s,yaw,cr,cg,cb);
-  draw_box(city340_rot(v3(p.x,p.y+2.65f*s,p.z),0,.25f*s,yaw),.07f*s,4.0f*s,.07f*s,yaw,.44f,.44f,.42f);
-  draw_box(city340_rot(v3(p.x,p.y+2.65f*s,p.z),.55f*s,.25f*s,yaw),1.15f*s,.05f*s,.05f*s,yaw,.70f,.70f,.66f);g_world503_boats++;
+  float length=(5.6f+(h%5u)*.72f)*s,width=(1.95f+(h%3u)*.20f)*s;
+  glPushMatrix();glTranslatef(p.x,p.y,p.z);glRotatef(yaw*57.29578f,0,1,0);
+  // Tapered, flared hull with a pointed bow and a flat transom.
+  static const float outline[7][2]={{-.36f,-.50f},{.36f,-.50f},{.50f,-.18f},{.42f,.28f},{0,.50f},{-.42f,.28f},{-.50f,-.18f}};
+  glColor3f(.79f,.82f,.80f);glBegin(GL_QUADS);
+  for(int k=0;k<7;k++){int n=(k+1)%7;float x=outline[k][0]*width,z=outline[k][1]*length,xx=outline[n][0]*width,zz=outline[n][1]*length;V3 normal=vnorm(v3(zz-z,.35f,x-xx));glNormal3f(normal.x,normal.y,normal.z);glVertex3f(x*.72f,.06f,z*.93f);glVertex3f(xx*.72f,.06f,zz*.93f);glVertex3f(xx,.56f*s,zz);glVertex3f(x,.56f*s,z);}
+  glEnd();glNormal3f(0,1,0);glColor3f(.66f,.66f,.58f);glBegin(GL_TRIANGLE_FAN);glVertex3f(0,.56f*s,0);for(int k=7;k>=0;k--){int n=k%7;glVertex3f(outline[n][0]*width,.56f*s,outline[n][1]*length);}glEnd();g_draw_calls+=2;
+  draw_box(v3(0,.84f*s,-length*.12f),width*.65f,.53f*s,length*.34f,0,.87f,.87f,.81f);
+  renderer09_set_material(MAT09_GLASS);draw_box(v3(0,1.03f*s,-length*.10f),width*.59f,.27f*s,length*.28f,0,.10f,.23f,.28f);renderer09_set_material(MAT09_GENERIC);
+  draw_box(v3(0,1.22f*s,-length*.12f),width*.73f,.09f,length*.38f,0,.88f,.88f,.83f);
+  if(h%3u!=0){draw_box(v3(0,3.65f*s,.12f),.055f,6.2f*s,.055f,0,.60f,.62f,.60f);draw_box(v3(0,1.9f*s,-length*.11f),.045f,.045f,length*.43f,0,.61f,.62f,.59f);}
+  else draw_box(v3(0,1.55f*s,-length*.20f),width*.68f,.07f,length*.28f,0,.20f,.32f,.34f);
+  glPopMatrix();g_world503_boats++;
 }
 static void world503_market(void){
   // Mercado Publico: warm yellow frontage, white vertical rhythm, green awnings

@@ -128,11 +128,15 @@ def build(name,p):
     v=[];ind=[];W,L=p['w'],p['l']
     lower=[(zf*L,wf*W*.5,.26,top) for zf,wf,top in p['lower']]
     roof=[(zf*L,wf*W*.5,base,top) for zf,wf,base,top in p['roof']]
-    lower=resample(lower,19);roof=resample(roof,13)
-    rounded_shell(v,ind,lower,16,.66)
-    rounded_shell(v,ind,roof,14,.73)
-    add_family_character(v,ind,p)
-    add_model_character(v,ind,name,p)
+    if name=='fiat_uno_way_2014':
+        from generate_uno_hero import body
+        body(v,ind)
+    else:
+        lower=resample(lower,19);roof=resample(roof,13)
+        rounded_shell(v,ind,lower,16,.66)
+        rounded_shell(v,ind,roof,14,.73)
+        add_family_character(v,ind,p)
+        add_model_character(v,ind,name,p)
     pos=b''.join(struct.pack('<3f',*q) for q in v)
     idx=b''.join(struct.pack('<H',q) for q in ind)
     raw=pos+idx
@@ -140,7 +144,7 @@ def build(name,p):
     uri='data:application/octet-stream;base64,'+base64.b64encode(raw).decode()
     doc={
       'asset':{'version':'2.0','generator':'Itajai Drive Renderer 5.0 HQ vehicle generator'},
-      'extras':{'itajaiColliderRadius':W*.62,'realWorldReference':name,'wheelbase':p['wheelbase'],'silhouetteRevision':51,'smoothNormals':True,'smoothBody':True},
+      'extras':{'itajaiColliderRadius':W*.62,'realWorldReference':name,'wheelbase':p['wheelbase'],'silhouetteRevision':55 if name=='fiat_uno_way_2014' else 51,'smoothNormals':True,'smoothBody':True},
       'buffers':[{'byteLength':len(raw),'uri':uri}],
       'bufferViews':[{'buffer':0,'byteOffset':0,'byteLength':len(pos),'target':34962},{'buffer':0,'byteOffset':len(pos),'byteLength':len(idx),'target':34963}],
       'accessors':[{'bufferView':0,'componentType':5126,'count':len(v),'type':'VEC3','min':mins,'max':maxs},{'bufferView':1,'componentType':5123,'count':len(ind),'type':'SCALAR'}],

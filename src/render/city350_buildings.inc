@@ -9,7 +9,7 @@ typedef struct {V3 mid,along,out;float len,yaw;} City350Front;
 static int city350_front(Building*b,City350Front*out){
   int id=building12_find_seed(b->seed);if(id<0)return 0;int n=g_building_poly_count12[id],s=g_building_poly_start12[id];if(n<3||s<0||s+n>g_building_vert_count12)return 0;float best=0;V3 ba=v3(0,0,0),bc=v3(0,0,0);
   for(int i=0;i<n;i++){V3 a=g_building_verts12[s+i],c=g_building_verts12[s+(i+1)%n],d=vsub(c,a);float l=vlen(d);if(l>best){best=l;ba=a;bc=c;}}
-  if(best<2.0f)return 0;V3 d=vsub(bc,ba),along=vmul(d,1.0f/best),mid=vmul(vadd(ba,bc),.5f),outv=vnorm(vsub(mid,b->c));if(vlen(outv)<.2f)outv=v3(along.z,0,-along.x);out->mid=mid;out->along=along;out->out=outv;out->len=best;out->yaw=(float)atan2((double)along.x,(double)along.z);return 1;
+  if(best<2.0f)return 0;V3 d=vsub(bc,ba),along=vmul(d,1.0f/best),mid=vmul(vadd(ba,bc),.5f),outv=vnorm(vsub(mid,b->c));if(vlen(outv)<.2f)outv=v3(along.z,0,-along.x);out->mid=mid;out->along=along;out->out=outv;out->len=best;out->yaw=(float)atan2((double)-along.z,(double)along.x);return 1;
 }
 static void city350_gable(Building*b,City350Front*f,float r,float g,float bl){
   float base=terrain11_height(b->c.x,b->c.z)+b->h+.04f,w=clampf(f->len*.94f,3.0f,26.0f),depth=clampf((b->sx+b->sz)*.32f,3.5f,18.0f),rise=clampf(depth*.30f,1.0f,4.5f);V3 c=v3(b->c.x,base,b->c.z),a=f->along,o=f->out;V3 p0=vadd(vadd(c,vmul(a,-w*.5f)),vmul(o,-depth*.5f)),p1=vadd(vadd(c,vmul(a,w*.5f)),vmul(o,-depth*.5f)),p2=vadd(vadd(c,vmul(a,w*.5f)),vmul(o,depth*.5f)),p3=vadd(vadd(c,vmul(a,-w*.5f)),vmul(o,depth*.5f)),r0=vadd(c,vmul(a,-w*.5f)),r1=vadd(c,vmul(a,w*.5f));r0.y+=rise;r1.y+=rise;
@@ -43,7 +43,7 @@ static void city350_civic(Building*b,City350Front*f){
 }
 static void city350_draw(void){
   g_city350_houses=g_city350_towers=g_city350_shops=g_city350_sheds=g_city350_civic=0;if(!g_stream_ready08)return;renderer09_set_material(0);
-  for(int i=0;i<g_stream_building_count08;i++){Building*b=&g_stream_buildings08[i].b;if(!city340_near(b->c,270.0f))continue;City350Front f;if(!city350_front(b,&f))continue;int cls=urban10_building_class(b),sector=urban10_sector_at(b->c,NULL);if(cls==BLD10_HOUSE)city350_house(b,&f);else if(cls==BLD10_APARTMENT)city350_tower(b,&f,sector);else if(cls==BLD10_COMMERCIAL)city350_shop(b,&f);else if(cls==BLD10_INDUSTRIAL)city350_shed(b,&f);else if(cls==BLD10_CIVIC)city350_civic(b,&f);}
+  for(int i=0;i<g_stream_building_count08;i++){Building*b=&g_stream_buildings08[i].b;if(!city340_near(b->c,270.0f))continue;V3 core=city340_geo(-26.90675,-48.65845),cd=vsub(b->c,core);if(cd.x*cd.x+cd.z*cd.z<760.0f*760.0f)continue;City350Front f;if(!city350_front(b,&f))continue;int cls=urban10_building_class(b),sector=urban10_sector_at(b->c,NULL);if(cls==BLD10_HOUSE)city350_house(b,&f);else if(cls==BLD10_APARTMENT)city350_tower(b,&f,sector);else if(cls==BLD10_COMMERCIAL)city350_shop(b,&f);else if(cls==BLD10_INDUSTRIAL)city350_shed(b,&f);else if(cls==BLD10_CIVIC)city350_civic(b,&f);}
   renderer09_set_material(0);
 }
 static void city350_overlay(void){if(!g_debug||g_settings_menu_open||(g_photo70&&g_photo70_hide_hud))return;settings_draw_2d_begin();char b[220];hud_panel(20,(float)g_h-198,610,28);sprintf(b,"CITY 3.5 // casas %d | torres %d | comercio %d | galpoes %d | civicos %d",g_city350_houses,g_city350_towers,g_city350_shops,g_city350_sheds,g_city350_civic);gl_text(34,(float)g_h-177,b,.70f,.83f,.72f);settings_draw_2d_end();}
