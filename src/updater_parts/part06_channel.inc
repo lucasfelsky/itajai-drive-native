@@ -5,6 +5,7 @@
 // -----------------------------------------------------------------------------
 static char g_stable_manifest_url12[1400]="";
 static char g_beta_manifest_url12[1400]="";
+static char g_channel_cfg_buf12[4600]="";
 static int g_channel_beta12=0;
 static int g_channel_config_loaded12=0;
 static int g_update_started12=0;
@@ -36,10 +37,10 @@ static void channel12_load_config(void){
 }
 
 static void channel12_save_config(void){
-  channel12_load_config();channel12_choose_manifest();char b[4600];
-  sprintf(b,"manifest_url=%s\r\nstable_manifest_url=%s\r\nbeta_manifest_url=%s\r\nchannel=%s\r\nauto_launch=%d\r\n",
+  channel12_load_config();channel12_choose_manifest();
+  sprintf(g_channel_cfg_buf12,"manifest_url=%s\r\nstable_manifest_url=%s\r\nbeta_manifest_url=%s\r\nchannel=%s\r\nauto_launch=%d\r\n",
     g_manifest_url,g_stable_manifest_url12,g_beta_manifest_url12,g_channel_beta12?"beta":"stable",g_auto_launch?1:0);
-  write_text_file("update_config.ini",b);
+  write_text_file("update_config.ini",g_channel_cfg_buf12);
 }
 
 static void channel12_select(int beta){
