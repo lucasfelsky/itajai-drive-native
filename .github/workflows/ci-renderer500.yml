@@ -34,3 +34,22 @@ jobs:
           $generated=Get-ChildItem assets/generated/*.gltf | Sort-Object Name | ForEach-Object { $_.FullName }
           python tools/compile_assets.py -o dist/itajai_assets_v08.pak assets/source/tree.gltf assets/source/streetlamp.gltf assets/source/container.gltf assets/source/palm.gltf assets/source/bench.gltf assets/source/busstop.gltf assets/source/guardrail.gltf assets/source/roadsign.gltf @generated
           if ($LASTEXITCODE -ne 0) { throw '5.0 asset compilation failed' }
+          @"
+          ITAJAI DRIVE // RENDERER 5.0 DEVELOPMENT BUILD
+          Branch: $env:GITHUB_REF_NAME
+          Commit: $env:GITHUB_SHA
+
+          This is a development checkpoint, not a public release.
+          Keep ItajaiDriveNative.exe and itajai_assets_v08.pak in the same folder.
+          Press TAB in-game to show renderer/FPS/quality telemetry.
+          "@ | Set-Content -Encoding ascii dist/DEV_BUILD.txt
+      - name: Upload Renderer 5.0 development build
+        uses: actions/upload-artifact@v4
+        with:
+          name: ItajaiDrive-Renderer500-${{ github.sha }}
+          path: |
+            dist/ItajaiDriveNative.exe
+            dist/itajai_assets_v08.pak
+            dist/DEV_BUILD.txt
+          if-no-files-found: error
+          retention-days: 14
