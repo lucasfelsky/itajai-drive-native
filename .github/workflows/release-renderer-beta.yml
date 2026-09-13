@@ -1,0 +1,115 @@
+name: Publish Renderer 5.0 Beta
+
+on:
+  workflow_run:
+    workflows: ["Renderer 5.0 Build Gate"]
+    types: [completed]
+
+permissions:
+  contents: write
+
+jobs:
+  beta:
+    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'dev/renderer500' }}
+    runs-on: windows-latest
+    steps:
+      - name: Checkout exact gated head
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - name: Configure MSVC environment
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+
+      - name: Read version
+        id: version
+        shell: pwsh
+        run: |
+          $version=(Get-Content VERSION -Raw).Trim()
+          if (-not $version) { throw 'VERSION is empty' }
+          "version=$version" >> $env:GITHUB_OUTPUT
+
+      - name: Build native executables
+        shell: pwsh
+        run: |
+          $ErrorActionPreference='Stop'
+          New-Item -ItemType Directory -Force dist | Out-Null
+          $crt=@('ucrt.lib','legacy_stdio_definitions.lib','legacy_stdio_wide_specifiers.lib','vcruntime.lib')
+          clang-cl /nologo /TC /O2 /GS- /Oi- /c src/native.c /Fo:dist/native.obj
+          if ($LASTEXITCODE -ne 0) { throw 'native compile failed' }
+          lld-link /nologo /entry:WinMainCRTStartup /subsystem:windows /machine:x64 /nodefaultlib /out:dist/ItajaiDriveNative.exe dist/native.obj kernel32.lib user32.lib gdi32.lib winhttp.lib ws2_32.lib iphlpapi.lib opengl32.lib winmm.lib @crt
+          if ($LASTEXITCODE -ne 0) { throw 'native link failed' }
+          clang-cl /nologo /TC /O2 /GS- /Oi- /c src/updater.c /Fo:dist/updater.obj
+          if ($LASTEXITCODE -ne 0) { throw 'updater compile failed' }
+          lld-link /nologo /entry:WinMainCRTStartup /subsystem:windows /machine:x64 /nodefaultlib /out:dist/ItajaiDriveUpdater.exe dist/updater.obj kernel32.lib user32.lib gdi32.lib winhttp.lib @crt
+          if ($LASTEXITCODE -ne 0) { throw 'updater link failed' }
+          Copy-Item dist/ItajaiDriveUpdater.exe dist/ItajaiDriveUpdater.next.exe -Force
+
+      - name: Validate Renderer 5.0 assets
+        shell: pwsh
+        run: |
+          python -m py_compile tools/compile_assets.py tools/generate_vehicle_gltf.py tools/generate_vehicle_hq.py tools/generate_vehicle_parts.py tools/validate_vehicle_assets.py tools/make_manifest.py tools/release_check.py tools/release_check_beta.py
+          python tools/generate_vehicle_gltf.py
+          python tools/generate_vehicle_hq.py
+          python tools/generate_vehicle_parts.py
+          python tools/validate_vehicle_assets.py
+          if ($LASTEXITCODE -ne 0) { throw 'vehicle silhouette validation failed' }
+          $generated=Get-ChildItem assets/generated/*.gltf | Sort-Object Name | ForEach-Object { $_.FullName }
+          python tools/compile_assets.py -o dist/itajai_assets_v08.pak assets/source/tree.gltf assets/source/streetlamp.gltf assets/source/container.gltf assets/source/palm.gltf assets/source/bench.gltf assets/source/busstop.gltf assets/source/guardrail.gltf assets/source/roadsign.gltf @generated
+          if ($LASTEXITCODE -ne 0) { throw 'asset compilation failed' }
+
+      - name: Generate beta channel files
+        shell: pwsh
+        run: |
+          $version='${{ steps.version.outputs.version }}'
+          $repo='${{ github.repository }}'
+          $beta='https://github.com/' + $repo + '/releases/download/renderer-beta/manifest.txt'
+          $stable='https://github.com/' + $repo + '/releases/latest/download/manifest.txt'
+          $base='https://github.com/' + $repo + '/releases/download/renderer-beta/'
+          $version | Set-Content -Encoding ascii dist/VERSION.txt
+          @"
+          manifest_url=$beta
+          stable_manifest_url=$stable
+          beta_manifest_url=$beta
+          channel=beta
+          auto_launch=1
+          "@ | Set-Content -Encoding ascii dist/update_config.ini
+          python tools/make_manifest.py --version $version --base-url $base --notes "Renderer 5.0 Beta $version // HDR + modern lighting + HQ vehicles" dist/ItajaiDriveNative.exe dist/itajai_assets_v08.pak dist/ItajaiDriveUpdater.next.exe | Set-Content -Encoding ascii dist/manifest.txt
+
+      - name: Validate beta release candidate
+        shell: pwsh
+        run: |
+          $ErrorActionPreference='Stop'
+          python tools/release_check_beta.py
+          if ($LASTEXITCODE -ne 0) { throw 'beta release candidate validation failed' }
+
+      - name: Publish moving Renderer beta prerelease
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $ErrorActionPreference='Continue'
+          gh release view renderer-beta *> $null
+          if ($LASTEXITCODE -eq 0) { gh release delete renderer-beta --yes --cleanup-tag }
+          git fetch --tags
+          if (git tag --list renderer-beta) { git push origin :refs/tags/renderer-beta }
+          $ErrorActionPreference='Stop'
+          $files=@(
+            'dist/ItajaiDriveNative.exe',
+            'dist/ItajaiDriveUpdater.exe',
+            'dist/ItajaiDriveUpdater.next.exe',
+            'dist/itajai_assets_v08.pak',
+            'dist/VERSION.txt',
+            'dist/update_config.ini',
+            'dist/manifest.txt'
+          )
+          gh release create renderer-beta @files --target '${{ github.event.workflow_run.head_sha }}' --title "Itajai Drive Renderer 5.0 Beta ${{ steps.version.outputs.version }}" --prerelease --notes "Experimental Renderer 5.0 channel. Stable remains on the normal latest release. Use Updater 1.2 to switch channels."
+
+      - name: Beta summary
+        shell: pwsh
+        run: |
+          Get-FileHash dist/ItajaiDriveNative.exe -Algorithm SHA256
+          Get-FileHash dist/ItajaiDriveUpdater.exe -Algorithm SHA256
+          Get-FileHash dist/itajai_assets_v08.pak -Algorithm SHA256
