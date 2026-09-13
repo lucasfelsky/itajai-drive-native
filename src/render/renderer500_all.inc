@@ -7,6 +7,7 @@
 #include "renderer500_runtime.inc"
 #include "renderer500_present.inc"
 #include "renderer500_debug.inc"
+#include "sky500_render.inc"
 #include "roads500_render.inc"
 #include "city500_density.inc"
 #include "events500_render.inc"
