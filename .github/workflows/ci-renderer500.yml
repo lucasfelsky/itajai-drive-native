@@ -2,7 +2,7 @@ name: Renderer 5.0 Build Gate
 on:
   push:
     branches: [dev/renderer500]
-    paths: ['VERSION','src/**','assets/**','.github/workflows/ci-renderer500.yml']
+    paths: ['VERSION','src/**','assets/**','tools/**','.github/workflows/ci-renderer500.yml']
   workflow_dispatch:
 permissions:
   contents: read
@@ -24,9 +24,13 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'native compile failed' }
           lld-link /nologo /entry:WinMainCRTStartup /subsystem:windows /machine:x64 /nodefaultlib /out:dist/ItajaiDriveNative.exe dist/native.obj kernel32.lib user32.lib gdi32.lib winhttp.lib ws2_32.lib iphlpapi.lib opengl32.lib winmm.lib @crt
           if ($LASTEXITCODE -ne 0) { throw 'native link failed' }
-      - name: Validate asset tools
+      - name: Validate 5.0 asset pipeline
         shell: pwsh
         run: |
-          python -m py_compile tools/compile_assets.py tools/generate_vehicle_gltf.py tools/generate_vehicle_parts.py
+          python -m py_compile tools/compile_assets.py tools/generate_vehicle_gltf.py tools/generate_vehicle_hq.py tools/generate_vehicle_parts.py
           python tools/generate_vehicle_gltf.py
+          python tools/generate_vehicle_hq.py
           python tools/generate_vehicle_parts.py
+          $generated=Get-ChildItem assets/generated/*.gltf | Sort-Object Name | ForEach-Object { $_.FullName }
+          python tools/compile_assets.py -o dist/itajai_assets_v08.pak assets/source/tree.gltf assets/source/streetlamp.gltf assets/source/container.gltf assets/source/palm.gltf assets/source/bench.gltf assets/source/busstop.gltf assets/source/guardrail.gltf assets/source/roadsign.gltf @generated
+          if ($LASTEXITCODE -ne 0) { throw '5.0 asset compilation failed' }
