@@ -37,20 +37,34 @@ namespace ItajaiDrive.EditorTools
             sun.intensity = 1.1f;
             sun.shadows = LightShadows.Soft;
 
-            var player = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            player.name = "Player - Novo Uno Migration Placeholder";
-            player.transform.position = new Vector3(0f, 0.62f, 0f);
-            player.transform.localScale = new Vector3(1.64f, 0.82f, 3.81f);
+            // Keep the physics/camera root at scale 1. Vehicle dimensions belong on
+            // the collider and visual child; otherwise Transform math inherits the
+            // 3.81 m body scale and pushes chase cameras tens of metres away.
+            var player = new GameObject("Player - Novo Uno Migration Placeholder");
+            player.transform.position = new Vector3(0f, 0.43f, 0f);
+
+            var bodyCollider = player.AddComponent<BoxCollider>();
+            bodyCollider.size = new Vector3(1.64f, 0.82f, 3.81f);
+
             var rigidbody = player.AddComponent<Rigidbody>();
             rigidbody.mass = 1120f;
             rigidbody.linearDamping = 0.04f;
             rigidbody.angularDamping = 0.9f;
             player.AddComponent<ArcadeVehicleController>();
 
+            var visual = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            visual.name = "Uno Placeholder Visual";
+            visual.transform.SetParent(player.transform, false);
+            visual.transform.localPosition = Vector3.zero;
+            visual.transform.localScale = new Vector3(1.64f, 0.82f, 3.81f);
+            Object.DestroyImmediate(visual.GetComponent<BoxCollider>());
+
             var cameraObject = new GameObject("Main Camera");
             cameraObject.tag = "MainCamera";
-            cameraObject.transform.position = new Vector3(0f, 2.7f, -6.2f);
-            cameraObject.AddComponent<UnityEngine.Camera>().fieldOfView = 67f;
+            var gameCamera = cameraObject.AddComponent<UnityEngine.Camera>();
+            gameCamera.fieldOfView = 67f;
+            gameCamera.nearClipPlane = 0.08f;
+            gameCamera.farClipPlane = 2500f;
             cameraObject.AddComponent<AudioListener>();
             var chase = cameraObject.AddComponent<ChaseCamera>();
             chase.SetTarget(player.transform);
@@ -61,7 +75,7 @@ namespace ItajaiDrive.EditorTools
             EditorSceneManager.SaveScene(scene, ScenePath);
             Selection.activeGameObject = player;
             AssetDatabase.SaveAssets();
-            Debug.Log("ITAJAÍ DRIVE: CentroPrototype created. Next migration step is road/cadastral import + Novo Uno hero prefab.");
+            Debug.Log("ITAJAÍ DRIVE: CentroPrototype recreated with an unscaled vehicle root and corrected chase-camera framing.");
         }
     }
 }
