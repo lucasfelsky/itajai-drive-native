@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """Generate the Itajai Drive Brazilian vehicle body meshes.
 
-2.2 increases silhouette fidelity substantially: each model now has an explicit
-nine-station lower body and six-station roof/cabin profile instead of sharing a
-near-identical five-station hatch shell. The geometry is still original procedural
-work made for this prototype; manufacturer badges/logos are not embedded.
+5.0 keeps the explicit nine-station lower body and six-station roof/cabin profile
+per model, then opts those shells into position-grouped smooth normals during PAK
+compilation. Geometry remains original procedural work for this prototype; badges
+and manufacturer logos are not embedded.
 
 z points forward in the native renderer. Wheels, glass, lamps, plates and trim are
 layered by C at runtime; this file owns the recognisable body/roof silhouette.
@@ -61,7 +61,7 @@ def box(v, i, cx, cy, cz, sx, sy, sz):
 
 
 def shell(v, i, sections, close_bottom=True):
-    """Faceted closed shell: section=(z, half_width, bottom_y, top_y)."""
+    """Closed shell: section=(z, half_width, bottom_y, top_y)."""
     for a,b in zip(sections,sections[1:]):
         za,wa,ba,ta=a; zb,wb,bb,tb=b
         quad(v,i,(-wa,ba,za),(-wb,bb,zb),(-wb,tb,zb),(-wa,ta,za))
@@ -81,7 +81,7 @@ def build(name,p):
     # Model-family character volumes deliberately alter outline, not just surface detail.
     if style=='box_hatch':
         box(v,i,0,.51,L*.474,W*.80,.31,.18); box(v,i,0,.57,-L*.476,W*.84,.38,.16)
-        box(v,i,0,1.48,-L*.20,W*.74,.08,L*.26)  # long upright roof character
+        box(v,i,0,1.48,-L*.20,W*.74,.08,L*.26)
     elif style=='box_suv':
         box(v,i,0,.59,L*.477,W*.86,.43,.18); box(v,i,0,.62,-L*.478,W*.88,.46,.18)
         box(v,i,-W*.43,.48,0,.10,.25,L*.66); box(v,i,W*.43,.48,0,.10,.25,L*.66)
@@ -96,7 +96,7 @@ def build(name,p):
         box(v,i,0,.59,-L*.462,W*.80,.16,.15); box(v,i,0,.55,L*.455,W*.73,.12,.18)
     elif style=='small_hatch':
         box(v,i,0,.56,L*.455,W*.76,.20,.15); box(v,i,0,.61,-L*.455,W*.79,.18,.14)
-    else:  # conventional hatch
+    else:
         box(v,i,0,.58,L*.458,W*.77,.18,.15); box(v,i,0,.60,-L*.462,W*.80,.20,.14)
 
     pos=b''.join(struct.pack('<3f',*q) for q in v)
@@ -105,8 +105,8 @@ def build(name,p):
     mins=[min(q[a] for q in v) for a in range(3)]; maxs=[max(q[a] for q in v) for a in range(3)]
     uri='data:application/octet-stream;base64,'+base64.b64encode(raw).decode()
     doc={
-        'asset':{'version':'2.0','generator':'Itajai Drive 2.2 vehicle silhouette generator'},
-        'extras':{'itajaiColliderRadius':W*.62,'realWorldReference':name,'wheelbase':p['wheelbase'],'silhouetteRevision':22},
+        'asset':{'version':'2.0','generator':'Itajai Drive 5.0 vehicle silhouette generator'},
+        'extras':{'itajaiColliderRadius':W*.62,'realWorldReference':name,'wheelbase':p['wheelbase'],'silhouetteRevision':50,'smoothNormals':True},
         'buffers':[{'byteLength':len(raw),'uri':uri}],
         'bufferViews':[{'buffer':0,'byteOffset':0,'byteLength':len(pos),'target':34962},
                        {'buffer':0,'byteOffset':len(pos),'byteLength':len(idx),'target':34963}],
