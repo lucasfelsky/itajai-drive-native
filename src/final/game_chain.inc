@@ -77,4 +77,7 @@
 #define game_update game_update_legacy380
 #include "../ui/map380_game.inc"
 #undef game_update
+#define game_update game_update_legacy390
 #include "../world/world390_game.inc"
+#undef game_update
+#include "../sim/polish400_game.inc"
