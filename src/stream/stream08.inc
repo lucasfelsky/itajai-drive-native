@@ -27,6 +27,7 @@ static StreamBuilding08 g_stream_buildings08[MAX_STREAM_BUILDINGS08];static int 
 static AssetInstance08 g_asset_instances08[MAX_ASSET_INSTANCES08];static int g_asset_instance_count08=0;
 static int g_stream_region_x08=0x7fffffff,g_stream_region_z08=0x7fffffff,g_stream_loaded_regions08=0;
 static float g_stream_refresh08=0;static int g_stream_asset_contacts08=0;
+static int g_stream_tree_asset08=-2,g_stream_lamp_asset08=-2,g_stream_container_asset08=-2;
 
 static int stream08_coord(float x){int q=(int)(x/REGION_SIZE08);if(x<0&&((float)q*REGION_SIZE08)>x)q--;return q;}
 static int stream08_find_region(int rx,int rz){for(int i=0;i<g_region_count08;i++)if(g_regions08[i].rx==rx&&g_regions08[i].rz==rz)return i;return -1;}
@@ -55,8 +56,9 @@ static int stream08_prepare(void){sprintf(g_region_path08,"%s\\itajai_regions_v0
 static int stream08_seek_read(u64 off,void*out,DWORD bytes){if(g_region_file08==INVALID_HANDLE_VALUE||!bytes)return bytes==0;LARGE_INTEGER li;li.QuadPart=(i64)off;if(!SetFilePointerEx(g_region_file08,li,NULL,FILE_BEGIN))return 0;DWORD got=0;return ReadFile(g_region_file08,out,bytes,&got,NULL)&&got==bytes;}
 
 static void stream08_add_asset(int asset,V3 p,float yaw,float scale,u32 seed){if(asset<0||g_asset_instance_count08>=MAX_ASSET_INSTANCES08)return;AssetInstance08*x=&g_asset_instances08[g_asset_instance_count08++];x->asset=asset;x->p=p;x->yaw=yaw;x->scale=scale;x->seed=seed;}
+static void stream08_resolve_asset_ids(void){if(g_stream_tree_asset08==-2)g_stream_tree_asset08=asset08_find("urban_tree");if(g_stream_lamp_asset08==-2)g_stream_lamp_asset08=asset08_find("street_lamp");if(g_stream_container_asset08==-2)g_stream_container_asset08=asset08_find("port_container");}
 static void stream08_generate_assets(void){
-  g_asset_instance_count08=0;if(!g_asset_pack_ok08)return;int tree=asset08_find("urban_tree"),lamp=asset08_find("street_lamp"),container=asset08_find("port_container");
+  g_asset_instance_count08=0;if(!g_asset_pack_ok08)return;stream08_resolve_asset_ids();int tree=g_stream_tree_asset08,lamp=g_stream_lamp_asset08,container=g_stream_container_asset08;
   for(int i=0;i<g_stream_road_count08;i++){StreamRoad08*s=&g_stream_roads08[i];if(s->road<0||s->road>=g_world.roadCount)continue;RoadWay*r=&g_world.roads[s->road];V3 d=vsub(s->b,s->a);float len=vlen(d);if(len<8)continue;V3 dir=vnorm(d),right=v3(dir.z,0,-dir.x);int steps=(int)(len/34.0f);if(steps<1)steps=1;for(int k=0;k<steps;k++){float t=(k+.5f)/steps;V3 p=vadd(s->a,vmul(d,t));i32 hx=(i32)(p.x*2),hz=(i32)(p.z*2);u32 h=stream08_hash(hx,hz,(u32)(s->road*31+k));float side=(h&1)?1.0f:-1.0f;
       if(tree>=0&&r->width<11.5f&&(h%100)<44){V3 tp=vadd(p,vmul(right,side*(r->width*.5f+3.2f)));stream08_add_asset(tree,tp,0,.82f+.28f*((h>>8)&255)/255.0f,h);}
       if(lamp>=0&&r->width>=5.5f&&((h>>5)%100)<30){V3 lp=vadd(p,vmul(right,side*(r->width*.5f+1.25f)));stream08_add_asset(lamp,lp,(float)atan2((double)dir.x,(double)dir.z),1.0f,h^0x55aa55aa);}
@@ -77,4 +79,4 @@ static int stream08_resolve_asset_collisions(PhysicsBody*b,float*speedScalar){
   g_stream_asset_contacts08=hits;return hits;
 }
 
-static void stream08_draw_assets(void){for(int i=0;i<g_asset_instance_count08;i++){AssetInstance08*x=&g_asset_instances08[i];float dx=x->p.x-g_player.body.p.x,dz=x->p.z-g_player.body.p.z;if(dx*dx+dz*dz>420*420)continue;if(x->asset==asset08_find("urban_tree"))asset08_draw_instance(x->asset,x->p,x->yaw,x->scale,.20f,.48f,.18f);else if(x->asset==asset08_find("street_lamp"))asset08_draw_instance(x->asset,x->p,x->yaw,x->scale,.28f,.30f,.32f);else asset08_draw_instance(x->asset,x->p,x->yaw,x->scale,.63f,.20f,.10f);}}
+static void stream08_draw_assets(void){stream08_resolve_asset_ids();int tree=g_stream_tree_asset08,lamp=g_stream_lamp_asset08;for(int i=0;i<g_asset_instance_count08;i++){AssetInstance08*x=&g_asset_instances08[i];float dx=x->p.x-g_player.body.p.x,dz=x->p.z-g_player.body.p.z;if(dx*dx+dz*dz>420*420)continue;if(x->asset==tree)asset08_draw_instance(x->asset,x->p,x->yaw,x->scale,.20f,.48f,.18f);else if(x->asset==lamp)asset08_draw_instance(x->asset,x->p,x->yaw,x->scale,.28f,.30f,.32f);else asset08_draw_instance(x->asset,x->p,x->yaw,x->scale,.63f,.20f,.10f);}}
