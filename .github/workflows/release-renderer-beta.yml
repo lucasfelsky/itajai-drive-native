@@ -31,6 +31,23 @@ jobs:
           if (-not $version) { throw 'VERSION is empty' }
           "version=$version" >> $env:GITHUB_OUTPUT
 
+      - name: Reject hidden same-version beta replacement
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $ErrorActionPreference='Continue'
+          $json=gh release view renderer-beta --json name,targetCommitish 2>$null
+          if ($LASTEXITCODE -ne 0) { exit 0 }
+          $ErrorActionPreference='Stop'
+          $old=$json | ConvertFrom-Json
+          $version='${{ steps.version.outputs.version }}'
+          $head='${{ github.event.workflow_run.head_sha }}'
+          $expected="Itajai Drive Renderer 5.0 Beta $version"
+          if ($old.name -eq $expected -and $old.targetCommitish -ne $head) {
+            throw "Renderer beta $version already exists for a different commit. Bump VERSION before publishing another beta build."
+          }
+
       - name: Build native executables
         shell: pwsh
         run: |
@@ -64,11 +81,13 @@ jobs:
         shell: pwsh
         run: |
           $version='${{ steps.version.outputs.version }}'
+          $build='${{ github.event.workflow_run.head_sha }}'
           $repo='${{ github.repository }}'
           $beta='https://github.com/' + $repo + '/releases/download/renderer-beta/manifest.txt'
           $stable='https://github.com/' + $repo + '/releases/latest/download/manifest.txt'
           $base='https://github.com/' + $repo + '/releases/download/renderer-beta/'
           $version | Set-Content -Encoding ascii dist/VERSION.txt
+          $build | Set-Content -Encoding ascii dist/BUILD.txt
           @"
           manifest_url=$beta
           stable_manifest_url=$stable
@@ -78,6 +97,7 @@ jobs:
           auto_launch=1
           "@ | Set-Content -Encoding ascii dist/update_config.ini
           python tools/make_manifest.py --version $version --base-url $base --notes "Renderer 5.0 Beta $version // HDR + modern lighting + HQ vehicles" dist/ItajaiDriveNative.exe dist/itajai_assets_v08.pak dist/ItajaiDriveUpdater.next.exe | Set-Content -Encoding ascii dist/manifest.txt
+          Add-Content -Encoding ascii dist/manifest.txt "build=$build"
 
       - name: Validate beta release candidate
         shell: pwsh
@@ -85,6 +105,9 @@ jobs:
           $ErrorActionPreference='Stop'
           python tools/release_check_beta.py
           if ($LASTEXITCODE -ne 0) { throw 'beta release candidate validation failed' }
+          $build='${{ github.event.workflow_run.head_sha }}'
+          if ((Get-Content dist/BUILD.txt -Raw).Trim() -ne $build) { throw 'BUILD.txt mismatch' }
+          if (-not (Select-String -Path dist/manifest.txt -SimpleMatch "build=$build")) { throw 'manifest build id missing' }
 
       - name: Publish moving Renderer beta prerelease
         shell: pwsh
@@ -103,6 +126,7 @@ jobs:
             'dist/ItajaiDriveUpdater.next.exe',
             'dist/itajai_assets_v08.pak',
             'dist/VERSION.txt',
+            'dist/BUILD.txt',
             'dist/update_config.ini',
             'dist/manifest.txt'
           )
@@ -114,3 +138,4 @@ jobs:
           Get-FileHash dist/ItajaiDriveNative.exe -Algorithm SHA256
           Get-FileHash dist/ItajaiDriveUpdater.exe -Algorithm SHA256
           Get-FileHash dist/itajai_assets_v08.pak -Algorithm SHA256
+          Get-Content dist/BUILD.txt
