@@ -77,10 +77,16 @@ jobs:
           $tag = '${{ steps.version.outputs.tag }}'
           $repo = '${{ github.repository }}'
           $baseUrl = "https://github.com/$repo/releases/download/$tag/"
+          $stable = "https://github.com/$repo/releases/latest/download/manifest.txt"
+          $beta = "https://github.com/$repo/releases/download/renderer-beta/manifest.txt"
 
           $version | Set-Content -Encoding ascii dist/VERSION.txt
           @"
-          manifest_url=https://github.com/$repo/releases/latest/download/manifest.txt
+          manifest_url=$stable
+          stable_manifest_url=$stable
+          beta_manifest_url=$beta
+          channel=stable
+          installed_channel=stable
           auto_launch=1
           "@ | Set-Content -Encoding ascii dist/update_config.ini
 
