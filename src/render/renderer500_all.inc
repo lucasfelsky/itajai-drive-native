@@ -13,6 +13,7 @@
 #include "shadows500_render.inc"
 #include "roads500_render.inc"
 #include "city500_density.inc"
+#include "world503_itajai.inc"
 #include "lighting500_render.inc"
 #include "vehiclelights500_render.inc"
 #include "events500_render.inc"
