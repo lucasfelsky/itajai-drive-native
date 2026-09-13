@@ -17,3 +17,6 @@ update_config.ini
 # Misc
 .DS_Store
 Thumbs.db
+
+assets/generated/
+__pycache__/

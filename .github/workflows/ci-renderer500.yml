@@ -3,6 +3,8 @@ on:
   push:
     branches: [dev/renderer500]
     paths: ['VERSION','src/**','assets/**','tools/**','.github/workflows/ci-renderer500.yml']
+  pull_request:
+    branches: [dev/renderer500]
   workflow_dispatch:
 permissions:
   contents: read
@@ -32,6 +34,8 @@ jobs:
           python tools/generate_vehicle_hq.py
           python tools/generate_vehicle_parts.py
           python tools/validate_vehicle_assets.py
+          if ($LASTEXITCODE -ne 0) { throw 'vehicle validation failed' }
+          python tools/validate_hero_assets.py
           if ($LASTEXITCODE -ne 0) { throw '5.0 vehicle silhouette validation failed' }
           $generated=Get-ChildItem assets/generated/*.gltf | Sort-Object Name | ForEach-Object { $_.FullName }
           python tools/compile_assets.py -o dist/itajai_assets_v08.pak assets/source/tree.gltf assets/source/streetlamp.gltf assets/source/container.gltf assets/source/palm.gltf assets/source/bench.gltf assets/source/busstop.gltf assets/source/guardrail.gltf assets/source/roadsign.gltf @generated
