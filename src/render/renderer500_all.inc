@@ -15,6 +15,7 @@
 #include "city500_density.inc"
 #include "world503_itajai.inc"
 #include "world504_center.inc"
+#include "world505_center.inc"
 #include "vehicle504_uno.inc"
 #include "lighting500_render.inc"
 #include "vehiclelights500_render.inc"

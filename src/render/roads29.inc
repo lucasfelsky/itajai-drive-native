@@ -3,12 +3,17 @@
 // Deterministic crosswalks, stop bars, directional arrows and curbside road
 // furniture layered on the graded road mesh. Uses OSM traffic signals when near.
 // -----------------------------------------------------------------------------
+static V3 g_roads505_cross_centers[64];
 static int g_roads29_crosswalks=0,g_roads29_stopbars=0,g_roads29_arrows=0,g_roads29_signs=0;
 static int roads29_near_signal(V3 p,float r){float r2=r*r;for(int i=0;i<g_world.signalCount;i++){float dx=g_world.signals[i].p.x-p.x,dz=g_world.signals[i].p.z-p.z;if(dx*dx+dz*dz<r2)return 1;}return 0;}
 static int roads29_urban_road(int road){if(road<0||road>=g_world.roadCount)return 0;RoadWay*r=&g_world.roads[road];return !str_eq(r->type,"motorway")&&!str_eq(r->type,"trunk")&&!str_eq(r->type,"service");}
 static void roads29_crosswalk(StreamRoad08*s,int atEnd){
-  if(!roads29_urban_road(s->road))return;V3 d=vsub(s->b,s->a);float len=vlen(d);if(len<12)return;V3 f=vmul(d,1.0f/len),rr=v3(f.z,0,-f.x);RoadWay*r=&g_world.roads[s->road];float half=maxf(2.2f,r->width*.5f-.22f);V3 center=atEnd?vadd(s->b,vmul(f,-2.8f)):vadd(s->a,vmul(f,2.8f));float y=roads130_height(center.x,center.z)+.062f;
-  for(int k=-4;k<=4;k++){float off=k*.62f;V3 c=vadd(center,vmul(f,off));V3 a=vadd(vadd(c,vmul(f,-.20f)),vmul(rr,-half)),b=vadd(vadd(c,vmul(f,-.20f)),vmul(rr,half)),q=vadd(vadd(c,vmul(f,.20f)),vmul(rr,half)),e=vadd(vadd(c,vmul(f,.20f)),vmul(rr,-half));glColor3f(.91f,.91f,.87f);glVertex3f(a.x,y,a.z);glVertex3f(b.x,y,b.z);glVertex3f(q.x,y,q.z);glVertex3f(e.x,y,e.z);}g_roads29_crosswalks++;
+  if(!roads29_urban_road(s->road))return;V3 d=vsub(s->b,s->a);float len=vlen(d);if(len<12)return;V3 f=vmul(d,1.0f/len),rr=v3(f.z,0,-f.x);RoadWay*r=&g_world.roads[s->road];float half=maxf(2.2f,r->width*.5f-.22f);V3 center=atEnd?vadd(s->b,vmul(f,-5.2f)):vadd(s->a,vmul(f,5.2f));float y=roads130_height(center.x,center.z)+.062f;
+  if(g_roads29_crosswalks>=64)return;
+  for(int j=0;j<g_roads29_crosswalks;j++){V3 d=vsub(center,g_roads505_cross_centers[j]);if(d.x*d.x+d.z*d.z<36.0f)return;}
+  g_roads505_cross_centers[g_roads29_crosswalks]=center;
+  int stripes=(int)(half*2/1.0f);if(stripes>20)stripes=20;
+  for(int k=0;k<stripes;k++){float off=(k-(stripes-1)*.5f);V3 c=vadd(center,vmul(rr,off));V3 a=vadd(vadd(c,vmul(f,-1.45f)),vmul(rr,-.25f)),b=vadd(vadd(c,vmul(f,-1.45f)),vmul(rr,.25f)),q=vadd(vadd(c,vmul(f,1.45f)),vmul(rr,.25f)),e=vadd(vadd(c,vmul(f,1.45f)),vmul(rr,-.25f));glColor3f(.80f,.80f,.75f);glVertex3f(a.x,y,a.z);glVertex3f(b.x,y,b.z);glVertex3f(q.x,y,q.z);glVertex3f(e.x,y,e.z);}g_roads29_crosswalks++;
   V3 bar=vadd(center,vmul(f,atEnd?-3.25f:3.25f));float by=roads130_height(bar.x,bar.z)+.064f;V3 a=vadd(vadd(bar,vmul(f,-.12f)),vmul(rr,-half)),b=vadd(vadd(bar,vmul(f,-.12f)),vmul(rr,half)),q=vadd(vadd(bar,vmul(f,.12f)),vmul(rr,half)),e=vadd(vadd(bar,vmul(f,.12f)),vmul(rr,-half));glColor3f(.94f,.94f,.90f);glVertex3f(a.x,by,a.z);glVertex3f(b.x,by,b.z);glVertex3f(q.x,by,q.z);glVertex3f(e.x,by,e.z);g_roads29_stopbars++;
 }
 static void roads29_arrow(StreamRoad08*s){V3 d=vsub(s->b,s->a);float len=vlen(d);if(len<22||s->road<0||s->road>=g_world.roadCount)return;RoadWay*r=&g_world.roads[s->road];if(r->width<7.0f)return;V3 f=vmul(d,1.0f/len),rr=v3(f.z,0,-f.x),m=vmul(vadd(s->a,s->b),.5f);float y=roads130_height(m.x,m.z)+.065f;float laneOff=r->oneway?0:r->width*.24f;for(int side=r->oneway?0:-1;side<=1;side+=r->oneway?2:2){float off=r->oneway?0:side*laneOff;V3 c=vadd(m,vmul(rr,off)),tip=vadd(c,vmul(f,1.45f)),tail=vadd(c,vmul(f,-1.35f));V3 l=vadd(c,vmul(rr,-.40f)),ri=vadd(c,vmul(rr,.40f));glColor3f(.90f,.90f,.86f);glVertex3f(tip.x,y,tip.z);glVertex3f(l.x,y,l.z);glVertex3f(ri.x,y,ri.z);glVertex3f(l.x,y,l.z);glVertex3f(ri.x,y,ri.z);glVertex3f(tail.x,y,tail.z);g_roads29_arrows++;if(r->oneway)break;}}
