@@ -4,6 +4,7 @@
 #include "renderer500_targets.inc"
 #include "renderer500_post.inc"
 #include "materials500.inc"
+#include "renderer500_diag.inc"
 #include "renderer500_runtime.inc"
 #include "renderer500_present.inc"
 #include "renderer500_debug.inc"
