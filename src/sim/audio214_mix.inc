@@ -25,7 +25,9 @@ static float audio214_extra(float n,float speed,float throttle){
   g_audio400_port_phase=audio180_wrap(g_audio400_port_phase+6.2831853f*47.0f/AUDIO18_RATE);
   g_audio400_coast_phase=audio180_wrap(g_audio400_coast_phase+6.2831853f*21.0f/AUDIO18_RATE);
 
-  float rainTarget=g_weather>=3?.075f:g_weather==2?.048f:g_wetness60>.55f?.012f:0.0f;g_audio400_rain_level=lerpf(g_audio400_rain_level,rainTarget,.0035f);
+  // audio18/audio214 are included before weather60 exposes g_wetness60, so the
+  // procedural precipitation bed keys off the already-available weather state.
+  float rainTarget=g_weather>=3?.075f:g_weather==2?.048f:g_weather==1?.006f:0.0f;g_audio400_rain_level=lerpf(g_audio400_rain_level,rainTarget,.0035f);
   float portTarget=(g_sector10==2)?.030f:0.0f;g_audio400_port_level=lerpf(g_audio400_port_level,portTarget,.0014f);
   float coastTarget=(g_sector10>=3)?.018f:0.0f;g_audio400_coast_level=lerpf(g_audio400_coast_level,coastTarget,.0012f);
 
