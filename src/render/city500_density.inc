@@ -1,13 +1,21 @@
 // -----------------------------------------------------------------------------
 // 5.0 urban-density pass: deterministic parked cars, richer roadside furniture
 // and crosswalk cues around the streamed road network. Tight caps protect 60 fps.
+// Crosswalk stripes are collected then emitted as one terrain-following batch so
+// they no longer spend dozens of box draws for a nearly-flat road marking.
 // -----------------------------------------------------------------------------
+#define CITY500_CROSS_MAX 8
 static int g_city500_parked=0,g_city500_props=0,g_city500_crosswalks=0;
+static V3 g_city500_cross_p[CITY500_CROSS_MAX],g_city500_cross_f[CITY500_CROSS_MAX];static float g_city500_cross_w[CITY500_CROSS_MAX];
+
 static void city500_parked_car(V3 p,float yaw,int model,u32 h){static const float pal[8][3]={{.76f,.78f,.80f},{.08f,.16f,.25f},{.62f,.09f,.07f},{.18f,.32f,.48f},{.84f,.84f,.81f},{.23f,.24f,.25f},{.46f,.12f,.18f},{.55f,.48f,.35f}};int c=(h>>8)&7;glPushMatrix();glTranslatef(p.x,p.y+.02f,p.z);glRotatef(yaw*57.29578f,0,1,0);vehicle160_draw_model_local(model,pal[c][0],pal[c][1],pal[c][2],0,0,0,0,1);vehicle400_detail_local(model);glPopMatrix();}
-static void city500_crosswalk(V3 p,V3 f,float width){V3 rt=v3(f.z,0,-f.x);float y=terrain11_height(p.x,p.z)+.094f;renderer09_set_material(MAT09_GENERIC);for(int k=-3;k<=3;k++){V3 q=vadd(p,vmul(f,k*.72f));draw_box(v3(q.x,y,q.z),width*.82f,.016f,.32f,(float)atan2((double)rt.x,(double)rt.z),.82f,.82f,.78f);}g_city500_crosswalks++;}
+
+static void city500_crosswalk_queue(V3 p,V3 f,float width){if(g_city500_crosswalks>=CITY500_CROSS_MAX)return;g_city500_cross_p[g_city500_crosswalks]=p;g_city500_cross_f[g_city500_crosswalks]=f;g_city500_cross_w[g_city500_crosswalks]=width;g_city500_crosswalks++;}
+static void city500_crosswalk_batch(void){if(g_city500_crosswalks<=0)return;renderer09_set_material(MAT09_GENERIC);renderer09_suspend_shader();glDisable(GL_TEXTURE_2D);glColor3f(.82f,.82f,.78f);glBegin(GL_QUADS);for(int n=0;n<g_city500_crosswalks;n++){V3 p=g_city500_cross_p[n],f=g_city500_cross_f[n],rt=v3(f.z,0,-f.x);float halfW=g_city500_cross_w[n]*.41f,halfL=.16f;for(int k=-3;k<=3;k++){V3 q=vadd(p,vmul(f,k*.72f));V3 a=vadd(vadd(q,vmul(rt,-halfW)),vmul(f,-halfL)),b=vadd(vadd(q,vmul(rt,halfW)),vmul(f,-halfL)),c=vadd(vadd(q,vmul(rt,halfW)),vmul(f,halfL)),d=vadd(vadd(q,vmul(rt,-halfW)),vmul(f,halfL));a.y=terrain11_height(a.x,a.z)+.094f;b.y=terrain11_height(b.x,b.z)+.094f;c.y=terrain11_height(c.x,c.z)+.094f;d.y=terrain11_height(d.x,d.z)+.094f;glVertex3f(a.x,a.y,a.z);glVertex3f(b.x,b.y,b.z);glVertex3f(c.x,c.y,c.z);glVertex3f(d.x,d.y,d.z);}}glEnd();renderer09_resume_shader();g_draw_calls++;renderer09_set_material(MAT09_GENERIC);}
+
 static void city500_draw(void){g_city500_parked=g_city500_props=g_city500_crosswalks=0;if(!g_stream_ready08)return;vehicle160_resolve();city360_assets_init();int parkedCap=g_perf80_quality==0?8:(g_perf80_quality==1?14:22),propCap=g_perf80_quality==0?14:(g_perf80_quality==1?28:48);for(int i=0;i<g_stream_road_count08;i++){StreamRoad08*s=&g_stream_roads08[i];if(s->road<0||s->road>=g_world.roadCount)continue;RoadWay*r=&g_world.roads[s->road];V3 d=vsub(s->b,s->a),m=vmul(vadd(s->a,s->b),.5f);float len=vlen(d);if(len<7)continue;float dx=m.x-g_player.body.p.x,dz=m.z-g_player.body.p.z;if(dx*dx+dz*dz>390.0f*390.0f)continue;int highway=str_eq(r->type,"motorway")||str_eq(r->type,"trunk");V3 f=vmul(d,1.0f/maxf(.01f,len)),rt=v3(f.z,0,-f.x);float yaw=(float)atan2((double)f.x,(double)f.z),edge=r->width*.5f+2.0f;u32 h=roads130_hash(s)^0x500D17u;
   if(!highway&&g_city500_parked<parkedCap&&(h%9u)==2u&&len>12.0f){float side=(h&1u)?1.0f:-1.0f;V3 p=vadd(m,vmul(rt,side*(edge+1.05f)));p.y=terrain11_height(p.x,p.z)+.05f;city500_parked_car(p,yaw+(side<0?3.14159265f:0),(int)((h>>4)&7u),h);g_city500_parked++;}
   if(g_city500_props<propCap&&(h%11u)==3u){float side=(h&2u)?1.0f:-1.0f;V3 p=vadd(m,vmul(rt,side*(edge+2.3f)));int asset=((h>>5)&1u)?g_city360_tree:g_city360_lamp;city360_asset(asset,p,yaw,.90f+(h%3u)*.05f,asset==g_city360_tree?.18f:.28f,asset==g_city360_tree?.46f:.30f,asset==g_city360_tree?.18f:.31f);g_city500_props++;}
-  if(!highway&&g_city500_crosswalks<8&&(h%37u)==6u&&r->width>6.0f)city500_crosswalk(m,f,r->width*.90f);
- }renderer09_set_material(MAT09_GENERIC);}
+  if(!highway&&g_city500_crosswalks<CITY500_CROSS_MAX&&(h%37u)==6u&&r->width>6.0f)city500_crosswalk_queue(m,f,r->width*.90f);
+ }city500_crosswalk_batch();renderer09_set_material(MAT09_GENERIC);}
 static void city500_overlay(void){if(!g_debug||g_settings_menu_open||(g_photo70&&g_photo70_hide_hud))return;settings_draw_2d_begin();char b[160];sprintf(b,"CITY 5.0 // parked %d | props %d | crosswalks %d",g_city500_parked,g_city500_props,g_city500_crosswalks);gl_text(34,(float)g_h-337,b,.62f,.80f,.70f);settings_draw_2d_end();}
