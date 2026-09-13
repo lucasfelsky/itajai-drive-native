@@ -8,6 +8,7 @@
 #include "renderer500_present.inc"
 #include "renderer500_debug.inc"
 #include "sky500_render.inc"
+#include "shadows500_render.inc"
 #include "roads500_render.inc"
 #include "city500_density.inc"
 #include "lighting500_render.inc"
