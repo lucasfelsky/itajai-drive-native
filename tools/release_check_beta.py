@@ -43,6 +43,9 @@ def check_beta_manifest(version: str, managed):
     cfg = (DIST / "update_config.ini").read_text(encoding="ascii")
     required = (
         "channel=beta",
+        "installed_channel=beta",
+        "stable_manifest_url=https://github.com/",
+        "beta_manifest_url=https://github.com/",
         "releases/latest/download/manifest.txt",
         "releases/download/renderer-beta/manifest.txt",
         "auto_launch=1",
@@ -50,7 +53,7 @@ def check_beta_manifest(version: str, managed):
     for token in required:
         if token not in cfg:
             fail(f"beta update_config.ini missing {token}")
-    print("OK beta updater channel config and moving manifest")
+    print("OK beta updater selected/installed channel config and moving manifest")
 
 
 def main():
