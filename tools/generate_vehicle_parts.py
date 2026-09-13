@@ -61,10 +61,11 @@ def trim_for(p):
     return v,i
 
 def main():
+    import generate_uno_hero as uno
     out=pathlib.Path('assets/generated');out.mkdir(parents=True,exist_ok=True)
     for name,p in bodygen.PRESETS.items():
-        v,i=glass_for(p);write(out/(name+'_glass.gltf'),'glass_'+name,v,i,smooth=True)
-        v,i=trim_for(p);write(out/(name+'_trim.gltf'),'trim_'+name,v,i,smooth=False)
+        v,i=uno.glass() if name=='fiat_uno_way_2014' else glass_for(p);write(out/(name+'_glass.gltf'),'glass_'+name,v,i,smooth=True)
+        v,i=uno.trim() if name=='fiat_uno_way_2014' else trim_for(p);write(out/(name+'_trim.gltf'),'trim_'+name,v,i,smooth=False)
         print(out/(name+'_glass.gltf'));print(out/(name+'_trim.gltf'))
 
 if __name__=='__main__':main()

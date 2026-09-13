@@ -7,7 +7,7 @@
 static int g_vehicle400_detail_draws=0;
 static void vehicle400_bar(float x,float y,float z,float sx,float sy,float sz,float r,float g,float b){vehicle160_local_box_rot(x,y,z,sx,sy,sz,0,0,0,r,g,b);g_vehicle400_detail_draws++;}
 static void vehicle400_detail_local(int model){
-  if(model<0||model>=CAR160_COUNT)return;const CarVisual160*v=&g_car_visual160[model];float W=v->w,L=v->l,H=v->h;
+  if(model<=0||model>=CAR160_COUNT)return;const CarVisual160*v=&g_car_visual160[model];float W=v->w,L=v->l,H=v->h;
   renderer09_set_material(MAT09_RUBBER);
   switch(model){
     case 0: // Uno Way: roof rails + pronounced black cladding / upright tail.

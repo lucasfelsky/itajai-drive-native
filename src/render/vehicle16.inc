@@ -48,6 +48,21 @@ static void vehicle160_wheel(float x,float y,float z,float radius,float width,fl
   glPushMatrix();glTranslatef(x,y,z);if(steerDeg!=0)glRotatef(steerDeg,0,1,0);glRotatef(spinDeg,1,0,0);renderer09_set_material(MAT09_RUBBER);vehicle160_cylinder_x(radius,width,.035f,.035f,.042f);renderer09_set_material(MAT09_CHROME);vehicle160_cylinder_x(radius*.57f,width*1.035f,.42f,.43f,.45f);vehicle160_cylinder_x(radius*.20f,width*1.05f,.10f,.11f,.12f);renderer09_set_material(MAT09_GENERIC);glPopMatrix();
 }
 
+// Uno alloy: rounded shoulder tyre, recessed barrel and five split spokes.
+static void vehicle505_uno_wheel(float x,float y,float z,float steer,float spin){
+  glPushMatrix();glTranslatef(x,y,z);glRotatef(steer,0,1,0);glRotatef(spin,1,0,0);
+  renderer09_set_material(MAT09_RUBBER);glColor3f(.035f,.037f,.04f);
+  glBegin(GL_QUADS);for(int ring=0;ring<6;ring++)for(int k=0;k<32;k++){
+    float xs[7]={-.105f,-.095f,-.075f,0,.075f,.095f,.105f},rs[7]={.232f,.282f,.299f,.302f,.299f,.282f,.232f};
+    for(int c=0;c<4;c++){int rr=ring+(c==1||c==2),kk=k+(c>=2);float a=kk*6.2831853f/32;glNormal3f(rr<3?-.25f:.25f,(float)cos(a),(float)sin(a));glVertex3f(xs[rr],rs[rr]*(float)cos(a),rs[rr]*(float)sin(a));}
+  }glEnd();g_draw_calls++;
+  renderer09_set_material(MAT09_CHROME);vehicle160_cylinder_x(.205f,.184f,.20f,.22f,.23f);
+  for(int side=-1;side<=1;side+=2){
+    for(int k=0;k<5;k++)for(int split=-1;split<=1;split+=2){float a=k*72.0f+split*6.0f;glPushMatrix();glRotatef(a,1,0,0);vehicle160_local_box_rot(side*.103f,.128f,0,.022f,.154f,.026f,0,0,0,.63f,.65f,.64f);glPopMatrix();}
+  }
+  vehicle160_cylinder_x(.058f,.218f,.47f,.49f,.48f);glPopMatrix();renderer09_set_material(MAT09_GENERIC);
+}
+
 static void vehicle180_plate(float y,float z,float front){
   renderer09_set_material(MAT09_GENERIC);vehicle160_local_box_rot(0,y,z,.52f,.13f,.025f,0,0,0,.86f,.88f,.87f);vehicle160_local_box_rot(0,y+.055f,z+(front?.016f:-.016f),.50f,.020f,.030f,0,0,0,.12f,.24f,.42f);
 }
@@ -55,6 +70,7 @@ static void vehicle180_plate(float y,float z,float front){
 static void vehicle160_trim(int model,int braking,int headlights){
   const CarVisual160*v=&g_car_visual160[model];float W=v->w,L=v->l,H=v->h,cz=v->cabinZ,cl=v->cabinL;
   float gy=.98f+(H-1.43f)*.27f,gh=clampf((H-.83f)*.55f,.30f,.48f),sideZ=cz-.03f;
+  if(model==0)return; // Dedicated generated Uno glass/trim and hero lighting.
   renderer09_set_material(MAT09_GLASS);
   vehicle160_local_box_rot(-W*.486f,gy,sideZ,.035f,gh,cl*.66f,0,0,0,.055f,.095f,.125f);vehicle160_local_box_rot(W*.486f,gy,sideZ,.035f,gh,cl*.66f,0,0,0,.055f,.095f,.125f);
   float rake=v->style==CAR160_BOX_HATCH||v->style==CAR160_SUV?8.0f:18.0f;vehicle160_local_box_rot(0,gy,cz+cl*.48f,W*.72f,gh*.92f,.045f,-rake,0,0,.07f,.11f,.14f);
@@ -86,7 +102,7 @@ static void vehicle180_cockpit_local(int model,float steerDeg){
 
 static void vehicle160_draw_model_local(int model,float r,float g,float b,int braking,int headlights,float spinDeg,float steerDeg,int drawWheels){
   vehicle160_resolve();const CarVisual160*v=&g_car_visual160[model];int asset=g_car_asset160[model];renderer09_set_material(MAT09_CAR_PAINT);if(asset>=0)asset08_draw_mesh(asset,r,g,b);else{draw_local_box(0,.70f,0,v->w,.62f,v->l,r,g,b);draw_local_box(0,1.10f,v->cabinZ,v->w*.78f,.62f,v->cabinL,r*.82f,g*.82f,b*.82f);}vehicle160_trim(model,braking,headlights);
-  if(drawWheels){float hx=v->track*.5f,hz=v->wheelbase*.5f;for(int k=0;k<4;k++){int front=k<2,right=(k&1);float comp=.50f;if(model==g_player_model160[g_player.car&3])comp=g_wheels15[k].compression;float x=right?hx:-hx,z=front?hz:-hz,y=.34f-(comp-.50f)*.10f;vehicle160_wheel(x,y,z,v->wheelR,.20f,front?steerDeg:0,spinDeg*(right?1.0f:-1.0f));}}renderer09_set_material(MAT09_GENERIC);
+  if(drawWheels){float hx=v->track*.5f,hz=v->wheelbase*.5f;for(int k=0;k<4;k++){int front=k<2,right=(k&1);float comp=.50f;if(model==g_player_model160[g_player.car&3])comp=g_wheels15[k].compression;float x=right?hx:-hx,z=front?hz:-hz,y=.34f-(comp-.50f)*.10f;if(model==0)vehicle505_uno_wheel(x,y,z,front?steerDeg:0,spinDeg*(right?1.0f:-1.0f));else vehicle160_wheel(x,y,z,v->wheelR,.20f,front?steerDeg:0,spinDeg*(right?1.0f:-1.0f));}}renderer09_set_material(MAT09_GENERIC);
 }
 
 static void draw_player_vehicle(void){
