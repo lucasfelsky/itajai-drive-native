@@ -64,8 +64,14 @@ def main():
     if sha256(updater) != sha256(updater_next):
         fail("beta updater handoff binary differs")
     pak = check_pak()
-    check_beta_manifest(version, (exe, pak, updater_next))
-    print(f"BETA RELEASE CHECK PASSED: Itajai Drive Renderer {version}")
+    build = DIST / "BUILD.txt"
+    if not build.is_file():
+        fail("beta BUILD.txt missing")
+    build_id = build.read_text(encoding="ascii").strip()
+    if not re.fullmatch(r"[0-9a-f]{40}", build_id):
+        fail("beta BUILD.txt must contain the gated commit SHA")
+    check_beta_manifest(version, (exe, pak, updater_next, build))
+    print(f"BETA RELEASE CHECK PASSED: Itajai Drive Renderer {version} build {build_id[:12]}")
 
 
 if __name__ == "__main__":
