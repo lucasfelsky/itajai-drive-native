@@ -6,6 +6,7 @@
 static int g_world28_roofs=0,g_world28_mech=0,g_world28_green=0,g_world28_podium=0;
 static float world28_hash01(u32 s){s^=s>>16;s*=0x7feb352du;s^=s>>15;s*=0x846ca68bu;s^=s>>16;return (s&65535u)/65535.0f;}
 static void world28_roof_for(const Building*b){
+  if(landmark506_replaces(b))return;
   float dx=b->c.x-g_player.body.p.x,dz=b->c.z-g_player.body.p.z;if(dx*dx+dz*dz>245.0f*245.0f)return;int cls=urban10_building_class(b);float base=terrain11_height(b->c.x,b->c.z),top=base+b->h;float q=world28_hash01(b->seed^0x51a3u);
   renderer09_set_material(MAT09_BUILDING);
   if(cls==BLD10_HOUSE&&b->sx>3.2f&&b->sz>3.2f){float h=.55f+.55f*q;draw_box(v3(b->c.x,top+h*.35f,b->c.z),b->sx*.86f,h,b->sz*.72f,0,.46f+.12f*q,.28f+.08f*q,.20f+.05f*q);g_world28_roofs++;}

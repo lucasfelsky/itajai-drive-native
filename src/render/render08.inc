@@ -17,7 +17,7 @@ static void draw_roads(void){
 
 static void draw_buildings(void){
   if(!g_stream_ready08||g_stream_building_count08<=0){draw_buildings_legacy07();stream08_draw_assets();return;}
-  for(int i=0;i<g_stream_building_count08;i++){Building*b=&g_stream_buildings08[i].b;float dx=b->c.x-g_player.body.p.x,dz=b->c.z-g_player.body.p.z,ds=dx*dx+dz*dz;if(ds>520*520)continue;float h=(float)((b->seed>>8)&255)/255.0f;float r=.38f+h*.25f,g=.38f+h*.20f,bl=.36f+h*.18f;if(b->h>30){r=.48f;g=.50f;bl=.52f;}draw_box(b->c,b->sx,b->h,b->sz,0,r,g,bl);}stream08_draw_assets();
+  for(int i=0;i<g_stream_building_count08;i++){Building*b=&g_stream_buildings08[i].b;if(landmark506_replaces(b))continue;float dx=b->c.x-g_player.body.p.x,dz=b->c.z-g_player.body.p.z,ds=dx*dx+dz*dz;if(ds>520*520)continue;float h=(float)((b->seed>>8)&255)/255.0f;float r=.38f+h*.25f,g=.38f+h*.20f,bl=.36f+h*.18f;if(b->h>30){r=.48f;g=.50f;bl=.52f;}draw_box(b->c,b->sx,b->h,b->sz,0,r,g,bl);}stream08_draw_assets();
 }
 
 static void draw_hud(float fps){

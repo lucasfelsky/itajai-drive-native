@@ -1,3 +1,6 @@
+#ifdef ITAJAI_LANDMARK_QA
+#include "visual506_qa.inc"
+#else
 // Compile with /DITAJAI_VISUAL_QA for repeatable, HUD-free framebuffer evidence.
 // This file is absent from normal beta execution; never reads gameplay input.
 __declspec(dllimport) void __stdcall glReadPixels(int,int,int,int,unsigned int,unsigned int,void*);
@@ -28,3 +31,5 @@ static void qa505_capture(float fps){
   sprintf(path,"%s\\qa505-metrics-%d.txt",g_exe_dir,g_qa505_scene);char metrics[256];int len=sprintf(metrics,"scene=%d fps=%.1f boxes=%d facades=%d scenes=%d draws=%d assets=%d\n",g_qa505_scene,fps,g_world505_boxes,g_world505_facades,g_world505_scenes,g_draw_calls,g_asset_count08);file_write_all(path,metrics,len);
   g_qa505_frame=0;if(++g_qa505_scene==4)ExitProcess(0);
 }
+
+#endif

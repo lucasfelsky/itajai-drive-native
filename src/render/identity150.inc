@@ -45,7 +45,7 @@ static void identity150_port(Building*b){
 
 static void identity150_building_pass(void){
   g_identity_signs150=0;g_identity_balconies150=0;g_identity_walls150=0;g_identity_port150=0;g_identity_parking150=0;if(!g_stream_ready08)return;
-  for(int i=0;i<g_stream_building_count08;i++){Building*b=&g_stream_buildings08[i].b;if(!identity150_near(b->c,280.0f))continue;int cls=urban10_building_class(b),sector=urban10_sector_at(b->c,NULL);if(cls==BLD10_COMMERCIAL)identity150_commercial(b);else if(cls==BLD10_HOUSE)identity150_house(b);else if(cls==BLD10_INDUSTRIAL)identity150_port(b);if(cls==BLD10_APARTMENT)identity150_balconies(b,sector);}
+  for(int i=0;i<g_stream_building_count08;i++){Building*b=&g_stream_buildings08[i].b;if(landmark506_replaces(b))continue;if(!identity150_near(b->c,280.0f))continue;int cls=urban10_building_class(b),sector=urban10_sector_at(b->c,NULL);if(cls==BLD10_COMMERCIAL)identity150_commercial(b);else if(cls==BLD10_HOUSE)identity150_house(b);else if(cls==BLD10_INDUSTRIAL)identity150_port(b);if(cls==BLD10_APARTMENT)identity150_balconies(b,sector);}
 }
 
 static void identity150_service_pass(void){
@@ -58,7 +58,7 @@ static void identity150_landmarks_geometry(void){
 
 static void identity150_text_pass(void){
   renderer09_suspend_shader();
-  if(g_stream_ready08){for(int i=0;i<g_stream_building_count08;i++){Building*b=&g_stream_buildings08[i].b;if(urban10_building_class(b)!=BLD10_COMMERCIAL||!identity150_near(b->c,170.0f))continue;const char*name=g_shop_names150[(b->seed>>9)%ID150_SHOPS];float base=identity150_base(b);identity150_text3d(v3(b->c.x-b->sx*.30f,base+2.60f,b->c.z+b->sz*.5f+.24f),name,.98f,.91f,.70f);}}
+  if(g_stream_ready08){for(int i=0;i<g_stream_building_count08;i++){Building*b=&g_stream_buildings08[i].b;if(landmark506_replaces(b))continue;if(urban10_building_class(b)!=BLD10_COMMERCIAL||!identity150_near(b->c,170.0f))continue;const char*name=g_shop_names150[(b->seed>>9)%ID150_SHOPS];float base=identity150_base(b);identity150_text3d(v3(b->c.x-b->sx*.30f,base+2.60f,b->c.z+b->sz*.5f+.24f),name,.98f,.91f,.70f);}}
   for(int i=0;i<ID150_LANDMARKS;i++){V3 p=g_identity_landmark_defs150[i].p;if(!identity150_near(p,520.0f))continue;float base=terrain11_height(p.x,p.z);float w=i==2?15.0f:i==6?12.0f:10.0f;identity150_text3d(v3(p.x-w*.39f,base+2.35f,p.z+.24f),g_identity_landmark_defs150[i].name,.95f,.95f,.88f);}
   if(g_stream_ready08){for(int i=0;i<g_stream_road_count08;i++){StreamRoad08*s=&g_stream_roads08[i];if(s->road<0||s->road>=g_world.roadCount||g_world.roads[s->road].width<10.0f||(roads130_hash(s)%79u)!=3u)continue;V3 m=vmul(vadd(s->a,s->b),.5f);if(!identity150_near(m,220.0f))continue;int sector=urban10_sector_at(m,NULL);if(sector==4||sector==5||sector==6)continue;V3 d=vsub(s->b,s->a);float len=vlen(d);if(len<18)continue;V3 f=vmul(d,1.0f/len),rt=v3(f.z,0,-f.x);float side=(roads130_hash(s)&1u)?1.0f:-1.0f;V3 p=vadd(m,vmul(rt,side*(g_world.roads[s->road].width*.5f+12.3f)));float base=terrain11_height(p.x,p.z);identity150_text3d(v3(p.x-.55f,base+4.3f,p.z),"POSTO",1.0f,.92f,.72f);}}
   renderer09_resume_shader();
