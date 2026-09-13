@@ -4,6 +4,8 @@
 Supported source subset is intentionally small but standard: one mesh primitive,
 POSITION accessor required, optional indexed triangles, embedded/external buffers,
 and .glb JSON/BIN chunks. Runtime vertices are baked as pos3/normal3/uv2 floats.
+Assets may opt into position-welded normal groups with extras.smoothNormals=true;
+this keeps procedural vehicle shells visually smooth without changing runtime cost.
 """
 import argparse, base64, json, math, pathlib, struct, urllib.parse
 
@@ -58,6 +60,15 @@ def normalize(v):
     x,y,z=v; l=math.sqrt(x*x+y*y+z*z)
     return (x/l,y/l,z/l) if l>1e-12 else (0.0,1.0,0.0)
 
+def smooth_normal_groups(pos,norms,precision=5):
+    """Average normals for duplicate shell vertices that share a position."""
+    groups={}
+    for p,n in zip(pos,norms):
+        k=(round(p[0],precision),round(p[1],precision),round(p[2],precision))
+        a=groups.setdefault(k,[0.0,0.0,0.0]);a[0]+=n[0];a[1]+=n[1];a[2]+=n[2]
+    groups={k:normalize(v) for k,v in groups.items()}
+    return [groups[(round(p[0],precision),round(p[1],precision),round(p[2],precision))] for p in pos]
+
 def compile_one(path: pathlib.Path):
     doc,glb_bin=read_source(path)
     buffers=[load_buffer(doc,glb_bin,path.parent,i) for i in range(len(doc.get('buffers',[])))]
@@ -73,7 +84,8 @@ def compile_one(path: pathlib.Path):
         ab=(b[0]-a[0],b[1]-a[1],b[2]-a[2]); ac=(c[0]-a[0],c[1]-a[1],c[2]-a[2])
         n=(ab[1]*ac[2]-ab[2]*ac[1],ab[2]*ac[0]-ab[0]*ac[2],ab[0]*ac[1]-ab[1]*ac[0])
         for k in (ia,ib,ic): norms[k][0]+=n[0]; norms[k][1]+=n[1]; norms[k][2]+=n[2]
-    norms=[normalize(n) for n in norms]
+    if doc.get('extras',{}).get('smoothNormals',False): norms=smooth_normal_groups(pos,norms)
+    else: norms=[normalize(n) for n in norms]
     mins=[min(p[j] for p in pos) for j in range(3)]; maxs=[max(p[j] for p in pos) for j in range(3)]
     sx=max(maxs[0]-mins[0],1e-6); sz=max(maxs[2]-mins[2],1e-6)
     verts=[(*p,*n,(p[0]-mins[0])/sx,(p[2]-mins[2])/sz) for p,n in zip(pos,norms)]
