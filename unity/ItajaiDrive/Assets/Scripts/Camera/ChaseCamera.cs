@@ -17,12 +17,34 @@ namespace ItajaiDrive.CameraSystem
         {
             target = value;
             targetBody = target == null ? null : target.GetComponent<Rigidbody>();
+            if (target != null)
+                SnapToTarget();
         }
 
         private void Awake()
         {
             if (target != null)
+            {
                 targetBody = target.GetComponent<Rigidbody>();
+                SnapToTarget();
+            }
+        }
+
+        private Vector3 WorldOffset(Vector3 offset)
+        {
+            // Do not use TransformPoint here. Vehicle visual dimensions may live on
+            // scaled children, and camera distance must always remain in world metres.
+            return target.position + target.rotation * offset;
+        }
+
+        private void SnapToTarget()
+        {
+            if (target == null)
+                return;
+
+            transform.position = WorldOffset(localOffset);
+            Vector3 lookPoint = target.position + Vector3.up * lookHeight;
+            transform.rotation = Quaternion.LookRotation(lookPoint - transform.position, Vector3.up);
         }
 
         private void LateUpdate()
@@ -36,7 +58,7 @@ namespace ItajaiDrive.CameraSystem
             if (reversing)
                 offset.z = Mathf.Abs(localOffset.z);
 
-            Vector3 desired = target.TransformPoint(offset);
+            Vector3 desired = WorldOffset(offset);
             float posT = 1f - Mathf.Exp(-positionSharpness * Time.deltaTime);
             transform.position = Vector3.Lerp(transform.position, desired, posT);
 
