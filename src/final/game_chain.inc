@@ -90,5 +90,8 @@
 #include "../sim/handling500_game.inc"
 #undef game_update
 #define game_update_legacy500 game_update_legacy510
+#define game_update game_update_legacy_events500
 #include "../sim/events500_game.inc"
+#undef game_update
 #undef game_update_legacy500
+#include "../sim/debug500_game.inc"
