@@ -1,7 +1,9 @@
 // -----------------------------------------------------------------------------
 // 4.0 Renderer polish: road readability details that complement the existing
 // shader/headlight/wet-window stack instead of replacing it.
+// 5.0 appends a junction merge pass after this layer.
 // -----------------------------------------------------------------------------
+static void roads500_draw_junctions(void);
 static int g_render400_reflectors=0,g_render400_wet_markers=0;
 static void render400_road_details(void){
   g_render400_reflectors=g_render400_wet_markers=0;if(!g_stream_ready08)return;int dark=atmos280_dark();float wet=clampf(g_wetness60,0,1);renderer09_set_material(MAT09_GENERIC);
@@ -10,6 +12,6 @@ static void render400_road_details(void){
     float br=dark?1.0f:.62f,bg=dark?.84f:.62f,bb=dark?.43f:.58f;for(int side=-1;side<=1;side+=2){V3 q=vadd(m,vmul(rt,side*edge));draw_box(v3(q.x,y,q.z),.12f,.035f,.20f,(float)atan2((double)f.x,(double)f.z),br,bg,bb);g_render400_reflectors++;}
     if(wet>.25f&&g_render400_wet_markers<28&&(h%4u)==0u){V3 q=vadd(m,vmul(rt,((h>>3)&1u)?.7f:-.7f));draw_box(v3(q.x,y-.018f,q.z),.10f,.018f,minf(2.8f,len*.18f),(float)atan2((double)f.x,(double)f.z),.44f+.22f*wet,.55f+.20f*wet,.62f+.18f*wet);g_render400_wet_markers++;}
   }
-  renderer09_set_material(MAT09_GENERIC);
+  renderer09_set_material(MAT09_GENERIC);roads500_draw_junctions();
 }
 static void render400_overlay(void){if(!g_debug||g_settings_menu_open||(g_photo70&&g_photo70_hide_hud))return;settings_draw_2d_begin();char b[180];hud_panel(20,(float)g_h-326,520,28);sprintf(b,"RENDER 4.0 // reflectors %d | wet road accents %d",g_render400_reflectors,g_render400_wet_markers);gl_text(34,(float)g_h-305,b,.68f,.80f,.90f);settings_draw_2d_end();}
