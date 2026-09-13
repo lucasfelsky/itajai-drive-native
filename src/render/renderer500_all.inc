@@ -10,4 +10,5 @@
 #include "sky500_render.inc"
 #include "roads500_render.inc"
 #include "city500_density.inc"
+#include "lighting500_render.inc"
 #include "events500_render.inc"
