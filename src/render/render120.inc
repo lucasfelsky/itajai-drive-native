@@ -1,10 +1,11 @@
 // -----------------------------------------------------------------------------
 // 1.2 Renderer 2.0 presentation layer.
 // Adds a fallback-visible headlight pool on top of the shader headlight and
-// exposes renderer/weather state in debug telemetry.
+// exposes renderer/weather state in debug telemetry. Renderer 5.0 owns its HDR
+// vehicle-light pass, so this compatibility pool is skipped only on that path.
 // -----------------------------------------------------------------------------
 static void render120_headlight_pool(void){
-  float night=(g_hour>=6&&g_hour<=18)?0.0f:1.0f;float strength=clampf(night+g_wetness60*.35f,0,1);if(strength<.05f)return;
+  if(g_renderer09_linear_output)return;float night=(g_hour>=6&&g_hour<=18)?0.0f:1.0f;float strength=clampf(night+g_wetness60*.35f,0,1);if(strength<.05f)return;
   V3 f=v3((float)sin((double)g_player.body.yaw),0,(float)cos((double)g_player.body.yaw)),r=v3(f.z,0,-f.x);V3 p=vadd(g_player.body.p,vmul(f,1.65f));float nearW=1.20f,farW=5.8f,len=28.0f;V3 a=vadd(p,vmul(r,-nearW)),b=vadd(p,vmul(r,nearW)),q=vadd(p,vmul(f,len)),c=vadd(q,vmul(r,farW)),d=vadd(q,vmul(r,-farW));a.y=b.y=.045f;c.y=d.y=.045f;
   renderer09_suspend_shader();glEnable(GL_BLEND);glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);glDisable(GL_TEXTURE_2D);glBegin(GL_QUADS);glColor4f(1.0f,.88f,.68f,.11f*strength);glVertex3f(a.x,a.y,a.z);glVertex3f(b.x,b.y,b.z);glColor4f(1.0f,.78f,.48f,.008f);glVertex3f(c.x,c.y,c.z);glVertex3f(d.x,d.y,d.z);glEnd();glDisable(GL_BLEND);renderer09_resume_shader();g_draw_calls++;
 }
