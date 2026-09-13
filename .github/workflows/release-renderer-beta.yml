@@ -74,6 +74,7 @@ jobs:
           stable_manifest_url=$stable
           beta_manifest_url=$beta
           channel=beta
+          installed_channel=beta
           auto_launch=1
           "@ | Set-Content -Encoding ascii dist/update_config.ini
           python tools/make_manifest.py --version $version --base-url $base --notes "Renderer 5.0 Beta $version // HDR + modern lighting + HQ vehicles" dist/ItajaiDriveNative.exe dist/itajai_assets_v08.pak dist/ItajaiDriveUpdater.next.exe | Set-Content -Encoding ascii dist/manifest.txt
