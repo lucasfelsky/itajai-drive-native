@@ -12,7 +12,7 @@ static void renderer09_shadow_quad(float x,float z,float sx,float sz,float ox,fl
 static void renderer09_draw_shadows(void){
   renderer09_suspend_shader();glEnable(GL_BLEND);glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);glBegin(GL_QUADS);float ox=(g_hour<12?1.8f:-1.8f),oz=1.25f;renderer09_shadow_quad(g_player.body.p.x,g_player.body.p.z,2.1f,4.4f,ox*.35f,oz*.35f,.28f);
   for(int i=0;i<g_traffic_count;i++){Traffic*t=&g_traffic[i];if(!t->active)continue;float dx=t->p.x-g_player.body.p.x,dz=t->p.z-g_player.body.p.z;if(dx*dx+dz*dz<180*180)renderer09_shadow_quad(t->p.x,t->p.z,1.9f,4.1f,ox*.3f,oz*.3f,.20f);}
-  if(g_stream_ready08)for(int i=0;i<g_stream_building_count08;i++){Building*b=&g_stream_buildings08[i].b;float dx=b->c.x-g_player.body.p.x,dz=b->c.z-g_player.body.p.z;if(dx*dx+dz*dz>210*210)continue;float reach=clampf(b->h*.10f,1.2f,8.0f);renderer09_shadow_quad(b->c.x,b->c.z,b->sx,b->sz,ox*reach*.18f,oz*reach*.18f,.11f);}
+  if(g_stream_ready08)for(int i=0;i<g_stream_building_count08;i++){Building*b=&g_stream_buildings08[i].b;if(landmark506_replaces(b))continue;float dx=b->c.x-g_player.body.p.x,dz=b->c.z-g_player.body.p.z;if(dx*dx+dz*dz>210*210)continue;float reach=clampf(b->h*.10f,1.2f,8.0f);renderer09_shadow_quad(b->c.x,b->c.z,b->sx,b->sz,ox*reach*.18f,oz*reach*.18f,.11f);}
   for(int i=0;i<g_asset_instance_count08;i++){AssetInstance08*x=&g_asset_instances08[i];float dx=x->p.x-g_player.body.p.x,dz=x->p.z-g_player.body.p.z;if(dx*dx+dz*dz<140*140){float rr=(x->asset>=0&&x->asset<g_asset_count08)?g_assets08[x->asset].colliderRadius*x->scale:.5f;renderer09_shadow_quad(x->p.x,x->p.z,maxf(.5f,rr*1.4f),maxf(.5f,rr*1.4f),ox*.25f,oz*.25f,.16f);}}
   glEnd();glDisable(GL_BLEND);renderer09_resume_shader();g_draw_calls++;
 }

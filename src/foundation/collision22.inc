@@ -17,6 +17,7 @@ static int collision22_point_in_poly(int source,V3 p){
 
 // Returns -1 when this building has no exact polygon, 0 for no contact, 1 hit.
 static int collision22_building_contact(int source,V3 p,float radius,Contact*out,int colliderId){
+  if(source<=-100)return landmark506_contact(source,p,radius,out,colliderId);
   if(source<0||source>=g_world.buildingCount)return -1;int n=(int)g_building_poly_count12[source];if(n<3)return -1;int start=g_building_poly_start12[source];
   float best=1e30f;V3 nearest=p;int bestEdge=0;
   for(int i=0;i<n;i++){
@@ -38,7 +39,7 @@ static int physics_resolve_static22(PhysicsBody*b,float*longSpeed){
     int n=foundation_query_colliders(b->p,b->radius+1.0f,ids,FOUNDATION_QUERY_MAX),hitThis=0;
     for(int i=0;i<n;i++){
       StaticCollider*c=&g_static_colliders[ids[i]];Contact ct;int hit=-1;
-      if(c->type==COLLIDER_BUILDING&&g_building12_ready)hit=collision22_building_contact(c->source,b->p,b->radius,&ct,ids[i]);
+      if(c->type==COLLIDER_BUILDING&&(g_building12_ready||c->source<=-100))hit=collision22_building_contact(c->source,b->p,b->radius,&ct,ids[i]);
       if(hit<0)hit=circle_aabb_contact(b->p,b->radius,c,&ct,ids[i]);
       if(!hit)continue;
       b->p=vadd(b->p,vmul(ct.normal,ct.penetration+.002f));float vn=vdot(b->vel,ct.normal);if(vn<0)b->vel=vsub(b->vel,vmul(ct.normal,(1.0f+b->restitution)*vn));

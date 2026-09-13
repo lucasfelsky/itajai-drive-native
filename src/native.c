@@ -26,6 +26,8 @@
 #undef traffic_spawn
 #include "world/urban10_world.inc"
 #include "foundation/globals.inc"
+static int landmark506_replaces(const Building*b);
+static void landmark506_colliders(void);
 #include "foundation/foundation.inc"
 #include "sim/sim06.inc"
 #include "settings/settings07_state.inc"
@@ -77,6 +79,7 @@
 #include "sim/sim11_game.inc"
 #undef game_update
 #include "world/building12.inc"
+#include "world/landmarks506.inc"
 #define game_update game_update_legacy12
 #include "sim/sim12_game.inc"
 #undef game_update

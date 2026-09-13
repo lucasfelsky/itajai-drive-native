@@ -39,7 +39,7 @@ static void graphics170_road_light_pass(void){
   }
   if(night>.02f){
     for(int i=0;i<g_asset_instance_count08;i++){AssetInstance08*x=&g_asset_instances08[i];if(x->asset!=g_graphics170_lamp_asset)continue;float dx=x->p.x-g_player.body.p.x,dz=x->p.z-g_player.body.p.z;if(dx*dx+dz*dz>180*180)continue;graphics170_pool(x->p.x,x->p.z,5.8f*x->scale,1.0f,.66f,.28f,.095f*night*(.75f+.35f*wet));g_graphics170_lamps++;}
-    if(g_stream_ready08)for(int i=0;i<g_stream_building_count08;i++){Building*b=&g_stream_buildings08[i].b;if(urban10_building_class(b)!=BLD10_COMMERCIAL||(b->seed&3u)!=1u)continue;float dx=b->c.x-g_player.body.p.x,dz=b->c.z-g_player.body.p.z;if(dx*dx+dz*dz>145*145)continue;graphics170_pool(b->c.x,b->c.z+b->sz*.5f+1.8f,3.6f,1.0f,.48f,.18f,.055f*night);}
+    if(g_stream_ready08)for(int i=0;i<g_stream_building_count08;i++){Building*b=&g_stream_buildings08[i].b;if(landmark506_replaces(b))continue;if(urban10_building_class(b)!=BLD10_COMMERCIAL||(b->seed&3u)!=1u)continue;float dx=b->c.x-g_player.body.p.x,dz=b->c.z-g_player.body.p.z;if(dx*dx+dz*dz>145*145)continue;graphics170_pool(b->c.x,b->c.z+b->sz*.5f+1.8f,3.6f,1.0f,.48f,.18f,.055f*night);}
     graphics170_beam(g_player.body.p,g_player.body.yaw,27.0f,.105f*night,1);for(int i=0;i<g_traffic_count;i++){Traffic*t=&g_traffic[i];if(!t->active)continue;float dx=t->p.x-g_player.body.p.x,dz=t->p.z-g_player.body.p.z;if(dx*dx+dz*dz>85*85)continue;graphics170_beam(t->p,t->yaw,14.0f,.035f*night,1);if(g_traffic_brake_amount[i]>.12f){V3 f=v3((float)sin((double)t->yaw),0,(float)cos((double)t->yaw));V3 rear=vsub(t->p,vmul(f,2.0f));graphics170_pool(rear.x,rear.z,1.5f,1.0f,.03f,.02f,.055f*night);}}
   }
   glDisable(GL_BLEND);renderer09_resume_shader();g_draw_calls++;

@@ -17,7 +17,7 @@ static int vehicle25_contact_pose(V3 p,float yaw,Contact*out,V3*leverOut){
   static int ids[FOUNDATION_QUERY_MAX];V3 pts[5];vehicle25_centers(p,yaw,pts);const VehicleHull23*h=&g_vehicle_hull23[g_player.car&3];
   int n=foundation_query_colliders(p,h->length*.58f+1.0f,ids,FOUNDATION_QUERY_MAX),found=0;float best=-1;Contact bestCt;V3 bestLever=v3(0,0,0);
   for(int i=0;i<n;i++){int id=ids[i];if(id<0||id>=g_static_collider_count)continue;StaticCollider*c=&g_static_colliders[id];for(int k=0;k<5;k++){
-    Contact ct;int hit=-1;if(c->type==COLLIDER_BUILDING&&g_building12_ready)hit=collision22_building_contact(c->source,pts[k],g_vehicle25_radius,&ct,id);if(hit<0)hit=circle_aabb_contact(pts[k],g_vehicle25_radius,c,&ct,id);if(!hit)continue;
+    Contact ct;int hit=-1;if(c->type==COLLIDER_BUILDING&&(g_building12_ready||c->source<=-100))hit=collision22_building_contact(c->source,pts[k],g_vehicle25_radius,&ct,id);if(hit<0)hit=circle_aabb_contact(pts[k],g_vehicle25_radius,c,&ct,id);if(!hit)continue;
     if(!found||ct.penetration>best){found=1;best=ct.penetration;bestCt=ct;bestLever=vsub(pts[k],p);}
   }}
   if(found){if(out)*out=bestCt;if(leverOut)*leverOut=bestLever;}return found;

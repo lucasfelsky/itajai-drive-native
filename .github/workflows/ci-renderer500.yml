@@ -26,6 +26,11 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'native compile failed' }
           lld-link /nologo /entry:WinMainCRTStartup /subsystem:windows /machine:x64 /nodefaultlib /out:dist/ItajaiDriveNative.exe dist/native.obj kernel32.lib user32.lib gdi32.lib winhttp.lib ws2_32.lib iphlpapi.lib opengl32.lib winmm.lib @crt
           if ($LASTEXITCODE -ne 0) { throw 'native link failed' }
+      - name: Validate authored landmark ownership and collision
+        shell: pwsh
+        run: |
+          python tools/validate_landmarks.py
+          if ($LASTEXITCODE -ne 0) { throw 'landmark validation failed' }
       - name: Validate 5.0 asset pipeline
         shell: pwsh
         run: |

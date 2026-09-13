@@ -84,7 +84,7 @@ static void world505_facade(Building*b,int secondary){
 static void world505_buildings(void){
   // Nearest first so streaming order cannot starve the player's own block.
   int ids[64],count=0;float ds[64];
-  for(int i=0;i<g_stream_building_count08;i++){Building*b=&g_stream_buildings08[i].b;if(!world504_core(b->c)||!city340_near(b->c,420))continue;V3 d=vsub(b->c,g_player.body.p);float dist=d.x*d.x+d.z*d.z;int k=count;if(k==64){if(dist>=ds[63])continue;k=63;}else count++;while(k>0&&ds[k-1]>dist){if(k<64){ds[k]=ds[k-1];ids[k]=ids[k-1];}k--;}ds[k]=dist;ids[k]=i;}
+  for(int i=0;i<g_stream_building_count08;i++){Building*b=&g_stream_buildings08[i].b;if(landmark506_replaces(b))continue;if(!world504_core(b->c)||!city340_near(b->c,420))continue;V3 d=vsub(b->c,g_player.body.p);float dist=d.x*d.x+d.z*d.z;int k=count;if(k==64){if(dist>=ds[63])continue;k=63;}else count++;while(k>0&&ds[k-1]>dist){if(k<64){ds[k]=ds[k-1];ids[k]=ids[k-1];}k--;}ds[k]=dist;ids[k]=i;}
   for(int i=0;i<count&&g_world505_boxes<1250;i++){Building*b=&g_stream_buildings08[ids[i]].b;world505_facade(b,0);if(i<10&&city340_near(b->c,150))world505_facade(b,1);}
 }
 static void world505_bench(V3 p,float yaw){

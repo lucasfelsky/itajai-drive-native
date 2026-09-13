@@ -13,7 +13,7 @@ static void draw_roads(void){
 }
 static void draw_buildings(void){
   if(!g_stream_ready08||g_stream_building_count08<=0){renderer09_set_material(3);draw_buildings_legacy07();renderer09_set_material(0);stream08_draw_assets();return;}renderer09_set_material(3);
-  for(int i=0;i<g_stream_building_count08;i++){Building*b=&g_stream_buildings08[i].b;float dx=b->c.x-g_player.body.p.x,dz=b->c.z-g_player.body.p.z,ds=dx*dx+dz*dz;if(ds>520*520)continue;float h=(float)((b->seed>>8)&255)/255.0f;float r=.72f+h*.20f,g=.72f+h*.16f,bl=.70f+h*.14f;if(b->h>30){r=.78f;g=.80f;bl=.84f;}draw_box(b->c,b->sx,b->h,b->sz,0,r,g,bl);}renderer09_set_material(0);stream08_draw_assets();
+  for(int i=0;i<g_stream_building_count08;i++){Building*b=&g_stream_buildings08[i].b;if(landmark506_replaces(b))continue;float dx=b->c.x-g_player.body.p.x,dz=b->c.z-g_player.body.p.z,ds=dx*dx+dz*dz;if(ds>520*520)continue;float h=(float)((b->seed>>8)&255)/255.0f;float r=.72f+h*.20f,g=.72f+h*.16f,bl=.70f+h*.14f;if(b->h>30){r=.78f;g=.80f;bl=.84f;}draw_box(b->c,b->sx,b->h,b->sz,0,r,g,bl);}renderer09_set_material(0);stream08_draw_assets();
 }
 static void draw_hud(float fps){
   renderer09_end_world();draw_hud_legacy08(fps);if(g_settings_menu_open)return;settings_draw_2d_begin();hud_panel(20,20,500,31);gl_text(34,43,"ITAJAI DRIVE // NATIVE ENGINE 0.9.0",.92f,.95f,1);if(g_debug){char b[220];hud_panel(460,(float)g_h-92,360,64);sprintf(b,"RENDERER: %s",g_renderer09_shader?"GLSL 1.20 PROGRAMAVEL":"FIXED-FUNCTION FALLBACK");gl_text(476,(float)g_h-65,b,g_renderer09_shader?.54f:1.0f,g_renderer09_shader?1.0f:.70f,.62f);sprintf(b,"materiais: grass/asphalt/building | chuva %d",g_weather);gl_text(476,(float)g_h-42,b,.68f,.76f,.84f);}settings_draw_2d_end();

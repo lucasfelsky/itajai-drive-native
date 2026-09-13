@@ -10,6 +10,7 @@
 static int g_world503_landmarks=0,g_world503_props=0,g_world503_boats=0,g_world503_molhe_segments=0;
 
 static void world503_cafe_set(V3 p,float yaw,u32 h){
+  if(foundation_surface_at(p,NULL,NULL)==SURFACE_ASPHALT)return;
   float r=.30f+((h>>2)&3u)*.035f,g=.23f+((h>>5)&3u)*.025f,b=.16f;
   draw_box(v3(p.x,p.y+.42f,p.z),1.15f,.10f,1.15f,yaw,r,g,b);
   draw_box(v3(p.x,p.y+.22f,p.z),.13f,.45f,.13f,yaw,.22f,.20f,.18f);
@@ -39,7 +40,8 @@ static void world503_market(void){
   draw_box(v3(f.x,y+4.25f,f.z),24.8f,8.35f,.30f,yaw,.74f,.58f,.20f);
   draw_box(v3(f.x,y+8.30f,f.z-.03f),25.4f,.50f,.36f,yaw,.90f,.89f,.82f);
   for(int k=-4;k<=4;k+=2){V3 q=city340_rot(v3(p.x,y,p.z),k*2.65f,-11.12f,yaw);draw_box(v3(q.x,y+4.20f,q.z),.42f,8.0f,.22f,yaw,.91f,.90f,.84f);}
-  V3 gate=city340_rot(v3(p.x,y,p.z),0,-11.20f,yaw);draw_box(v3(gate.x,y+2.55f,gate.z),4.35f,5.0f,.24f,yaw,.12f,.12f,.10f);
+  architecture506_arch(city340_rot(v3(p.x,y+.18f,p.z),0,-11.30f,yaw),3.6f,5.2f,yaw,.15f,.22f,.15f);
+  for(int k=-3;k<=3;k+=2)architecture506_arch(city340_rot(v3(p.x,y+.18f,p.z),k*3.05f,-11.30f,yaw),1.8f,4.1f,yaw,.13f,.29f,.19f);
   for(int k=-3;k<=3;k+=2){V3 a=city340_rot(v3(p.x,y,p.z),k*3.05f,-11.38f,yaw);draw_box(v3(a.x,y+2.65f,a.z),2.15f,.22f,1.20f,yaw,.10f,.34f,.20f);}
   renderer09_suspend_shader();identity150_text3d(city340_rot(v3(p.x,y+6.55f,p.z),-3.2f,-11.42f,yaw),"MERCADO PUBLICO",.97f,.94f,.84f);renderer09_resume_shader();
   city360_assets_init();for(int s=-1;s<=1;s+=2)city360_asset(g_city360_palm,city340_rot(v3(p.x,0,p.z),s*13.8f,-15.5f,yaw),yaw,.92f,.22f,.50f,.22f);
@@ -48,8 +50,8 @@ static void world503_market(void){
 static void world503_matriz(void){
   // Igreja Matriz / Praca Irineu Bornhausen: reinforce the civic square with a
   // fountain, gardens and the pale-grey/white architectural rhythm seen on site.
-  V3 p=city340_geo(-26.90756,-48.66185);if(!city340_near(p,1000.0f))return;float y=terrain11_height(p.x,p.z),yaw=-.10f;renderer09_set_material(0);
-  for(int s=-1;s<=1;s+=2){V3 q=city340_rot(v3(p.x,y,p.z),s*7.05f,-21.4f,yaw);draw_box(v3(q.x,y+10.8f,q.z),.48f,20.4f,.36f,yaw,.65f,.68f,.70f);}
+  V3 p=city340_geo(-26.9074694,-48.6619194);if(!city340_near(p,1000.0f))return;float y=terrain11_height(p.x,p.z),yaw=-.10f;renderer09_set_material(0);
+
   V3 plaza=city340_rot(v3(p.x,y,p.z),0,-42.0f,yaw);city340_octagon(v3(plaza.x,y+.02f,plaza.z),5.4f,.42f,.76f,.73f,.67f);city340_octagon(v3(plaza.x,y+.45f,plaza.z),4.55f,.12f,.32f,.62f,.70f);draw_box(v3(plaza.x,y+1.55f,plaza.z),.13f,2.25f,.13f,0,.80f,.88f,.92f);
   for(int s=-1;s<=1;s+=2){V3 q=city340_rot(v3(p.x,0,p.z),s*18.0f,-38.0f,yaw);city360_asset(g_city360_tree,q,0,.88f,.20f,.47f,.19f);V3 b=city340_rot(v3(p.x,0,p.z),s*11.0f,-33.0f,yaw);city360_asset(g_city360_bench,b,yaw,.92f,.35f,.27f,.20f);}g_world503_landmarks++;
 }

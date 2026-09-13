@@ -23,35 +23,48 @@ static void city340_octagon(V3 c,float rad,float h,float r,float g,float b){
 }
 static void city340_cross(V3 p,float s){draw_box(v3(p.x,p.y+s*.58f,p.z),s*.15f,s*1.15f,s*.12f,0,.88f,.82f,.56f);draw_box(v3(p.x,p.y+s*.76f,p.z),s*.68f,s*.15f,s*.12f,0,.88f,.82f,.56f);}
 
+#include "architecture506.inc"
+
 static void city340_church(void){
   // Igreja Matriz do Santissimo Sacramento, Praca Irineu Bornhausen.
   V3 p=city340_geo(-26.9074694,-48.6619194);if(!city340_near(p,1200))return;float y=terrain11_height(p.x,p.z),yaw=-.10f;
-  renderer09_set_material(3);
+  renderer09_set_material(0);
   draw_box(v3(p.x,y+7.2f,p.z),19.0f,14.4f,34.0f,yaw,.90f,.90f,.87f);
   draw_box(city340_rot(v3(p.x,y+8.0f,p.z),0,-17.0f,yaw),18.0f,16.0f,4.6f,yaw,.92f,.92f,.89f);
   for(int s=-1;s<=1;s+=2){V3 t=city340_rot(v3(p.x,y,p.z),s*7.0f,-18.8f,yaw);draw_box(v3(t.x,y+12.0f,t.z),5.0f,24.0f,5.0f,yaw,.91f,.91f,.88f);city340_pyramid(v3(t.x,y+24.0f,t.z),5.8f,5.8f,9.5f,yaw,.55f,.48f,.38f);city340_cross(v3(t.x,y+33.5f,t.z),1.8f);}
   V3 mid=city340_rot(v3(p.x,y,p.z),0,-19.7f,yaw);city340_pyramid(v3(mid.x,y+16.0f,mid.z),10.0f,2.8f,8.4f,yaw,.88f,.88f,.85f);
-  draw_box(city340_rot(v3(p.x,y+8.0f,p.z),0,-20.15f,yaw),4.8f,6.8f,.30f,yaw,.19f,.24f,.28f);
-  draw_box(city340_rot(v3(p.x,y+14.0f,p.z),0,-20.17f,yaw),3.0f,3.0f,.32f,yaw,.42f,.30f,.20f);
+  for(int portal=-1;portal<=1;portal++)architecture506_arch(city340_rot(v3(p.x,y+.25f,p.z),portal*3.05f,-20.20f,yaw),2.45f,5.7f,yaw,.20f,.18f,.15f);
+  architecture506_rose(city340_rot(v3(p.x,y+12.9f,p.z),0,-20.20f,yaw),1.9f,yaw);
+  architecture506_clock(city340_rot(v3(p.x,y+19.4f,p.z),0,-21.15f,yaw),1.05f,yaw);
+  architecture506_roof(v3(p.x,y+14.45f,p.z),19.6f,33.8f,5.0f,yaw);
+  if(city340_near(p,400)){
+    for(int side=-1;side<=1;side+=2){
+      for(int k=0;k<5;k++){float z=-11+k*6.2f;V3 wall=city340_rot(v3(p.x,y+3.1f,p.z),side*9.58f,z,yaw);architecture506_arch(wall,2.3f,5.2f,yaw-side*1.5707963f,.15f,.25f,.32f);V3 butt=city340_rot(v3(p.x,y+6.8f,p.z),side*9.85f,z+2.3f,yaw);draw_box(butt,.75f,13.6f,1.0f,yaw,.77f,.78f,.73f);}
+      for(int fl=0;fl<2;fl++)architecture506_arch(city340_rot(v3(p.x,y+12.8f+fl*5.0f,p.z),side*7,-21.36f,yaw),1.65f,3.4f,yaw,.13f,.20f,.23f);
+      for(int fl=0;fl<3;fl++)draw_box(city340_rot(v3(p.x,y+8.8f+fl*7.1f,p.z),side*7,-18.8f,yaw),5.3f,.28f,5.3f,yaw,.75f,.77f,.72f);
+    }
+    for(int k=0;k<3;k++)draw_box(city340_rot(v3(p.x,y+.08f+k*.08f,p.z),0,-21.8f+k*.45f,yaw),10.5f-k*.6f,.16f,1.8f,yaw,.65f,.64f,.58f);
+  }
   renderer09_set_material(0);g_city340_landmarks_drawn++;
 }
 
 static void city340_market(void){
   // Mercado Publico / Mercado Velho, Rua Felix Busso Asseburg.
   V3 p=city340_geo(-26.9063889,-48.6541667);if(!city340_near(p,1000))return;float y=terrain11_height(p.x,p.z),yaw=.04f;
-  renderer09_set_material(3);float cr=.74f,cg=.61f,cb=.43f;
+  renderer09_set_material(0);float cr=.74f,cg=.61f,cb=.43f;
   draw_box(city340_rot(v3(p.x,y+3.4f,p.z),0,-7.0f,yaw),25.0f,6.8f,7.0f,yaw,cr,cg,cb);
   draw_box(city340_rot(v3(p.x,y+3.4f,p.z),0,7.0f,yaw),25.0f,6.8f,7.0f,yaw,cr,cg,cb);
   draw_box(city340_rot(v3(p.x,y+3.4f,p.z),-9.0f,0,yaw),7.0f,6.8f,14.0f,yaw,cr,cg,cb);
   draw_box(city340_rot(v3(p.x,y+3.4f,p.z),9.0f,0,yaw),7.0f,6.8f,14.0f,yaw,cr,cg,cb);
   draw_box(city340_rot(v3(p.x,y+4.2f,p.z),0,-10.65f,yaw),7.0f,2.2f,.35f,yaw,.25f,.18f,.12f);
   for(int i=-3;i<=3;i++)draw_box(city340_rot(v3(p.x,y+2.0f,p.z),i*3.0f,-10.75f,yaw),1.6f,2.8f,.18f,yaw,.18f,.24f,.22f);
+  for(int side=-1;side<=1;side+=2){architecture506_roof(city340_rot(v3(p.x,y+6.85f,p.z),0,side*7,yaw),7.4f,25.4f,1.75f,yaw+1.5707963f);architecture506_roof(city340_rot(v3(p.x,y+6.85f,p.z),side*9,0,yaw),7.4f,14.3f,1.75f,yaw);}
   renderer09_set_material(0);g_city340_landmarks_drawn++;
 }
 
 static void city340_centreventos(void){
   V3 p=city340_geo(-26.90959,-48.65287);if(!city340_near(p,1400))return;float y=terrain11_height(p.x,p.z),yaw=-.03f;
-  renderer09_set_material(3);draw_box(v3(p.x,y+5.1f,p.z),48.0f,10.2f,30.0f,yaw,.58f,.62f,.64f);
+  renderer09_set_material(0);draw_box(v3(p.x,y+5.1f,p.z),48.0f,10.2f,30.0f,yaw,.58f,.62f,.64f);
   for(int i=-2;i<=2;i++){float z=i*5.5f;float hh=1.6f-(float)(i*i)*.13f;draw_box(city340_rot(v3(p.x,y+10.6f,p.z),0,z,yaw),45.0f,hh,5.8f,yaw,.72f,.75f,.75f);}
   V3 f=city340_rot(v3(p.x,y+4.1f,p.z),0,-15.2f,yaw);draw_box(f,34.0f,6.4f,.35f,yaw,.12f,.25f,.31f);
   renderer09_set_material(0);g_city340_landmarks_drawn++;
@@ -89,7 +102,7 @@ static void city340_port(void){
 
 static void city340_facades(void){
   g_city340_facades_drawn=0;if(!g_stream_ready08)return;renderer09_set_material(0);
-  for(int i=0;i<g_stream_building_count08;i++){Building*b=&g_stream_buildings08[i].b;if(!city340_near(b->c,150.0f)||b->h<5.5f)continue;V3 core=city340_geo(-26.90675,-48.65845),delta=vsub(b->c,core);if(delta.x*delta.x+delta.z*delta.z<760*760)continue;int id=building12_find_seed(b->seed);if(id<0)continue;int n=g_building_poly_count12[id],s=g_building_poly_start12[id];if(n<3||s<0||s+n>g_building_vert_count12)continue;int floors=(int)(b->h/3.15f);if(floors<1)floors=1;if(floors>8)floors=8;float base=terrain11_height(b->c.x,b->c.z);for(int e=0;e<n;e+=maxf(1,n/6)){V3 a=g_building_verts12[s+e],c=g_building_verts12[s+(e+1)%n],d=vsub(c,a);float len=vlen(d);if(len<5.0f)continue;V3 m=vmul(vadd(a,c),.5f);float yaw=(float)atan2((double)-d.z,(double)d.x);int bays=(int)(len/3.6f);if(bays<1)bays=1;if(bays>7)bays=7;V3 f=vmul(d,1.0f/len);for(int fl=0;fl<floors;fl++){float yy=base+1.7f+fl*3.15f;if(yy>base+b->h-.7f)break;for(int k=0;k<bays;k++){float along=((k+.5f)/bays-.5f)*len*.82f;V3 w=vadd(m,vmul(f,along));float lit=((b->seed+(u32)(e*17+fl*31+k*13))&7u)==0u?1.0f:.0f;draw_box(v3(w.x,yy,w.z),minf(2.0f,len/bays*.52f),1.20f,.08f,yaw,lit?.78f:.17f,lit?.70f:.24f,lit?.49f:.29f);g_city340_facades_drawn++;}}}}
+  for(int i=0;i<g_stream_building_count08;i++){Building*b=&g_stream_buildings08[i].b;if(landmark506_replaces(b))continue;if(!city340_near(b->c,150.0f)||b->h<5.5f)continue;V3 core=city340_geo(-26.90675,-48.65845),delta=vsub(b->c,core);if(delta.x*delta.x+delta.z*delta.z<760*760)continue;int id=building12_find_seed(b->seed);if(id<0)continue;int n=g_building_poly_count12[id],s=g_building_poly_start12[id];if(n<3||s<0||s+n>g_building_vert_count12)continue;int floors=(int)(b->h/3.15f);if(floors<1)floors=1;if(floors>8)floors=8;float base=terrain11_height(b->c.x,b->c.z);for(int e=0;e<n;e+=maxf(1,n/6)){V3 a=g_building_verts12[s+e],c=g_building_verts12[s+(e+1)%n],d=vsub(c,a);float len=vlen(d);if(len<5.0f)continue;V3 m=vmul(vadd(a,c),.5f);float yaw=(float)atan2((double)-d.z,(double)d.x);int bays=(int)(len/3.6f);if(bays<1)bays=1;if(bays>7)bays=7;V3 f=vmul(d,1.0f/len);for(int fl=0;fl<floors;fl++){float yy=base+1.7f+fl*3.15f;if(yy>base+b->h-.7f)break;for(int k=0;k<bays;k++){float along=((k+.5f)/bays-.5f)*len*.82f;V3 w=vadd(m,vmul(f,along));float lit=((b->seed+(u32)(e*17+fl*31+k*13))&7u)==0u?1.0f:.0f;draw_box(v3(w.x,yy,w.z),minf(2.0f,len/bays*.52f),1.20f,.08f,yaw,lit?.78f:.17f,lit?.70f:.24f,lit?.49f:.29f);g_city340_facades_drawn++;}}}}
 }
 
 static void city340_draw(void){

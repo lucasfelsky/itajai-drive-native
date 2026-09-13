@@ -42,7 +42,7 @@ static int vehicle23_contact_pose(V3 p,float yaw,Contact*out,V3*leverOut){
   for(int i=0;i<n;i++){
     int id=ids[i];if(id<0||id>=g_static_collider_count)continue;StaticCollider*c=&g_static_colliders[id];
     for(int k=0;k<3;k++){
-      Contact ct;int hit=-1;if(c->type==COLLIDER_BUILDING&&g_building12_ready)hit=collision22_building_contact(c->source,circles[k],radius,&ct,id);if(hit<0)hit=circle_aabb_contact(circles[k],radius,c,&ct,id);if(!hit)continue;
+      Contact ct;int hit=-1;if(c->type==COLLIDER_BUILDING&&(g_building12_ready||c->source<=-100))hit=collision22_building_contact(c->source,circles[k],radius,&ct,id);if(hit<0)hit=circle_aabb_contact(circles[k],radius,c,&ct,id);if(!hit)continue;
       if(!found||ct.penetration>best){found=1;best=ct.penetration;bestCt=ct;bestLever=vsub(circles[k],p);}
     }
   }

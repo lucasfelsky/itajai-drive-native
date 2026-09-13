@@ -11,7 +11,7 @@ static float atmos280_hash01(u32 h){h^=h>>16;h*=0x7feb352du;h^=h>>15;h*=0x846ca6
 static void atmos280_draw_windows(void){
   g_atmos280_windows=0;if(!atmos280_dark())return;renderer09_set_material(MAT09_GENERIC);int cap=g_perf80_quality==0?34:g_perf80_quality==1?58:86;
   for(int i=0;i<g_stream_building_count08&&g_atmos280_windows<cap;i+=(g_perf80_quality==0?3:2)){
-    Building*b=&g_stream_buildings08[i].b;float dx=b->c.x-g_player.body.p.x,dz=b->c.z-g_player.body.p.z;if(dx*dx+dz*dz>235.0f*235.0f||b->h<4.5f)continue;u32 seed=b->seed^(u32)(i*2654435761u);float q=atmos280_hash01(seed);if(q<.38f)continue;
+    Building*b=&g_stream_buildings08[i].b;if(landmark506_replaces(b))continue;float dx=b->c.x-g_player.body.p.x,dz=b->c.z-g_player.body.p.z;if(dx*dx+dz*dz>235.0f*235.0f||b->h<4.5f)continue;u32 seed=b->seed^(u32)(i*2654435761u);float q=atmos280_hash01(seed);if(q<.38f)continue;
     int rows=(int)(b->h/4.0f);if(rows<1)rows=1;if(rows>4)rows=4;int cols=(int)(maxf(b->sx,b->sz)/8.0f);if(cols<1)cols=1;if(cols>4)cols=4;float base=terrain11_height(b->c.x,b->c.z);int front=((seed>>5)&1u)!=0;
     for(int r=0;r<rows&&g_atmos280_windows<cap;r++)for(int c=0;c<cols&&g_atmos280_windows<cap;c++){
       u32 hs=seed^(u32)(r*131+c*977);if(atmos280_hash01(hs)<.42f)continue;float warm=.70f+.25f*atmos280_hash01(hs^0x51u),yy=base+1.65f+r*3.45f;if(yy>base+b->h-.75f)continue;
