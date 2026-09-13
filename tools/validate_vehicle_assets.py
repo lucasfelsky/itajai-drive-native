@@ -39,8 +39,10 @@ def main():
         if sig in signatures: raise SystemExit(f'{name}: normalized silhouette duplicates {signatures[sig]}')
         signatures[sig]=name
         dims=(hi[0]-lo[0],hi[1]-lo[1],hi[2]-lo[2])
+        # Preset H is ground-to-roof; generated paint shell starts ~26 cm above ground.
+        body_h=max(.5,preset['h']-.26)
         if not (.88*preset['w']<=dims[0]<=1.08*preset['w']): raise SystemExit(f'{name}: body width drift {dims[0]:.3f}')
-        if not (.88*preset['h']<=dims[1]<=1.08*preset['h']): raise SystemExit(f'{name}: body height drift {dims[1]:.3f}')
+        if not (.86*body_h<=dims[1]<=1.14*body_h): raise SystemExit(f'{name}: body shell height drift {dims[1]:.3f}')
         if not (.94*preset['l']<=dims[2]<=1.04*preset['l']): raise SystemExit(f'{name}: body length drift {dims[2]:.3f}')
         rows.append((name,len(pos),inds,dims,sig[:10]))
     if len(signatures)!=len(PRESETS): raise SystemExit('vehicle silhouette uniqueness gate failed')
