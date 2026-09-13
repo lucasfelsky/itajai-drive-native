@@ -138,3 +138,4 @@
 #include "../render/vehicle400.inc"
 #include "../render/render400.inc"
 #include "../ui/ui400_render.inc"
+#include "../render/renderer500_all.inc"
