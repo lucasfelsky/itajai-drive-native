@@ -6,32 +6,6 @@
 static int g_city370_landmarks=0,g_city370_wayfinding=0,g_city370_lights=0;
 
 static void city370_window(V3 p,float w,float h,float yaw,float lit){draw_box(p,w,h,.07f,yaw,lit?.88f:.18f,lit?.65f:.28f,lit?.30f:.34f);if(lit)g_city370_lights++;}
-static void city370_palacio(void){
-  // Palacio Marcos Konder / Museu Historico de Itajai.
-  V3 p=city340_geo(-26.9072921,-48.6611456);if(!city340_near(p,1200.0f))return;float y=terrain11_height(p.x,p.z),yaw=-.03f;int dark=atmos280_dark();renderer09_set_material(0);
-  const float br=.84f,bg=.63f,bb=.25f,tr=.94f,tg=.91f,tb=.80f;
-  draw_box(v3(p.x,y+5.2f,p.z),25.0f,10.4f,13.0f,yaw,br,bg,bb);
-  // Three characteristic tower masses.
-  for(int s=-1;s<=1;s+=2){V3 t=city340_rot(v3(p.x,y,p.z),s*8.2f,-5.0f,yaw);draw_box(v3(t.x,y+7.2f,t.z),6.2f,14.4f,6.0f,yaw,br,bg,bb);draw_box(v3(t.x,y+14.7f,t.z),6.7f,.8f,6.5f,yaw,tr,tg,tb);city340_pyramid(v3(t.x,y+15.1f,t.z),6.5f,6.2f,4.2f,yaw,.40f,.27f,.15f);}
-  V3 ct=city340_rot(v3(p.x,y,p.z),0,3.0f,yaw);draw_box(v3(ct.x,y+10.0f,ct.z),5.8f,10.0f,5.5f,yaw,br,bg,bb);draw_box(v3(ct.x,y+15.2f,ct.z),6.3f,.8f,6.0f,yaw,tr,tg,tb);city340_pyramid(v3(ct.x,y+15.6f,ct.z),6.0f,5.8f,3.8f,yaw,.40f,.27f,.15f);
-  // White pilasters / cornices that define the yellow facade.
-  for(int k=-5;k<=5;k+=2){V3 q=city340_rot(v3(p.x,y,p.z),k*2.1f,-6.62f,yaw);draw_box(v3(q.x,y+5.3f,q.z),.24f,9.9f,.12f,yaw,tr,tg,tb);}
-  draw_box(city340_rot(v3(p.x,y+9.9f,p.z),0,-6.7f,yaw),23.2f,.42f,.14f,yaw,tr,tg,tb);
-  draw_box(city340_rot(v3(p.x,y+1.0f,p.z),0,-6.75f,yaw),23.5f,.75f,.16f,yaw,.60f,.39f,.18f);
-  // Individually placed arches on front, returns and the projecting towers.
-  if(city340_near(p,420)){
-    for(int fl=0;fl<2;fl++)for(int k=-2;k<=2;k++)architecture506_arch(city340_rot(v3(p.x,y+1.7f+fl*3.55f,p.z),k*3.0f,-6.88f,yaw),1.2f,2.2f,yaw,dark?.64f:.13f,dark?.47f:.23f,dark?.23f:.26f);
-    for(int side=-1;side<=1;side+=2){
-      for(int fl=0;fl<3;fl++)architecture506_arch(city340_rot(v3(p.x,y+2.0f+fl*3.65f,p.z),side*8.2f,-8.12f,yaw),1.8f,2.6f,yaw,.14f,.24f,.25f);
-      for(int k=0;k<3;k++)for(int fl=0;fl<2;fl++)architecture506_arch(city340_rot(v3(p.x,y+1.7f+fl*3.55f,p.z),side*12.62f,-3.8f+k*4.0f,yaw),1.1f,2.2f,yaw-side*1.5707963f,.14f,.24f,.25f);
-      for(int k=-1;k<=1;k+=2)draw_box(city340_rot(v3(p.x,y+7.0f,p.z),side*8.2f+k*2.8f,-8.10f,yaw),.32f,13.8f,.22f,yaw,tr,tg,tb);
-    }
-  }
-  V3 door=city340_rot(v3(p.x,y,p.z),0,-6.82f,yaw);draw_box(v3(door.x,y+2.1f,door.z),3.2f,4.0f,.16f,yaw,.27f,.23f,.19f);
-  renderer09_set_material(0);renderer09_suspend_shader();identity150_text3d(v3(door.x-4.7f,y+10.75f,door.z-.05f),"MUSEU HISTORICO",.98f,.94f,.82f);renderer09_resume_shader();
-  if(dark){for(int s=-1;s<=1;s+=2){V3 l=city340_rot(v3(p.x,y,p.z),s*10.0f,-9.0f,yaw);draw_box(v3(l.x,y+3.0f,l.z),.16f,6.0f,.16f,0,.95f,.72f,.34f);draw_box(v3(l.x,y+6.0f,l.z),.55f,.35f,.55f,0,1.0f,.82f,.45f);g_city370_lights++;}}
-  g_city370_landmarks++;
-}
 
 static void city370_stadium(void){
   // Estadio Dr. Hercilio Luz / Gigantao das Avenidas.
@@ -69,5 +43,5 @@ static void city370_wayfinding(void){
     draw_box(v3(q.x,y+2.3f,q.z),.22f,4.6f,.22f,yaw,.42f,.44f,.43f);V3 panel=vadd(q,vmul(f,2.9f));draw_box(v3(panel.x,y+4.45f,panel.z),6.4f,1.25f,.16f,yaw,.05f,.26f,.47f);renderer09_suspend_shader();identity150_text3d(v3(panel.x-2.65f,y+4.55f,panel.z-.12f),a,.94f,.97f,.94f);renderer09_resume_shader();g_city370_wayfinding++;}
 }
 
-static void city370_draw(void){g_city370_landmarks=0;g_city370_lights=0;city370_palacio();city370_stadium();city370_morro();city370_molhes_light();city370_wayfinding();renderer09_set_material(0);}
+static void city370_draw(void){g_city370_landmarks=0;g_city370_lights=0;city370_stadium();city370_morro();city370_molhes_light();city370_wayfinding();renderer09_set_material(0);}
 static void city370_overlay(void){if(!g_debug||g_settings_menu_open||(g_photo70&&g_photo70_hide_hud))return;settings_draw_2d_begin();char b[220];hud_panel(20,(float)g_h-262,610,28);sprintf(b,"CITY 3.7 // signature landmarks %d | wayfinding %d | night accents %d",g_city370_landmarks,g_city370_wayfinding,g_city370_lights);gl_text(34,(float)g_h-241,b,.72f,.84f,.72f);settings_draw_2d_end();}

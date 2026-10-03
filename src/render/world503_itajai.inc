@@ -32,38 +32,6 @@ static void world503_boat(V3 p,float yaw,float s,u32 h){
   else draw_box(v3(0,1.55f*s,-length*.20f),width*.68f,.07f,length*.28f,0,.20f,.32f,.34f);
   glPopMatrix();g_world503_boats++;
 }
-static void world503_market(void){
-  // Mercado Publico: warm yellow frontage, white vertical rhythm, green awnings
-  // and outdoor tables are the strongest street-level identifiers in photos.
-  V3 p=city340_geo(-26.9063889,-48.6541667);if(!city340_near(p,900.0f))return;float y=terrain11_height(p.x,p.z),yaw=.04f;renderer09_set_material(0);
-  V3 f=city340_rot(v3(p.x,y,p.z),0,-10.92f,yaw);
-  draw_box(v3(f.x,y+4.25f,f.z),24.8f,8.35f,.30f,yaw,.74f,.58f,.20f);
-  draw_box(v3(f.x,y+8.30f,f.z-.03f),25.4f,.50f,.36f,yaw,.90f,.89f,.82f);
-  for(int k=-4;k<=4;k+=2){V3 q=city340_rot(v3(p.x,y,p.z),k*2.65f,-11.12f,yaw);draw_box(v3(q.x,y+4.20f,q.z),.42f,8.0f,.22f,yaw,.91f,.90f,.84f);}
-  architecture506_arch(city340_rot(v3(p.x,y+.18f,p.z),0,-11.30f,yaw),3.6f,5.2f,yaw,.15f,.22f,.15f);
-  for(int k=-3;k<=3;k+=2)architecture506_arch(city340_rot(v3(p.x,y+.18f,p.z),k*3.05f,-11.30f,yaw),1.8f,4.1f,yaw,.13f,.29f,.19f);
-  for(int k=-3;k<=3;k+=2){V3 a=city340_rot(v3(p.x,y,p.z),k*3.05f,-11.38f,yaw);draw_box(v3(a.x,y+2.65f,a.z),2.15f,.22f,1.20f,yaw,.10f,.34f,.20f);}
-  renderer09_suspend_shader();identity150_text3d(city340_rot(v3(p.x,y+6.55f,p.z),-3.2f,-11.42f,yaw),"MERCADO PUBLICO",.97f,.94f,.84f);renderer09_resume_shader();
-  city360_assets_init();for(int s=-1;s<=1;s+=2)city360_asset(g_city360_palm,city340_rot(v3(p.x,0,p.z),s*13.8f,-15.5f,yaw),yaw,.92f,.22f,.50f,.22f);
-  for(int k=-2;k<=2;k++){V3 q=city340_rot(v3(p.x,y,p.z),k*4.3f,-16.8f,yaw);world503_cafe_set(q,yaw,(u32)(k+9)*741u);}g_world503_landmarks++;
-}
-static void world503_matriz(void){
-  // Igreja Matriz / Praca Irineu Bornhausen: reinforce the civic square with a
-  // fountain, gardens and the pale-grey/white architectural rhythm seen on site.
-  V3 p=city340_geo(-26.9074694,-48.6619194);if(!city340_near(p,1000.0f))return;float y=terrain11_height(p.x,p.z),yaw=-.10f;renderer09_set_material(0);
-
-  V3 plaza=city340_rot(v3(p.x,y,p.z),0,-42.0f,yaw);city340_octagon(v3(plaza.x,y+.02f,plaza.z),5.4f,.42f,.76f,.73f,.67f);city340_octagon(v3(plaza.x,y+.45f,plaza.z),4.55f,.12f,.32f,.62f,.70f);draw_box(v3(plaza.x,y+1.55f,plaza.z),.13f,2.25f,.13f,0,.80f,.88f,.92f);
-  for(int s=-1;s<=1;s+=2){V3 q=city340_rot(v3(p.x,0,p.z),s*18.0f,-38.0f,yaw);city360_asset(g_city360_tree,q,0,.88f,.20f,.47f,.19f);V3 b=city340_rot(v3(p.x,0,p.z),s*11.0f,-33.0f,yaw);city360_asset(g_city360_bench,b,yaw,.92f,.35f,.27f,.20f);}g_world503_landmarks++;
-}
-static void world503_centreventos(void){
-  // Centreventos on Av. Ministro Victor Konder: low wide mass, blue event facade,
-  // glazed entrances and the busy forecourt that visually anchors the Beira-Rio.
-  V3 p=city340_geo(-26.90959,-48.65287);if(!city340_near(p,1200.0f))return;float y=terrain11_height(p.x,p.z),yaw=-.03f;renderer09_set_material(0);
-  V3 f=city340_rot(v3(p.x,y,p.z),0,-15.55f,yaw);draw_box(v3(f.x,y+6.5f,f.z),43.0f,7.0f,.36f,yaw,.08f,.25f,.39f);draw_box(city340_rot(v3(p.x,y+3.0f,p.z),0,-15.82f,yaw),31.0f,5.2f,.22f,yaw,.08f,.12f,.15f);
-  draw_box(city340_rot(v3(p.x,y+6.7f,p.z),0,-18.1f,yaw),36.0f,.42f,4.5f,yaw,.86f,.87f,.85f);
-  renderer09_suspend_shader();identity150_text3d(city340_rot(v3(p.x,y+8.25f,p.z),-9.0f,-15.86f,yaw),"CENTREVENTOS ITAJAI",.94f,.96f,.95f);renderer09_resume_shader();
-  city360_assets_init();for(int k=-4;k<=4;k+=2){V3 q=city340_rot(v3(p.x,0,p.z),k*5.0f,-24.0f,yaw);city360_asset(g_city360_palm,q,yaw,.86f,.20f,.48f,.21f);}for(int k=-3;k<=3;k++){V3 q=city340_rot(v3(p.x,y,p.z),k*6.0f,-28.0f,yaw);draw_box(v3(q.x,y+3.8f,q.z),.10f,7.4f,.10f,0,.70f,.72f,.70f);g_world503_props++;}g_world503_landmarks++;
-}
 static void world503_marina(void){
   // Official tourism coordinate: 26 54 38 S / 48 39 13 W. Docks, masts and
   // varied small craft do more for the Itajai waterfront read than a larger hall.
@@ -92,6 +60,6 @@ static void world503_atalaia(void){
 }
 static void world503_draw(void){
   g_world503_landmarks=g_world503_props=g_world503_boats=g_world503_molhe_segments=0;
-  world503_market();world503_matriz();world503_centreventos();world503_marina();world503_molhes();world503_beirario_life();world503_atalaia();renderer09_set_material(0);
+  world503_marina();world503_molhes();world503_beirario_life();world503_atalaia();renderer09_set_material(0);
 }
 static void world503_overlay(void){if(!g_debug||g_settings_menu_open||(g_photo70&&g_photo70_hide_hud))return;settings_draw_2d_begin();char b[220];sprintf(b,"WORLD 5.0.3 // landmarks %d | life props %d | boats %d | molhe segs %d",g_world503_landmarks,g_world503_props,g_world503_boats,g_world503_molhe_segments);gl_text(34,(float)g_h-369,b,.64f,.82f,.74f);settings_draw_2d_end();}

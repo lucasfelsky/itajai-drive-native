@@ -80,7 +80,7 @@ static int landmark506_contact(int source,V3 p,float radius,Contact*out,int coll
 #include "sim/sim11_game.inc"
 #undef game_update
 #include "world/building12.inc"
-#include "world/landmarks506.inc"
+#include "world/landmarks507.inc"
 #define game_update game_update_legacy12
 #include "sim/sim12_game.inc"
 #undef game_update

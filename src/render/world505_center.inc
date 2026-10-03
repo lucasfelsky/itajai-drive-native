@@ -121,17 +121,9 @@ static void world505_streets(void){
     g_world505_scenes++;
   }
 }
-static void world505_events(void){
-  V3 p=city340_geo(-26.90959,-48.65287);if(!city340_near(p,700))return;p.y=terrain11_height(p.x,p.z);float yaw=-.03f;
-  // Ribbed hall roof, glazed entrance bays, entrance stairs and forecourt.
-  for(int k=-5;k<=5;k++){V3 q=city340_rot(p,k*4.15f,-1,yaw);world505_box(v3(q.x,p.y+10.35f,q.z),.22f,.36f,32,yaw,.78f,.80f,.78f);}
-  for(int k=-4;k<=4;k++){V3 q=city340_rot(p,k*3.35f,-16.05f,yaw);world505_box(v3(q.x,p.y+3.0f,q.z),.10f,5.1f,.14f,yaw,.67f,.70f,.69f);}
-  for(int k=0;k<3;k++){V3 q=city340_rot(p,0,-19.5f-k*.65f,yaw);world505_box(v3(q.x,p.y+.15f*(3-k),q.z),32,.30f*(3-k),.7f,yaw,.62f,.62f,.57f);}
-  if(city340_near(p,240))for(int k=-3;k<=3;k++){V3 q=city340_rot(p,k*5.4f,-33,yaw);world505_bench(q,yaw);}
-}
 static void world505_draw(void){
   g_world505_boxes=g_world505_facades=g_world505_scenes=g_world505_labels=0;if(!g_stream_ready08)return;
-  renderer09_set_material(MAT09_GENERIC);glBegin(GL_QUADS);world505_streets();world505_events();world505_buildings();glEnd();g_draw_calls++;renderer09_set_material(MAT09_GENERIC);
+  renderer09_set_material(MAT09_GENERIC);glBegin(GL_QUADS);world505_streets();world505_buildings();glEnd();g_draw_calls++;renderer09_set_material(MAT09_GENERIC);
   static const char*labels[]={"CAFE CENTRAL","LIVRARIA","MODA & CIA","PADARIA","OTICA","FARMACIA","CASA & LAR","LANCHONETE"};
   renderer09_suspend_shader();for(int i=0;i<g_world505_labels;i++)identity150_text3d(g_world505_label_p[i],labels[g_world505_label_id[i]],.91f,.88f,.76f);renderer09_resume_shader();
 }
