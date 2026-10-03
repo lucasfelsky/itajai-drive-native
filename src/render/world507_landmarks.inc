@@ -103,7 +103,7 @@ static void world507_mercado(void){
     lm507_arch(&f,0,0,.18f,-19.5f,3.8f,6.0f,.15f,.22f,.15f);
     for(int s=-1;s<=1;s+=2)lm507_arch(&f,0,s*7.2f,.18f,-19.5f,2.0f,4.3f,.13f,.29f,.19f);
     for(int s=-1;s<=1;s+=2)lm507_wallbox(&f,0,s*7.2f,2.75f,-19.5f,.6f,2.5f,.20f,1.2f,.10f,.34f,.20f);   // green awnings
-    lm507_text(&f,0,-3.4f,6.9f,-19.5f,"MERCADO PUBLICO",.97f,.94f,.84f);
+    lm507_text(&f,0,-2.6f,7.1f,-19.5f,"MERCADO PUBLICO",.97f,.94f,.84f);
     // Arcaded long sides along Felix Busso Asseburg (+X) and Paulo Bauer (-X).
     for(int s=-1;s<=1;s+=2){int face=s>0?2:3;for(int k=0;k<7;k++){float z=-16.5f+k*3.0f;float v=s>0?(z<-6.1f?10.7f:10.5f):(z<-6.1f?10.7f:8.0f);lm507_arch(&f,face,s>0?z:-z,.18f,s*v,1.8f,z<-6.1f?4.2f:3.4f,.13f,.29f,.19f);}}
     for(int k=0;k<5;k++)lm507_arch(&f,1,-7+k*3.5f,.18f,16.1f,1.8f,3.4f,.13f,.29f,.19f);
@@ -144,7 +144,7 @@ static void world507_palacio(void){
     for(int k=0;k<3;k++)lm507_box(&f,.5f,k*.33f,-23.6f-k*.5f,4.2f-k*.4f,.33f,.9f,.62f,.60f,.54f);
     for(int s=-1;s<=1;s+=2)lm507_arch(&f,0,.5f+s*3.3f,1.6f,-22.8f,1.3f,2.6f,lm507_lit(&f,s+1)?.70f:.14f,.24f,.25f);
     for(int k=-1;k<=1;k++)lm507_arch(&f,0,.5f+k*3.3f,6.2f,-22.8f,1.3f,2.7f,lm507_lit(&f,k+5)?.70f:.14f,.24f,.25f);
-    lm507_text(&f,0,-3.3f,9.6f,-22.8f,"MUSEU HISTORICO",.98f,.94f,.82f);
+    lm507_text(&f,0,-2.4f,9.6f,-22.8f,"MUSEU HISTORICO",.98f,.94f,.82f);
     // Avenue flank (-X) and the opposite flank: two floors of arched bays with pilasters.
     for(int s=-1;s<=1;s+=2){int face=s>0?2:3;float v=s>0?7.0f:8.9f;
       for(int k=0;k<4;k++){float z=-20.0f+k*4.2f,u=s>0?z:-z;for(int fl=0;fl<2;fl++)lm507_arch(&f,face,u,1.6f+fl*4.6f,s*v,1.3f,2.6f,lm507_lit(&f,k*2+fl+s)?.70f:.14f,.24f,.25f);lm507_wallbox(&f,face,u+2.1f,1.3f,s*v,.08f,.30f,9.1f,.18f,tr,tg,tb);}
