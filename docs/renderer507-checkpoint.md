@@ -91,17 +91,18 @@ runs 134 checks (was 52), including the large-neighbor and adjacency cases.
 - Ownership audit on the local 17,305-building cache: 8 replacements, one per
   authored building that has a cadastral polygon, 0 surviving old colliders,
   25 components. No neighbor is deleted.
-- Native framebuffer captures at 1584 x 845 with HDR: nine facades, three rear
-  views, two night views, an oblique and a distant view at 59–75 FPS
-  (5.0.6 captures: 65–76 FPS at the same resolution). The heaviest view is
-  the Matriz rear with the Museu in frame.
+- Native framebuffer captures at 1584 x 845 with HDR, measured on an idle
+  machine: nine facades, three rear views, two night views, an oblique and a
+  distant view at 60–76 FPS (5.0.6 captures of the same buildings: 65–76 FPS
+  at the same resolution). The heaviest views are the Matriz and Museu rears
+  with both buildings in frame (6,600–6,900 draw calls, 60–61 FPS).
 - Continuous traversal: the QA camera moves at 50 km/h along a 1.69 km
   polyline joining the forecourts of the nine buildings (Praca Vidal Ramos ->
   Casa Malburg -> Casa Konder -> hotel -> Mercado -> Centreventos -> Museu ->
-  Matriz) with streaming active: 8,481 frames in 120 s, 70.4 FPS average,
-  23.6 FPS worst frame, 34 frames (0.4%) below 50 FPS. This measures streaming
+  Matriz) with streaming active: 8,535 frames in 120 s, 70.9 FPS average,
+  38.2 FPS worst frame, 17 frames (0.2%) below 50 FPS. This measures streaming
   and draw load along the stretch; it is not a vehicle-physics drive and the
-  segments cross blocks.
+  straight segments cross blocks.
 
 Compile a separate executable with `ITAJAI_VISUAL_QA` and `ITAJAI_LANDMARK_QA`
 to reproduce: it writes `qa507-N.ppm`, `qa507-route-N.ppm`, per-scene metrics,
